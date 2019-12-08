@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github';
+import stripAnsi from 'strip-ansi'
 import Octokit, { IssuesCreateResponse } from '@octokit/rest';
 import { spawnSync, SpawnSyncReturns } from 'child_process';
 
@@ -20,9 +21,23 @@ async function run(): Promise<void> {
       return
     }
 
-    // TODO: open an issue
     core.debug('open an issue')
     const token: string = core.getInput('token', { required: true })
+    const client: Octokit = new github.GitHub(token)
+
+    // remove control characters and create a code block
+    const issueBody: string = '```\n' + stripAnsi(result.stdout) + '\n```'
+    const issueOptions = {
+      title: 'npm audit found vulnerabilities',
+      body: issueBody,
+    }
+    const {
+      data: issue,
+    }: Octokit.Response<IssuesCreateResponse> = await client.issues.create({
+      ...github.context.repo,
+      ...issueOptions,
+    })
+    core.debug(`#${issue.number}`)
   } catch (error) {
     core.setFailed(error.message)
   }
