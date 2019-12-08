@@ -1,4 +1,6 @@
 import * as core from '@actions/core'
+import * as github from '@actions/github';
+import Octokit, { IssuesCreateResponse } from '@octokit/rest';
 import { spawnSync, SpawnSyncReturns } from 'child_process';
 
 async function run(): Promise<void> {
