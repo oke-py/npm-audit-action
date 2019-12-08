@@ -1,3 +1,3 @@
 describe('main', () => {
-  test.todo('Add a test suite');
-});
+  test.todo('Add a test suite')
+})
