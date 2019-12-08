@@ -1,16 +1,25 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import { spawnSync, SpawnSyncReturns } from 'child_process';
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const result: SpawnSyncReturns<string> = spawnSync('npm', ['audit'], {
+      encoding: 'utf-8',
+    });
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    if (result.stderr && result.stderr.length > 0) {
+      throw new Error(result.stderr)
+    }
 
-    core.setOutput('time', new Date().toTimeString())
+    core.info(result.stdout)
+
+    if (result.status === 0) {
+      // vulnerabilities are not found
+      return
+    }
+
+    // TODO: open an issue
+    core.debug('open an issue')
   } catch (error) {
     core.setFailed(error.message)
   }
