@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'npm audit action'
+description: 'run npm audit'
+author: 'Naoki Oketani <okepy.naoki@gmail.com>'
 inputs:
   myInput:              # change this
     description: 'input description here'
