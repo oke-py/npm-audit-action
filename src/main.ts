@@ -20,6 +20,7 @@ async function run(): Promise<void> {
 
     // TODO: open an issue
     core.debug('open an issue')
+    const token: string = core.getInput('token', { required: true })
   } catch (error) {
     core.setFailed(error.message)
   }

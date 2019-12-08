@@ -2,9 +2,9 @@ name: 'npm audit action'
 description: 'run npm audit'
 author: 'Naoki Oketani <okepy.naoki@gmail.com>'
 inputs:
-  myInput:              # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  token:
+    description: 'GitHub access token used to create an issue'
+    required: true
 runs:
   using: 'node12'
   main: 'dist/index.js'
