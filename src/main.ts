@@ -28,7 +28,7 @@ async function run(): Promise<void> {
     // remove control characters and create a code block
     const issueBody = `\`\`\`\n${stripAnsi(result.stdout)}\n\`\`\``
     const issueOptions = {
-      title: 'npm audit found vulnerabilities',
+      title: core.getInput('issue_title'),
       body: issueBody
     }
     const {
