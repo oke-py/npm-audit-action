@@ -26,7 +26,7 @@ async function run(): Promise<void> {
     const client: Octokit = new github.GitHub(token)
 
     // remove control characters and create a code block
-    const issueBody: string = '```\n' + stripAnsi(result.stdout) + '\n```'
+    const issueBody: string = `\`\`\`\n${stripAnsi(result.stdout)}\n\`\`\``
     const issueOptions = {
       title: 'npm audit found vulnerabilities',
       body: issueBody,
