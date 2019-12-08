@@ -5,6 +5,10 @@ inputs:
   token:
     description: 'GitHub access token used to create an issue'
     required: true
+  issue_title:
+    description: 'Issue title'
+    default: 'npm audit found vulnerabilities'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
