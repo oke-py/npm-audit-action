@@ -2,21 +2,16 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import stripAnsi from 'strip-ansi'
 import Octokit, {IssuesCreateResponse} from '@octokit/rest'
-import {spawnSync, SpawnSyncReturns} from 'child_process'
+import {Audit} from './audit'
 
 async function run(): Promise<void> {
   try {
-    const result: SpawnSyncReturns<string> = spawnSync('npm', ['audit'], {
-      encoding: 'utf-8'
-    })
+    const audit = new Audit()
+    audit.run()
 
-    if (result.stderr && result.stderr.length > 0) {
-      throw new Error(result.stderr)
-    }
+    core.info(audit.stdout)
 
-    core.info(result.stdout)
-
-    if (result.status === 0) {
+    if (!audit.foundVulnerability()) {
       // vulnerabilities are not found
       return
     }
@@ -26,12 +21,16 @@ async function run(): Promise<void> {
     const client: Octokit = new github.GitHub(token)
 
     // remove control characters and create a code block
-    const issueBody = `\`\`\`\n${stripAnsi(result.stdout)}\n\`\`\``
+    const issueBody = `\`\`\`\n${stripAnsi(audit.stdout)}\n\`\`\``
     const issueOptions = {
       title: core.getInput('issue_title'),
       body: issueBody,
       assignees: core
         .getInput('issue_assignees')
+        .replace(/\s+/g, '')
+        .split(','),
+      labels: core
+        .getInput('issue_labels')
         .replace(/\s+/g, '')
         .split(',')
     }

@@ -6,7 +6,10 @@ inputs:
     description: 'GitHub access token used to create an issue'
     required: true
   issue_assignees:
-    description: 'Issue assignees (separeted by commma)'
+    description: 'Issue assignees (separated by commma)'
+    required: false
+  issue_labels:
+    description: 'Issue assignees (separated by commma)'
     required: false
   issue_title:
     description: 'Issue title'
