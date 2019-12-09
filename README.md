@@ -47,3 +47,7 @@ jobs:
           issue_assignees: oke-py
           issue_labels: vulnerability,test
 ```
+
+- - -
+
+This action is inspired by [homoluctus/gitrivy](https://github.com/homoluctus/gitrivy).
