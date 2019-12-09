@@ -1,6 +1,6 @@
 {
   "name": "npm-audit-action",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "GitHub Action to run `npm audit`",
   "main": "lib/main.js",
