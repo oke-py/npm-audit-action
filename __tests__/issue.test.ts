@@ -8,8 +8,8 @@ describe('getIssueOption', () => {
     const expected: IssueOption = {
       title: 'npm audit found vulnerabilities',
       body: 'hi',
-      assignees: [''],
-      labels: ['']
+      assignees: undefined,
+      labels: undefined
     }
     expect(issue.getIssueOption('hi')).toEqual(expected)
   })

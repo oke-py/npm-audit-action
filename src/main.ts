@@ -3,8 +3,8 @@ import * as github from '@actions/github'
 import stripAnsi from 'strip-ansi'
 import Octokit, {IssuesCreateResponse} from '@octokit/rest'
 import {Audit} from './audit'
-import * as issue from '../src/issue'
-import {IssueOption} from '../src/interface'
+import * as issue from './issue'
+import {IssueOption} from './interface'
 
 async function run(): Promise<void> {
   try {
