@@ -5,6 +5,9 @@ inputs:
   token:
     description: 'GitHub access token used to create an issue'
     required: true
+  issue_assignees:
+    description: 'Issue assignees (separeted by commma)'
+    required: false
   issue_title:
     description: 'Issue title'
     default: 'npm audit found vulnerabilities'
