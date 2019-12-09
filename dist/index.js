@@ -3014,6 +3014,55 @@ module.exports = windowsRelease;
 
 /***/ }),
 
+/***/ 50:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const child_process_1 = __webpack_require__(129);
+class Audit {
+    constructor() {
+        this.stdout = '';
+        this.status = null;
+    }
+    run() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = child_process_1.spawnSync('npm', ['audit'], {
+                encoding: 'utf-8'
+            });
+            if (result.error) {
+                throw result.error;
+            }
+            if (result.status === null) {
+                throw new Error('the subprocess terminated due to a signal.');
+            }
+            if (result.stderr && result.stderr.length > 0) {
+                throw new Error(result.stderr);
+            }
+            this.status = result.status;
+            this.stdout = result.stdout;
+        });
+    }
+    foundVulnerability() {
+        // `npm audit` return 1 when it found vulnerabilities
+        return this.status === 1;
+    }
+}
+exports.Audit = Audit;
+
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -4620,18 +4669,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const strip_ansi_1 = __importDefault(__webpack_require__(90));
-const child_process_1 = __webpack_require__(129);
+const audit_1 = __webpack_require__(50);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const result = child_process_1.spawnSync('npm', ['audit'], {
-                encoding: 'utf-8'
-            });
-            if (result.stderr && result.stderr.length > 0) {
-                throw new Error(result.stderr);
-            }
-            core.info(result.stdout);
-            if (result.status === 0) {
+            const audit = new audit_1.Audit();
+            audit.run();
+            core.info(audit.stdout);
+            if (!audit.foundVulnerability()) {
                 // vulnerabilities are not found
                 return;
             }
@@ -4639,7 +4684,7 @@ function run() {
             const token = core.getInput('token', { required: true });
             const client = new github.GitHub(token);
             // remove control characters and create a code block
-            const issueBody = `\`\`\`\n${strip_ansi_1.default(result.stdout)}\n\`\`\``;
+            const issueBody = `\`\`\`\n${strip_ansi_1.default(audit.stdout)}\n\`\`\``;
             const issueOptions = {
                 title: core.getInput('issue_title'),
                 body: issueBody,
