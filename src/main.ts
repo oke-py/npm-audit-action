@@ -29,7 +29,11 @@ async function run(): Promise<void> {
     const issueBody = `\`\`\`\n${stripAnsi(result.stdout)}\n\`\`\``
     const issueOptions = {
       title: core.getInput('issue_title'),
-      body: issueBody
+      body: issueBody,
+      assignees: core
+        .getInput('issue_assignees')
+        .replace(/\s+/g, '')
+        .split(',')
     }
     const {
       data: issue
