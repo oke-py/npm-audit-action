@@ -3,6 +3,8 @@ import * as github from '@actions/github'
 import stripAnsi from 'strip-ansi'
 import Octokit, {IssuesCreateResponse} from '@octokit/rest'
 import {Audit} from './audit'
+import * as issue from '../src/issue'
+import {IssueOption} from '../src/interface'
 
 async function run(): Promise<void> {
   try {
@@ -22,25 +24,14 @@ async function run(): Promise<void> {
 
     // remove control characters and create a code block
     const issueBody = `\`\`\`\n${stripAnsi(audit.stdout)}\n\`\`\``
-    const issueOptions = {
-      title: core.getInput('issue_title'),
-      body: issueBody,
-      assignees: core
-        .getInput('issue_assignees')
-        .replace(/\s+/g, '')
-        .split(','),
-      labels: core
-        .getInput('issue_labels')
-        .replace(/\s+/g, '')
-        .split(',')
-    }
+    const option: IssueOption = issue.getIssueOption(issueBody)
     const {
-      data: issue
+      data: createdIssue
     }: Octokit.Response<IssuesCreateResponse> = await client.issues.create({
       ...github.context.repo,
-      ...issueOptions
+      ...option
     })
-    core.debug(`#${issue.number}`)
+    core.debug(`#${createdIssue.number}`)
   } catch (error) {
     core.setFailed(error.message)
   }
