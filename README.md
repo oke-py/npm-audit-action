@@ -1,5 +1,7 @@
 # npm audit action
 
+[![Coverage Status](https://coveralls.io/repos/github/oke-py/npm-audit-action/badge.svg?branch=master)](https://coveralls.io/github/oke-py/npm-audit-action?branch=master)
+
 GitHub Action to run `npm audit`
 
 If vulnerabilities are found by `npm audit`, it creates the following GitHub Issue.
