@@ -33,6 +33,10 @@ async function run(): Promise<void> {
       assignees: core
         .getInput('issue_assignees')
         .replace(/\s+/g, '')
+        .split(','),
+      labels: core
+        .getInput('issue_labels')
+        .replace(/\s+/g, '')
         .split(',')
     }
     const {

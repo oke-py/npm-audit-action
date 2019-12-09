@@ -4646,6 +4646,10 @@ function run() {
                 assignees: core
                     .getInput('issue_assignees')
                     .replace(/\s+/g, '')
+                    .split(','),
+                labels: core
+                    .getInput('issue_labels')
+                    .replace(/\s+/g, '')
                     .split(',')
             };
             const { data: issue } = yield client.issues.create(Object.assign(Object.assign({}, github.context.repo), issueOptions));
