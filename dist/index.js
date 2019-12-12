@@ -4057,26 +4057,25 @@ function run() {
             const audit = new audit_1.Audit();
             audit.run();
             core.info(audit.stdout);
-            // get GitHub information
-            const ctx = JSON.parse(core.getInput('github_context'));
-            const token = core.getInput('github_token', { required: true });
-            const client = new github.GitHub(token);
-            core.info(`event_name ${ctx.event_name}`);
-            if (ctx.event_name === 'pull_request') {
-                yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
-                core.setFailed('This repo has some vulnerabilities');
-                return;
+            if (audit.foundVulnerability()) {
+                // vulnerabilities are found
+                // get GitHub information
+                const ctx = JSON.parse(core.getInput('github_context'));
+                const token = core.getInput('github_token', { required: true });
+                const client = new github.GitHub(token);
+                core.info(`event_name ${ctx.event_name}`);
+                if (ctx.event_name === 'pull_request') {
+                    yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
+                    core.setFailed('This repo has some vulnerabilities');
+                    return;
+                }
+                core.debug('open an issue');
+                // remove control characters and create a code block
+                const issueBody = audit.strippedStdout();
+                const option = issue.getIssueOption(issueBody);
+                const { data: createdIssue } = yield client.issues.create(Object.assign(Object.assign({}, github.context.repo), option));
+                core.debug(`#${createdIssue.number}`);
             }
-            if (!audit.foundVulnerability()) {
-                // vulnerabilities are not found
-                return;
-            }
-            core.debug('open an issue');
-            // remove control characters and create a code block
-            const issueBody = audit.strippedStdout();
-            const option = issue.getIssueOption(issueBody);
-            const { data: createdIssue } = yield client.issues.create(Object.assign(Object.assign({}, github.context.repo), option));
-            core.debug(`#${createdIssue.number}`);
         }
         catch (error) {
             core.setFailed(error.message);
