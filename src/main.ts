@@ -9,7 +9,7 @@ import {IssueOption} from './interface'
 async function run(): Promise<void> {
   try {
     const ctx = JSON.parse(core.getInput('github_context'))
-    const token: string = core.getInput('token', {required: true})
+    const token: string = core.getInput('github_token', {required: true})
     const client: Octokit = new github.GitHub(token)
     core.info(`event_name ${ctx.event_name}`)
 

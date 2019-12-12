@@ -6,7 +6,7 @@ inputs:
     description: 'The `github` context'
     default: ${{ toJson(github) }}
     required: false
-  token:
+  github_token:
     description: 'GitHub access token used to create an issue'
     required: true
   issue_assignees:
