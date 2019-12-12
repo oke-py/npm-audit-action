@@ -3123,39 +3123,6 @@ function paginatePlugin(octokit) {
 
 /***/ }),
 
-/***/ 163:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-function getIssueOption(body) {
-    return {
-        title: core.getInput('issue_title'),
-        body,
-        assignees: core
-            .getInput('issue_assignees')
-            .replace(/\s+/g, '')
-            .split(','),
-        labels: core
-            .getInput('issue_labels')
-            .replace(/\s+/g, '')
-            .split(',')
-    };
-}
-exports.getIssueOption = getIssueOption;
-
-
-/***/ }),
-
 /***/ 168:
 /***/ (function(module) {
 
@@ -3310,10 +3277,12 @@ const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const strip_ansi_1 = __importDefault(__webpack_require__(90));
 const audit_1 = __webpack_require__(50);
-const issue = __importStar(__webpack_require__(163));
+const issue = __importStar(__webpack_require__(443));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const context = JSON.parse(core.getInput('github_context'));
+            core.info(`event_name ${context.event_name}`);
             const audit = new audit_1.Audit();
             audit.run();
             core.info(audit.stdout);
@@ -6591,6 +6560,41 @@ function escape(s) {
         .replace(/;/g, '%3B');
 }
 //# sourceMappingURL=command.js.map
+
+/***/ }),
+
+/***/ 443:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
+function getIssueOption(body) {
+    let assignees;
+    let labels;
+    if (core.getInput('issue_assignees')) {
+        assignees = core.getInput('issue_assignees').replace(/\s+/g, '').split(',');
+    }
+    if (core.getInput('issue_labels')) {
+        labels = core.getInput('issue_labels').replace(/\s+/g, '').split(',');
+    }
+    return {
+        title: core.getInput('issue_title'),
+        body,
+        assignees,
+        labels
+    };
+}
+exports.getIssueOption = getIssueOption;
+
 
 /***/ }),
 
