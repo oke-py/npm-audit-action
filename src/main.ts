@@ -16,6 +16,7 @@ async function run(): Promise<void> {
 
     if (ctx.event_name === 'pull_request') {
       const res = await pr.createComment(
+        token,
         github.context.repo.owner,
         github.context.repo.repo,
         ctx.event.number,
