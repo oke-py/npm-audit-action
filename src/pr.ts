@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, {AxiosResponse} from 'axios'
 
 export async function createComment(
   token: string,
@@ -6,7 +6,7 @@ export async function createComment(
   repo: string,
   prNumber: number,
   body: string
-): Promise<object> {
+): Promise<AxiosResponse> {
   const instance = axios.create({
     baseURL: 'https://api.github.com',
     headers: {

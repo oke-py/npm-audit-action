@@ -4064,6 +4064,8 @@ function run() {
             core.info(`event_name ${ctx.event_name}`);
             if (ctx.event_name === 'pull_request') {
                 yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
+                core.setFailed('This repo has some vulnerabilities');
+                return;
             }
             if (!audit.foundVulnerability()) {
                 // vulnerabilities are not found
@@ -4081,6 +4083,7 @@ function run() {
         }
     });
 }
+exports.run = run;
 run();
 
 

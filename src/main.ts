@@ -2,11 +2,11 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import Octokit, {IssuesCreateResponse} from '@octokit/rest'
 import {Audit} from './audit'
-import * as issue from './issue'
 import {IssueOption} from './interface'
+import * as issue from './issue'
 import * as pr from './pr'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
     // run `npm audit`
     const audit = new Audit()
@@ -27,6 +27,8 @@ async function run(): Promise<void> {
         ctx.event.number,
         audit.strippedStdout()
       )
+      core.setFailed('This repo has some vulnerabilities')
+      return
     }
 
     if (!audit.foundVulnerability()) {
