@@ -2,6 +2,10 @@ name: 'npm audit action'
 description: 'run npm audit'
 author: 'Naoki Oketani <okepy.naoki@gmail.com>'
 inputs:
+  github_context:
+    description: 'The `github` context'
+    default: ${{ toJson(github) }}
+    required: false
   token:
     description: 'GitHub access token used to create an issue'
     required: true
@@ -18,3 +22,6 @@ inputs:
 runs:
   using: 'node12'
   main: 'dist/index.js'
+branding:
+  icon: 'search'
+  color: 'orange'

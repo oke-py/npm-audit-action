@@ -8,6 +8,9 @@ import {IssueOption} from './interface'
 
 async function run(): Promise<void> {
   try {
+    const context = JSON.parse(core.getInput('github_context'))
+    core.info(`event_name ${context.event_name}`)
+
     const audit = new Audit()
     audit.run()
 
