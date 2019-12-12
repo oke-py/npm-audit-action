@@ -13,6 +13,11 @@ export async function run(): Promise<void> {
     audit.run()
     core.info(audit.stdout)
 
+    if (!audit.foundVulnerability()) {
+      // vulnerabilities are not found
+      return
+    }
+
     // get GitHub information
     const ctx = JSON.parse(core.getInput('github_context'))
     const token: string = core.getInput('github_token', {required: true})
@@ -28,11 +33,6 @@ export async function run(): Promise<void> {
         audit.strippedStdout()
       )
       core.setFailed('This repo has some vulnerabilities')
-      return
-    }
-
-    if (!audit.foundVulnerability()) {
-      // vulnerabilities are not found
       return
     }
 
