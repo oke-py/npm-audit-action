@@ -4,7 +4,6 @@ author: 'Naoki Oketani <okepy.naoki@gmail.com>'
 inputs:
   github_context:
     description: 'The `github` context'
-    default: ${{ toJson(github) }}
     required: false
   token:
     description: 'GitHub access token used to create an issue'
