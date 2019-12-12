@@ -4056,7 +4056,7 @@ function run() {
             core.info(`event_name ${ctx.event_name}`);
             if (ctx.event_name === 'pull_request') {
                 const res = yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, 'Hello');
-                core.info(res);
+                core.info(JSON.stringify(res));
             }
             const audit = new audit_1.Audit();
             audit.run();

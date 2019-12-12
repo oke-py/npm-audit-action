@@ -22,7 +22,7 @@ async function run(): Promise<void> {
         ctx.event.number,
         'Hello'
       )
-      core.info(res)
+      core.info(JSON.stringify(res))
     }
 
     const audit = new Audit()

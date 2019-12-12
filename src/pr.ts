@@ -6,7 +6,7 @@ export async function createComment(
   repo: string,
   prNumber: number,
   body: string
-): Promise<string> {
+): Promise<object> {
   const instance = axios.create({
     baseURL: 'https://api.github.com',
     headers: {
