@@ -15,12 +15,13 @@ async function run(): Promise<void> {
     core.info(`event_name ${ctx.event_name}`)
 
     if (ctx.event_name === 'pull_request') {
-      pr.createComment(
+      const res = await pr.createComment(
         github.context.repo.owner,
         github.context.repo.repo,
         ctx.event.number,
         'Hello'
       )
+      core.info(res)
     }
 
     const audit = new Audit()

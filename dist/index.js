@@ -4055,7 +4055,8 @@ function run() {
             const client = new github.GitHub(token);
             core.info(`event_name ${ctx.event_name}`);
             if (ctx.event_name === 'pull_request') {
-                pr.createComment(github.context.repo.owner, github.context.repo.repo, ctx.event.number, 'Hello');
+                const res = yield pr.createComment(github.context.repo.owner, github.context.repo.repo, ctx.event.number, 'Hello');
+                core.info(res);
             }
             const audit = new audit_1.Audit();
             audit.run();
@@ -10288,7 +10289,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(__webpack_require__(53));
 function createComment(owner, repo, prNumber, body) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield axios_1.default.post(`https://api.github.com/repos/${owner}/${repo}/issues/${prNumber}/comments`, {
+        return axios_1.default.post(`https://api.github.com/repos/${owner}/${repo}/issues/${prNumber}/comments`, {
             body
         });
     });
