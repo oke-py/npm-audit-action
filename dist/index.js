@@ -3281,8 +3281,13 @@ const issue = __importStar(__webpack_require__(443));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const context = JSON.parse(core.getInput('github_context'));
-            core.info(`event_name ${context.event_name}`);
+            const ctx = JSON.parse(core.getInput('github_context'));
+            const token = core.getInput('token', { required: true });
+            const client = new github.GitHub(token);
+            core.info(`event_name ${ctx.event_name}`);
+            if (ctx.event_name === 'pull_request') {
+                client.pulls.createComment(Object.assign(Object.assign({}, github.context.repo), { pull_number: ctx.event.number, body: 'Hello', commit_id: ctx.sha, path: '' }));
+            }
             const audit = new audit_1.Audit();
             audit.run();
             core.info(audit.stdout);
@@ -3291,8 +3296,6 @@ function run() {
                 return;
             }
             core.debug('open an issue');
-            const token = core.getInput('token', { required: true });
-            const client = new github.GitHub(token);
             // remove control characters and create a code block
             const issueBody = `\`\`\`\n${strip_ansi_1.default(audit.stdout)}\n\`\`\``;
             const option = issue.getIssueOption(issueBody);
@@ -6581,10 +6584,16 @@ function getIssueOption(body) {
     let assignees;
     let labels;
     if (core.getInput('issue_assignees')) {
-        assignees = core.getInput('issue_assignees').replace(/\s+/g, '').split(',');
+        assignees = core
+            .getInput('issue_assignees')
+            .replace(/\s+/g, '')
+            .split(',');
     }
     if (core.getInput('issue_labels')) {
-        labels = core.getInput('issue_labels').replace(/\s+/g, '').split(',');
+        labels = core
+            .getInput('issue_labels')
+            .replace(/\s+/g, '')
+            .split(',');
     }
     return {
         title: core.getInput('issue_title'),
