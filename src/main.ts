@@ -8,8 +8,20 @@ import {IssueOption} from './interface'
 
 async function run(): Promise<void> {
   try {
-    const context = JSON.parse(core.getInput('github_context'))
-    core.info(`event_name ${context.event_name}`)
+    const ctx = JSON.parse(core.getInput('github_context'))
+    const token: string = core.getInput('token', {required: true})
+    const client: Octokit = new github.GitHub(token)
+    core.info(`event_name ${ctx.event_name}`)
+
+    if (ctx.event_name === 'pull_request') {
+      client.pulls.createComment({
+        ...github.context.repo,
+        pull_number: ctx.event.number,
+        body: 'Hello',
+        commit_id: ctx.sha,
+        path: ''
+      })
+    }
 
     const audit = new Audit()
     audit.run()
@@ -22,9 +34,6 @@ async function run(): Promise<void> {
     }
 
     core.debug('open an issue')
-    const token: string = core.getInput('token', {required: true})
-    const client: Octokit = new github.GitHub(token)
-
     // remove control characters and create a code block
     const issueBody = `\`\`\`\n${stripAnsi(audit.stdout)}\n\`\`\``
     const option: IssueOption = issue.getIssueOption(issueBody)
