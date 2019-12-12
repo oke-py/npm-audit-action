@@ -3282,7 +3282,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const ctx = JSON.parse(core.getInput('github_context'));
-            const token = core.getInput('token', { required: true });
+            const token = core.getInput('github_token', { required: true });
             const client = new github.GitHub(token);
             core.info(`event_name ${ctx.event_name}`);
             if (ctx.event_name === 'pull_request') {
