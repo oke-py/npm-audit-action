@@ -1,4 +1,5 @@
 import {spawnSync, SpawnSyncReturns} from 'child_process'
+import stripAnsi from 'strip-ansi'
 
 export class Audit {
   stdout: string = ''
@@ -26,5 +27,9 @@ export class Audit {
   public foundVulnerability(): boolean {
     // `npm audit` return 1 when it found vulnerabilities
     return this.status === 1
+  }
+
+  public strippedStdout(): string {
+    return `\`\`\`\n${stripAnsi(this.stdout)}\n\`\`\``
   }
 }

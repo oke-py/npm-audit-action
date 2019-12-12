@@ -2383,8 +2383,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = __webpack_require__(129);
+const strip_ansi_1 = __importDefault(__webpack_require__(90));
 class Audit {
     constructor() {
         this.stdout = '';
@@ -2411,6 +2415,9 @@ class Audit {
     foundVulnerability() {
         // `npm audit` return 1 when it found vulnerabilities
         return this.status === 1;
+    }
+    strippedStdout() {
+        return `\`\`\`\n${strip_ansi_1.default(this.stdout)}\n\`\`\``;
     }
 }
 exports.Audit = Audit;
@@ -4037,37 +4044,34 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
-const strip_ansi_1 = __importDefault(__webpack_require__(90));
 const audit_1 = __webpack_require__(50);
 const issue = __importStar(__webpack_require__(443));
 const pr = __importStar(__webpack_require__(665));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // run `npm audit`
+            const audit = new audit_1.Audit();
+            audit.run();
+            core.info(audit.stdout);
+            // get GitHub information
             const ctx = JSON.parse(core.getInput('github_context'));
             const token = core.getInput('github_token', { required: true });
             const client = new github.GitHub(token);
             core.info(`event_name ${ctx.event_name}`);
             if (ctx.event_name === 'pull_request') {
-                const res = yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, 'Hello');
-                core.info(JSON.stringify(res));
+                yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
             }
-            const audit = new audit_1.Audit();
-            audit.run();
-            core.info(audit.stdout);
             if (!audit.foundVulnerability()) {
                 // vulnerabilities are not found
                 return;
             }
             core.debug('open an issue');
             // remove control characters and create a code block
-            const issueBody = `\`\`\`\n${strip_ansi_1.default(audit.stdout)}\n\`\`\``;
+            const issueBody = audit.strippedStdout();
             const option = issue.getIssueOption(issueBody);
             const { data: createdIssue } = yield client.issues.create(Object.assign(Object.assign({}, github.context.repo), option));
             core.debug(`#${createdIssue.number}`);
