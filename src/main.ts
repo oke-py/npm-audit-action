@@ -8,6 +8,9 @@ import {IssueOption} from './interface'
 
 async function run(): Promise<void> {
   try {
+    const context = JSON.parse(core.getInput('github_context'))
+    core.debug(context.event_name)
+
     const audit = new Audit()
     audit.run()
 
@@ -17,9 +20,6 @@ async function run(): Promise<void> {
       // vulnerabilities are not found
       return
     }
-
-    const context = JSON.parse(core.getInput('github_context'))
-    core.debug(context.event_name)
 
     core.debug('open an issue')
     const token: string = core.getInput('token', {required: true})
