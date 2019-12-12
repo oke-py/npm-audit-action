@@ -15,11 +15,11 @@ export async function run(): Promise<void> {
 
     if (audit.foundVulnerability()) {
       // vulnerabilities are found
+
       // get GitHub information
       const ctx = JSON.parse(core.getInput('github_context'))
       const token: string = core.getInput('github_token', {required: true})
       const client: Octokit = new github.GitHub(token)
-      core.info(`event_name ${ctx.event_name}`)
 
       if (ctx.event_name === 'pull_request') {
         await pr.createComment(
@@ -31,19 +31,19 @@ export async function run(): Promise<void> {
         )
         core.setFailed('This repo has some vulnerabilities')
         return
+      } else {
+        core.debug('open an issue')
+        // remove control characters and create a code block
+        const issueBody = audit.strippedStdout()
+        const option: IssueOption = issue.getIssueOption(issueBody)
+        const {
+          data: createdIssue
+        }: Octokit.Response<IssuesCreateResponse> = await client.issues.create({
+          ...github.context.repo,
+          ...option
+        })
+        core.debug(`#${createdIssue.number}`)
       }
-
-      core.debug('open an issue')
-      // remove control characters and create a code block
-      const issueBody = audit.strippedStdout()
-      const option: IssueOption = issue.getIssueOption(issueBody)
-      const {
-        data: createdIssue
-      }: Octokit.Response<IssuesCreateResponse> = await client.issues.create({
-        ...github.context.repo,
-        ...option
-      })
-      core.debug(`#${createdIssue.number}`)
     }
   } catch (error) {
     core.setFailed(error.message)
