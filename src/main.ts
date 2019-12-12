@@ -18,6 +18,9 @@ async function run(): Promise<void> {
       return
     }
 
+    const context = core.getInput('github_context')
+    core.debug(context)
+
     core.debug('open an issue')
     const token: string = core.getInput('token', {required: true})
     const client: Octokit = new github.GitHub(token)
