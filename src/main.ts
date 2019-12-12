@@ -5,6 +5,7 @@ import Octokit, {IssuesCreateResponse} from '@octokit/rest'
 import {Audit} from './audit'
 import * as issue from './issue'
 import {IssueOption} from './interface'
+import * as pr from './pr'
 
 async function run(): Promise<void> {
   try {
@@ -14,13 +15,12 @@ async function run(): Promise<void> {
     core.info(`event_name ${ctx.event_name}`)
 
     if (ctx.event_name === 'pull_request') {
-      client.pulls.createComment({
-        ...github.context.repo,
-        pull_number: ctx.event.number,
-        body: 'Hello',
-        commit_id: ctx.sha,
-        path: ''
-      })
+      pr.createComment(
+        github.context.repo.owner,
+        github.context.repo.repo,
+        ctx.event.number,
+        'Hello'
+      )
     }
 
     const audit = new Audit()
