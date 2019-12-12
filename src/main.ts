@@ -18,8 +18,8 @@ async function run(): Promise<void> {
       return
     }
 
-    const context = core.getInput('github_context')
-    core.debug(context)
+    const context = JSON.parse(core.getInput('github_context'))
+    core.debug(context.event_name)
 
     core.debug('open an issue')
     const token: string = core.getInput('token', {required: true})
