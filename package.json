@@ -1,6 +1,6 @@
 {
   "name": "npm-audit-action",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "GitHub Action to run `npm audit`",
   "main": "lib/main.js",
@@ -29,6 +29,7 @@
     "@actions/core": "^1.2.0",
     "@actions/github": "^1.1.0",
     "@octokit/rest": "^16.35.0",
+    "axios": "^0.19.0",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {

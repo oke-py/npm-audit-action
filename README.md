@@ -43,7 +43,7 @@ jobs:
         run: npm ci
       - uses: oke-py/npm-audit-action@v1.0.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_assignees: oke-py
           issue_labels: vulnerability,test
 ```
