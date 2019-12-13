@@ -76,7 +76,8 @@ describe('run', () => {
       }
     })
 
-    process.env.INPUT_GITHUB_CONTEXT = '{ "event_name": "pull_request", "event": { "number": 100} }'
+    process.env.INPUT_GITHUB_CONTEXT =
+      '{ "event_name": "pull_request", "event": { "number": 100} }'
     process.env.INPUT_GITHUB_TOKEN = '***'
     process.env.GITHUB_REPOSITORY = 'alice/example'
     const audit = new Audit()
