@@ -3,7 +3,7 @@ import stripAnsi from 'strip-ansi'
 
 export class Audit {
   stdout: string = ''
-  status: number | null = null
+  private status: number | null = null
 
   public async run(): Promise<void> {
     const result: SpawnSyncReturns<string> = spawnSync('npm', ['audit'], {
