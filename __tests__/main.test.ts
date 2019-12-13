@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import {mocked} from 'ts-jest/utils'
-import axios, {AxiosResponse} from 'axios'
 import {Audit} from '../src/audit'
 import {run} from '../src/main'
 import * as pr from '../src/pr'
