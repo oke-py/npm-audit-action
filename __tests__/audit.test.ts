@@ -54,4 +54,61 @@ describe('run', () => {
     audit.run()
     expect(audit.foundVulnerability()).toBeFalsy()
   })
+
+  test('throws an error if error is not null', async () => {
+    mocked(child_process).spawnSync.mockImplementation((): any => {
+      return {
+        pid: 100,
+        output: '',
+        stdout: '',
+        stderr: '',
+        status: 0,
+        signal: null,
+        error: new Error('Something is wrong')
+      }
+    })
+
+    expect.assertions(1)
+    const r = audit.run()
+    const e = new Error('Something is wrong')
+    await expect(r).rejects.toEqual(e)
+  })
+
+  test('throws an error if status is null', async () => {
+    mocked(child_process).spawnSync.mockImplementation((): any => {
+      return {
+        pid: 100,
+        output: '',
+        stdout: '',
+        stderr: '',
+        status: null,
+        signal: 'SIGTERM',
+        error: null
+      }
+    })
+
+    expect.assertions(1)
+    const r = audit.run()
+    const e = new Error('the subprocess terminated due to a signal.')
+    await expect(r).rejects.toEqual(e)
+  })
+
+  test('throws an error if stderr is null', async () => {
+    mocked(child_process).spawnSync.mockImplementation((): any => {
+      return {
+        pid: 100,
+        output: '',
+        stdout: '',
+        stderr: 'Something is wrong',
+        status: 1,
+        signal: null,
+        error: null
+      }
+    })
+
+    expect.assertions(1)
+    const r = audit.run()
+    const e = new Error('Something is wrong')
+    await expect(r).rejects.toEqual(e)
+  })
 })
