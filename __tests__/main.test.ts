@@ -13,6 +13,11 @@ describe('run', () => {
     // initialize mock
     mocked(Audit).mockClear()
     mocked(pr).createComment.mockClear()
+
+    process.env.INPUT_GITHUB_CONTEXT =
+      '{ "event_name": "pull_request", "event": { "number": 100} }'
+    process.env.INPUT_GITHUB_TOKEN = '***'
+    process.env.GITHUB_REPOSITORY = 'alice/example'
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', () => {
@@ -26,7 +31,10 @@ describe('run', () => {
           return
         },
         foundVulnerability: (): boolean => {
-          return true
+          return false
+        },
+        strippedStdout: (): string => {
+          return path.join(__dirname, 'testdata/audit/success.txt')
         }
       }
     })
@@ -41,8 +49,7 @@ describe('run', () => {
       }
     })
 
-    const audit = new Audit()
-    run()
+    expect(run).not.toThrowError()
     expect(pr.createComment).not.toHaveBeenCalled()
   })
 
@@ -75,12 +82,7 @@ describe('run', () => {
       }
     })
 
-    process.env.INPUT_GITHUB_CONTEXT =
-      '{ "event_name": "pull_request", "event": { "number": 100} }'
-    process.env.INPUT_GITHUB_TOKEN = '***'
-    process.env.GITHUB_REPOSITORY = 'alice/example'
-    const audit = new Audit()
-    run()
+    expect(run).not.toThrowError()
     expect(pr.createComment).toHaveBeenCalled()
   })
 })
