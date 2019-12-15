@@ -4,7 +4,15 @@
 
 GitHub Action to run `npm audit`
 
-If vulnerabilities are found by `npm audit`, it creates the following GitHub Issue.
+## Feature
+
+### Create a Pull Request comment
+
+If vulnerabilities are found by `npm audit`, Action triggered by PR creates a comment.
+
+### Create an Issue
+
+If vulnerabilities are found by `npm audit`, Action triggered by push, schedule creates the following GitHub Issue.
 
 ![image](https://github.com/oke-py/npm-audit-action/blob/master/issue.png)
 
@@ -28,7 +36,12 @@ N/A
 ```yaml
 name: npm audit
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - 'releases/*'
 # on:
 #   schedule:
 #     - cron: '0 10 * * *'
@@ -41,7 +54,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: install dependencies
         run: npm ci
-      - uses: oke-py/npm-audit-action@v1.0.0
+      - uses: oke-py/npm-audit-action@v1.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_assignees: oke-py
