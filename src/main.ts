@@ -43,6 +43,7 @@ export async function run(): Promise<void> {
           ...option
         })
         core.debug(`#${createdIssue.number}`)
+        core.setFailed('This repo has some vulnerabilities')
       }
     }
   } catch (error) {
