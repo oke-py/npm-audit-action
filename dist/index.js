@@ -4075,6 +4075,7 @@ function run() {
                     const option = issue.getIssueOption(issueBody);
                     const { data: createdIssue } = yield client.issues.create(Object.assign(Object.assign({}, github.context.repo), option));
                     core.debug(`#${createdIssue.number}`);
+                    core.setFailed('This repo has some vulnerabilities');
                 }
             }
         }
