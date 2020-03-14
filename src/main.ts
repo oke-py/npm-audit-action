@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import Octokit, {IssuesCreateResponse} from '@octokit/rest'
+import {Octokit} from '@octokit/rest'
 import {Audit} from './audit'
 import {IssueOption} from './interface'
 import * as issue from './issue'
@@ -19,7 +19,7 @@ export async function run(): Promise<void> {
       // get GitHub information
       const ctx = JSON.parse(core.getInput('github_context'))
       const token: string = core.getInput('github_token', {required: true})
-      const client: Octokit = new github.GitHub(token)
+      const octokit = new github.GitHub(token)
 
       if (ctx.event_name === 'pull_request') {
         await pr.createComment(
@@ -38,10 +38,12 @@ export async function run(): Promise<void> {
         const option: IssueOption = issue.getIssueOption(issueBody)
         const {
           data: createdIssue
-        }: Octokit.Response<IssuesCreateResponse> = await client.issues.create({
-          ...github.context.repo,
-          ...option
-        })
+        }: Octokit.Response<Octokit.IssuesCreateResponse> = await octokit.issues.create(
+          {
+            ...github.context.repo,
+            ...option
+          }
+        )
         core.debug(`#${createdIssue.number}`)
         core.setFailed('This repo has some vulnerabilities')
       }

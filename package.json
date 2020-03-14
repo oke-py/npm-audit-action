@@ -27,8 +27,8 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.3",
-    "@actions/github": "^1.1.0",
-    "@octokit/rest": "16.35.0",
+    "@actions/github": "^2.1.1",
+    "@octokit/rest": "^16.43.1",
     "axios": "^0.19.2",
     "strip-ansi": "^6.0.0"
   },
