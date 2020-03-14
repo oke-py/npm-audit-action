@@ -6,22 +6,26 @@ export class Audit {
   private status: number | null = null
 
   public async run(): Promise<void> {
-    const result: SpawnSyncReturns<string> = spawnSync('npm', ['audit'], {
-      encoding: 'utf-8'
-    })
+    try {
+      const result: SpawnSyncReturns<string> = spawnSync('npm', ['audit'], {
+        encoding: 'utf-8'
+      })
 
-    if (result.error) {
-      throw result.error
-    }
-    if (result.status === null) {
-      throw new Error('the subprocess terminated due to a signal.')
-    }
-    if (result.stderr && result.stderr.length > 0) {
-      throw new Error(result.stderr)
-    }
+      if (result.error) {
+        throw result.error
+      }
+      if (result.status === null) {
+        throw new Error('the subprocess terminated due to a signal.')
+      }
+      if (result.stderr && result.stderr.length > 0) {
+        throw new Error(result.stderr)
+      }
 
-    this.status = result.status
-    this.stdout = result.stdout
+      this.status = result.status
+      this.stdout = result.stdout
+    } catch (error) {
+      throw error
+    }
   }
 
   public foundVulnerability(): boolean {
