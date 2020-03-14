@@ -2,7 +2,7 @@ import {spawnSync, SpawnSyncReturns} from 'child_process'
 import stripAnsi from 'strip-ansi'
 
 export class Audit {
-  stdout: string = ''
+  stdout = ''
   private status: number | null = null
 
   public async run(): Promise<void> {
