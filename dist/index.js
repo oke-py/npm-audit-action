@@ -2381,25 +2381,20 @@ class Audit {
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const result = child_process_1.spawnSync('npm', ['audit'], {
-                    encoding: 'utf-8'
-                });
-                if (result.error) {
-                    throw result.error;
-                }
-                if (result.status === null) {
-                    throw new Error('the subprocess terminated due to a signal.');
-                }
-                if (result.stderr && result.stderr.length > 0) {
-                    throw new Error(result.stderr);
-                }
-                this.status = result.status;
-                this.stdout = result.stdout;
+            const result = child_process_1.spawnSync('npm', ['audit'], {
+                encoding: 'utf-8'
+            });
+            if (result.error) {
+                throw result.error;
             }
-            catch (error) {
-                throw error;
+            if (result.status === null) {
+                throw new Error('the subprocess terminated due to a signal.');
             }
+            if (result.stderr && result.stderr.length > 0) {
+                throw new Error(result.stderr);
+            }
+            this.status = result.status;
+            this.stdout = result.stdout;
         });
     }
     foundVulnerability() {
@@ -4518,7 +4513,9 @@ function run() {
         try {
             // run `npm audit`
             const audit = new audit_1.Audit();
-            audit.run();
+            audit.run().catch(error => {
+                throw error;
+            });
             core.info(audit.stdout);
             if (audit.foundVulnerability()) {
                 // vulnerabilities are found

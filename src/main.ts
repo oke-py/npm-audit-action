@@ -10,7 +10,9 @@ export async function run(): Promise<void> {
   try {
     // run `npm audit`
     const audit = new Audit()
-    audit.run()
+    audit.run().catch(error => {
+      throw error
+    })
     core.info(audit.stdout)
 
     if (audit.foundVulnerability()) {
