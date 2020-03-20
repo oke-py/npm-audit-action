@@ -22,6 +22,7 @@ If vulnerabilities are found by `npm audit`, Action triggered by push, schedule 
 
 |Parameter|Required|Default Value|Description|
 |:--:|:--:|:--:|:--|
+|audit_level|false|low|The value of `--audit-level` flag|
 |issue_assignees|false|N/A|Issue assignees (separated by commma)|
 |issue_labels|false|N/A|Issue labels (separated by commma)|
 |issue_title|false|npm audit found vulnerabilities|Issue title|
@@ -56,6 +57,7 @@ jobs:
         run: npm ci
       - uses: oke-py/npm-audit-action@v1.2.0
         with:
+          audit_level: moderate
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_assignees: oke-py
           issue_labels: vulnerability,test
