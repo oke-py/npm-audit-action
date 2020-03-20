@@ -30,7 +30,7 @@ describe('run', () => {
       }
     })
 
-    audit.run()
+    audit.run('low')
     expect(audit.foundVulnerability()).toBeTruthy()
   })
 
@@ -51,7 +51,7 @@ describe('run', () => {
       }
     })
 
-    audit.run()
+    audit.run('low')
     expect(audit.foundVulnerability()).toBeFalsy()
   })
 
@@ -69,7 +69,7 @@ describe('run', () => {
     })
 
     expect.assertions(1)
-    const r = audit.run()
+    const r = audit.run('low')
     const e = new Error('Something is wrong')
     await expect(r).rejects.toEqual(e)
   })
@@ -88,7 +88,7 @@ describe('run', () => {
     })
 
     expect.assertions(1)
-    const r = audit.run()
+    const r = audit.run('low')
     const e = new Error('the subprocess terminated due to a signal.')
     await expect(r).rejects.toEqual(e)
   })
@@ -107,7 +107,7 @@ describe('run', () => {
     })
 
     expect.assertions(1)
-    const r = audit.run()
+    const r = audit.run('low')
     const e = new Error('Something is wrong')
     await expect(r).rejects.toEqual(e)
   })
