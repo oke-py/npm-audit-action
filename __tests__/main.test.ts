@@ -14,6 +14,7 @@ describe('run', () => {
     mocked(Audit).mockClear()
     mocked(pr).createComment.mockClear()
 
+    process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_GITHUB_CONTEXT =
       '{ "event_name": "pull_request", "event": { "number": 100} }'
     process.env.INPUT_GITHUB_TOKEN = '***'
@@ -27,7 +28,7 @@ describe('run', () => {
           path.join(__dirname, 'testdata/audit/success.txt')
         ),
         status: 0,
-        run: (): Promise<void> => {
+        run: (auditLevel: string): Promise<void> => {
           return Promise.resolve(void 0)
         },
         foundVulnerability: (): boolean => {
@@ -60,7 +61,7 @@ describe('run', () => {
           path.join(__dirname, 'testdata/audit/error.txt')
         ),
         status: 1,
-        run: (): Promise<void> => {
+        run: (auditLevel: string): Promise<void> => {
           return Promise.resolve(void 0)
         },
         foundVulnerability: (): boolean => {

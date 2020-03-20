@@ -1120,10 +1120,10 @@ class Audit {
         this.stdout = '';
         this.status = null;
     }
-    run() {
+    run(auditLevel) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = child_process_1.spawnSync('npm', ['audit'], {
+                const result = child_process_1.spawnSync('npm', ['audit', '--audit-level', auditLevel], {
                     encoding: 'utf-8'
                 });
                 if (result.error) {
@@ -3053,9 +3053,11 @@ const pr = __importStar(__webpack_require__(665));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // get audit-level
+            const auditLevel = core.getInput('audit_level', { required: true });
             // run `npm audit`
             const audit = new audit_1.Audit();
-            audit.run();
+            audit.run(auditLevel);
             core.info(audit.stdout);
             if (audit.foundVulnerability()) {
                 // vulnerabilities are found
