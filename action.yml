@@ -2,6 +2,10 @@ name: 'npm audit action'
 description: 'run npm audit'
 author: 'Naoki Oketani <okepy.naoki@gmail.com>'
 inputs:
+  audit_level:
+    description: 'The value of `--audit-level` flag'
+    default: low
+    required: false
   github_context:
     description: 'The `github` context'
     default: ${{ toJson(github) }}

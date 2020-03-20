@@ -5,11 +5,15 @@ export class Audit {
   stdout = ''
   private status: number | null = null
 
-  public async run(): Promise<void> {
+  public async run(auditLevel: string): Promise<void> {
     try {
-      const result: SpawnSyncReturns<string> = spawnSync('npm', ['audit'], {
-        encoding: 'utf-8'
-      })
+      const result: SpawnSyncReturns<string> = spawnSync(
+        'npm',
+        ['audit', '--audit-level', auditLevel],
+        {
+          encoding: 'utf-8'
+        }
+      )
 
       if (result.error) {
         throw result.error

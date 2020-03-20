@@ -8,9 +8,15 @@ import * as pr from './pr'
 
 export async function run(): Promise<void> {
   try {
+    // get audit-level
+    const auditLevel = core.getInput('audit_level', {required: true})
+    if (!['critical', 'high', 'moderate', 'low'].includes(auditLevel)) {
+      throw new Error('Invalid input: audit_level')
+    }
+
     // run `npm audit`
     const audit = new Audit()
-    audit.run()
+    audit.run(auditLevel)
     core.info(audit.stdout)
 
     if (audit.foundVulnerability()) {
