@@ -296,9 +296,9 @@ module.exports = require("tls");
 /***/ }),
 
 /***/ 18:
-/***/ (function() {
+/***/ (function(module) {
 
-eval("require")("encoding");
+module.exports = eval("require")("encoding");
 
 
 /***/ }),
@@ -6978,16 +6978,10 @@ function getIssueOption(body) {
     let assignees;
     let labels;
     if (core.getInput('issue_assignees')) {
-        assignees = core
-            .getInput('issue_assignees')
-            .replace(/\s+/g, '')
-            .split(',');
+        assignees = core.getInput('issue_assignees').replace(/\s+/g, '').split(',');
     }
     if (core.getInput('issue_labels')) {
-        labels = core
-            .getInput('issue_labels')
-            .replace(/\s+/g, '')
-            .split(',');
+        labels = core.getInput('issue_labels').replace(/\s+/g, '').split(',');
     }
     return {
         title: core.getInput('issue_title'),
