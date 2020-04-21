@@ -36,12 +36,17 @@
 <<<<<<< HEAD
     "@types/jest": "^25.2.1",
     "@types/node": "^13.9.5",
+<<<<<<< HEAD
 =======
     "@types/jest": "^25.1.4",
     "@types/node": "^13.13.1",
 >>>>>>> origin/dependabot/npm_and_yarn/types/node-13.13.1
     "@typescript-eslint/parser": "^2.25.0",
     "@zeit/ncc": "^0.22.1",
+=======
+    "@typescript-eslint/parser": "^2.29.0",
+    "@zeit/ncc": "^0.22.0",
+>>>>>>> origin/dependabot/npm_and_yarn/typescript-eslint/parser-2.29.0
     "eslint": "^6.8.0",
     "eslint-plugin-github": "^3.4.1",
     "eslint-plugin-jest": "^23.8.2",
