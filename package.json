@@ -42,10 +42,14 @@
     "eslint-plugin-jest": "^23.8.2",
     "graphql": "^14.6.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "jest": "^25.2.3",
     "jest-circus": "^25.3.0",
 =======
     "jest": "^25.3.0",
+=======
+    "jest": "^25.4.0",
+>>>>>>> master
     "jest-circus": "^25.2.3",
 >>>>>>> dependabot/npm_and_yarn/jest-25.3.0
     "js-yaml": "^3.13.1",
