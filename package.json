@@ -53,8 +53,13 @@
     "jest-circus": "^25.2.3",
 >>>>>>> dependabot/npm_and_yarn/jest-25.3.0
     "js-yaml": "^3.13.1",
+<<<<<<< HEAD
     "prettier": "^2.0.4",
     "ts-jest": "^25.2.1",
+=======
+    "prettier": "^2.0.2",
+    "ts-jest": "^25.4.0",
+>>>>>>> origin/dependabot/npm_and_yarn/ts-jest-25.4.0
     "typescript": "^3.8.3"
   }
 }
