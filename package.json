@@ -33,19 +33,19 @@
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.4",
-    "@types/node": "^13.9.5",
-    "@typescript-eslint/parser": "^2.25.0",
-    "@zeit/ncc": "^0.22.0",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.4",
+    "@typescript-eslint/parser": "^2.30.0",
+    "@zeit/ncc": "^0.22.1",
     "eslint": "^6.8.0",
     "eslint-plugin-github": "^3.4.1",
     "eslint-plugin-jest": "^23.8.2",
     "graphql": "^14.6.0",
-    "jest": "^25.2.3",
-    "jest-circus": "^25.2.3",
+    "jest": "^25.5.2",
+    "jest-circus": "^25.5.2",
     "js-yaml": "^3.13.1",
-    "prettier": "^2.0.2",
-    "ts-jest": "^25.2.1",
+    "prettier": "^2.0.5",
+    "ts-jest": "^25.4.0",
     "typescript": "^3.8.3"
   }
 }
