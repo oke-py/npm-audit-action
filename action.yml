@@ -23,6 +23,9 @@ inputs:
     description: 'Issue title'
     default: 'npm audit found vulnerabilities'
     required: false
+  working_directory:
+    description: 'The directory which contains package.json (since v1.4.0)'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
