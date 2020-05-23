@@ -27,6 +27,7 @@ If vulnerabilities are found by `npm audit`, Action triggered by push, schedule 
 |issue_labels|false|N/A|Issue labels (separated by commma)|
 |issue_title|false|npm audit found vulnerabilities|Issue title|
 |token|true|N/A|GitHub Access Token.<br>${{ secrets.GITHUB_TOKEN }} is recommended.|
+|working_directory|false|N/A|The directory which contains package.json|
 
 ### Outputs
 

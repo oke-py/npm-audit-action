@@ -29,3 +29,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         issue_title: npm audit run by test job
+    - uses: ./
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        working_directory: __tests__/testdata/workdir/

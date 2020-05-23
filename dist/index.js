@@ -1330,6 +1330,21 @@ function validate(octokit, options) {
 
 /***/ }),
 
+/***/ 79:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isValid = void 0;
+function isValid(dir) {
+    return !dir.startsWith('/') && !dir.startsWith('..');
+}
+exports.isValid = isValid;
+
+
+/***/ }),
+
 /***/ 81:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3283,9 +3298,19 @@ const rest_1 = __webpack_require__(889);
 const audit_1 = __webpack_require__(50);
 const issue = __importStar(__webpack_require__(443));
 const pr = __importStar(__webpack_require__(665));
+const workdir = __importStar(__webpack_require__(79));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // move to working directory
+            const workingDirectory = core.getInput('working_directory');
+            if (workingDirectory) {
+                if (!workdir.isValid(workingDirectory)) {
+                    throw new Error('Invalid input: working_directory');
+                }
+                process.chdir(workingDirectory);
+            }
+            core.info(`Current working directory: ${process.cwd()}`);
             // get audit-level
             const auditLevel = core.getInput('audit_level', { required: true });
             if (!['critical', 'high', 'moderate', 'low'].includes(auditLevel)) {

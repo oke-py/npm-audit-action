@@ -5,9 +5,20 @@ import {Audit} from './audit'
 import {IssueOption} from './interface'
 import * as issue from './issue'
 import * as pr from './pr'
+import * as workdir from './workdir'
 
 export async function run(): Promise<void> {
   try {
+    // move to working directory
+    const workingDirectory = core.getInput('working_directory')
+    if (workingDirectory) {
+      if (!workdir.isValid(workingDirectory)) {
+        throw new Error('Invalid input: working_directory')
+      }
+      process.chdir(workingDirectory)
+    }
+    core.info(`Current working directory: ${process.cwd()}`)
+
     // get audit-level
     const auditLevel = core.getInput('audit_level', {required: true})
     if (!['critical', 'high', 'moderate', 'low'].includes(auditLevel)) {
