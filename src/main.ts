@@ -8,6 +8,19 @@ import * as pr from './pr'
 
 export async function run(): Promise<void> {
   try {
+    // move to working directory
+    const workingDirectory = core.getInput('working_directory')
+    if (workingDirectory) {
+      if (
+        workingDirectory.startsWith('/') ||
+        workingDirectory.startsWith('..')
+      ) {
+        throw new Error('Invalid input: working_directory')
+      }
+      process.chdir(workingDirectory)
+    }
+    core.info(`Current working directory: ${process.cwd()}`)
+
     // get audit-level
     const auditLevel = core.getInput('audit_level', {required: true})
     if (!['critical', 'high', 'moderate', 'low'].includes(auditLevel)) {
