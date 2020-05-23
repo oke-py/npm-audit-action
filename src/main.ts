@@ -25,7 +25,9 @@ export async function run(): Promise<void> {
       // get GitHub information
       const ctx = JSON.parse(core.getInput('github_context'))
       const token: string = core.getInput('github_token', {required: true})
-      const octokit = new github.GitHub(token)
+      const octokit = new Octokit({
+        auth: token
+      })
 
       if (ctx.event_name === 'pull_request') {
         await pr.createComment(
@@ -42,14 +44,10 @@ export async function run(): Promise<void> {
         // remove control characters and create a code block
         const issueBody = audit.strippedStdout()
         const option: IssueOption = issue.getIssueOption(issueBody)
-        const {
-          data: createdIssue
-        }: Octokit.Response<Octokit.IssuesCreateResponse> = await octokit.issues.create(
-          {
-            ...github.context.repo,
-            ...option
-          }
-        )
+        const {data: createdIssue} = await octokit.issues.create({
+          ...github.context.repo,
+          ...option
+        })
         core.debug(`#${createdIssue.number}`)
         core.setFailed('This repo has some vulnerabilities')
       }
