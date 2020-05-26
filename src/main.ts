@@ -8,16 +8,20 @@ import * as pr from './pr'
 import * as workdir from './workdir'
 import {Context} from '@actions/github/lib/context'
 
-async function getExistingIssue(
+async function getExistingIssueNumber(
   octokit: Octokit,
   context: Context
-): Promise<Octokit.IssuesListForRepoResponseItem | undefined> {
+): Promise<number | null> {
   const {data: issues} = await octokit.issues.listForRepo({
     ...context.repo,
     state: 'open'
   })
 
-  return issues.filter(i => i.title === core.getInput('issue_title')).shift()
+  const iss = issues
+    .filter(i => i.title === core.getInput('issue_title'))
+    .shift()
+
+  return iss === undefined ? null : iss.number
 }
 
 export async function run(): Promise<void> {
@@ -69,27 +73,23 @@ export async function run(): Promise<void> {
         const issueBody = audit.strippedStdout()
         const option: IssueOption = issue.getIssueOption(issueBody)
 
-        const existingIssue =
+        const existingIssueNumber =
           core.getInput('dedupe_issues') === 'true'
-            ? await getExistingIssue(octokit, github.context)
-            : undefined
+            ? await getExistingIssueNumber(octokit, github.context)
+            : null
 
-        if (existingIssue !== undefined) {
+        if (existingIssueNumber !== null) {
           const {data: createdComment} = await octokit.issues.createComment({
             ...github.context.repo,
-            issue_number: existingIssue.number, // eslint-disable-line @typescript-eslint/camelcase
+            issue_number: existingIssueNumber, // eslint-disable-line @typescript-eslint/camelcase
             body: option.body
           })
           core.debug(`comment ${createdComment.url}`)
         } else {
-          const {
-            data: createdIssue
-          }: Octokit.Response<Octokit.IssuesCreateResponse> = await octokit.issues.create(
-            {
-              ...github.context.repo,
-              ...option
-            }
-          )
+          const {data: createdIssue} = await octokit.issues.create({
+            ...github.context.repo,
+            ...option
+          })
           core.debug(`#${createdIssue.number}`)
         }
         core.setFailed('This repo has some vulnerabilities')
