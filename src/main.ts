@@ -55,11 +55,29 @@ export async function run(): Promise<void> {
         // remove control characters and create a code block
         const issueBody = audit.strippedStdout()
         const option: IssueOption = issue.getIssueOption(issueBody)
-        const {data: createdIssue} = await octokit.issues.create({
-          ...github.context.repo,
-          ...option
-        })
-        core.debug(`#${createdIssue.number}`)
+
+        const existingIssueNumber =
+          core.getInput('dedupe_issues') === 'true'
+            ? await issue.getExistingIssueNumber(
+                octokit.issues.listForRepo,
+                github.context.repo
+              )
+            : null
+
+        if (existingIssueNumber !== null) {
+          const {data: createdComment} = await octokit.issues.createComment({
+            ...github.context.repo,
+            issue_number: existingIssueNumber, // eslint-disable-line @typescript-eslint/camelcase
+            body: option.body
+          })
+          core.debug(`comment ${createdComment.url}`)
+        } else {
+          const {data: createdIssue} = await octokit.issues.create({
+            ...github.context.repo,
+            ...option
+          })
+          core.debug(`#${createdIssue.number}`)
+        }
         core.setFailed('This repo has some vulnerabilities')
       }
     }

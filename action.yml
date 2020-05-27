@@ -26,6 +26,10 @@ inputs:
   working_directory:
     description: 'The directory which contains package.json (since v1.4.0)'
     required: false
+  dedupe_issues:
+    description: 'Flag to de-dupe against open issues'
+    default: 'false'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
