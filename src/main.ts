@@ -6,23 +6,6 @@ import {IssueOption} from './interface'
 import * as issue from './issue'
 import * as pr from './pr'
 import * as workdir from './workdir'
-import {Context} from '@actions/github/lib/context'
-
-async function getExistingIssueNumber(
-  octokit: Octokit,
-  context: Context
-): Promise<number | null> {
-  const {data: issues} = await octokit.issues.listForRepo({
-    ...context.repo,
-    state: 'open'
-  })
-
-  const iss = issues
-    .filter(i => i.title === core.getInput('issue_title'))
-    .shift()
-
-  return iss === undefined ? null : iss.number
-}
 
 export async function run(): Promise<void> {
   try {
@@ -75,7 +58,10 @@ export async function run(): Promise<void> {
 
         const existingIssueNumber =
           core.getInput('dedupe_issues') === 'true'
-            ? await getExistingIssueNumber(octokit, github.context)
+            ? await issue.getExistingIssueNumber(
+                octokit.issues.listForRepo,
+                github.context.repo
+              )
             : null
 
         if (existingIssueNumber !== null) {

@@ -3299,15 +3299,6 @@ const audit_1 = __webpack_require__(50);
 const issue = __importStar(__webpack_require__(443));
 const pr = __importStar(__webpack_require__(665));
 const workdir = __importStar(__webpack_require__(79));
-function getExistingIssueNumber(octokit, context) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { data: issues } = yield octokit.issues.listForRepo(Object.assign(Object.assign({}, context.repo), { state: 'open' }));
-        const iss = issues
-            .filter(i => i.title === core.getInput('issue_title'))
-            .shift();
-        return iss === undefined ? null : iss.number;
-    });
-}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -3348,7 +3339,7 @@ function run() {
                     const issueBody = audit.strippedStdout();
                     const option = issue.getIssueOption(issueBody);
                     const existingIssueNumber = core.getInput('dedupe_issues') === 'true'
-                        ? yield getExistingIssueNumber(octokit, github.context)
+                        ? yield issue.getExistingIssueNumber(octokit.issues.listForRepo, github.context.repo)
                         : null;
                     if (existingIssueNumber !== null) {
                         const { data: createdComment } = yield octokit.issues.createComment(Object.assign(Object.assign({}, github.context.repo), { issue_number: existingIssueNumber, body: option.body }));
@@ -6970,8 +6961,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getIssueOption = void 0;
+exports.getExistingIssueNumber = exports.getIssueOption = void 0;
 const core = __importStar(__webpack_require__(470));
 function getIssueOption(body) {
     let assignees;
@@ -6990,6 +6990,16 @@ function getIssueOption(body) {
     };
 }
 exports.getIssueOption = getIssueOption;
+function getExistingIssueNumber(getIssues, repo) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { data: issues } = yield getIssues(Object.assign(Object.assign({}, repo), { state: 'open' }));
+        const iss = issues
+            .filter(i => i.title === core.getInput('issue_title'))
+            .shift();
+        return iss === undefined ? null : iss.number;
+    });
+}
+exports.getExistingIssueNumber = getExistingIssueNumber;
 
 
 /***/ }),
