@@ -55,7 +55,7 @@ describe('run', () => {
     expect(audit.foundVulnerability()).toBeFalsy()
   })
 
-  test('throws an error if error is not null', async () => {
+  test('throws an error if error is not null', () => {
     mocked(child_process).spawnSync.mockImplementation((): any => {
       return {
         pid: 100,
@@ -69,12 +69,11 @@ describe('run', () => {
     })
 
     expect.assertions(1)
-    const r = audit.run('low')
     const e = new Error('Something is wrong')
-    await expect(r).rejects.toEqual(e)
+    expect(() => audit.run('low')).toThrowError(e)
   })
 
-  test('throws an error if status is null', async () => {
+  test('throws an error if status is null', () => {
     mocked(child_process).spawnSync.mockImplementation((): any => {
       return {
         pid: 100,
@@ -88,12 +87,11 @@ describe('run', () => {
     })
 
     expect.assertions(1)
-    const r = audit.run('low')
     const e = new Error('the subprocess terminated due to a signal.')
-    await expect(r).rejects.toEqual(e)
+    expect(() => audit.run('low')).toThrowError(e)
   })
 
-  test('throws an error if stderr is null', async () => {
+  test('throws an error if stderr is null', () => {
     mocked(child_process).spawnSync.mockImplementation((): any => {
       return {
         pid: 100,
@@ -107,8 +105,7 @@ describe('run', () => {
     })
 
     expect.assertions(1)
-    const r = audit.run('low')
     const e = new Error('Something is wrong')
-    await expect(r).rejects.toEqual(e)
+    expect(() => audit.run('low')).toThrowError(e)
   })
 })

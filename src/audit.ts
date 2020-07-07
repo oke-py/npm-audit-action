@@ -5,7 +5,7 @@ export class Audit {
   stdout = ''
   private status: number | null = null
 
-  public async run(auditLevel: string): Promise<void> {
+  public run(auditLevel: string): void {
     try {
       const result: SpawnSyncReturns<string> = spawnSync(
         'npm',
