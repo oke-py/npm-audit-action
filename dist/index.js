@@ -1114,6 +1114,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Audit = void 0;
 const child_process_1 = __webpack_require__(129);
 const strip_ansi_1 = __importDefault(__webpack_require__(90));
+const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MiB
 class Audit {
     constructor() {
         this.stdout = '';
@@ -1122,7 +1123,8 @@ class Audit {
     run(auditLevel) {
         try {
             const result = child_process_1.spawnSync('npm', ['audit', '--audit-level', auditLevel], {
-                encoding: 'utf-8'
+                encoding: 'utf-8',
+                maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
             });
             if (result.error) {
                 throw result.error;

@@ -1,6 +1,8 @@
 import {spawnSync, SpawnSyncReturns} from 'child_process'
 import stripAnsi from 'strip-ansi'
 
+const SPAWN_PROCESS_BUFFER_SIZE = 10485760 // 10MiB
+
 export class Audit {
   stdout = ''
   private status: number | null = null
@@ -11,7 +13,8 @@ export class Audit {
         'npm',
         ['audit', '--audit-level', auditLevel],
         {
-          encoding: 'utf-8'
+          encoding: 'utf-8',
+          maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
         }
       )
 
