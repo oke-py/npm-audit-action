@@ -67,7 +67,7 @@ export async function run(): Promise<void> {
         if (existingIssueNumber !== null) {
           const {data: createdComment} = await octokit.issues.createComment({
             ...github.context.repo,
-            issue_number: existingIssueNumber, // eslint-disable-line @typescript-eslint/camelcase
+            issue_number: existingIssueNumber,
             body: option.body
           })
           core.debug(`comment ${createdComment.url}`)
