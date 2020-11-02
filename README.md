@@ -23,6 +23,7 @@ If vulnerabilities are found by `npm audit`, Action triggered by push, schedule 
 |Parameter|Required|Default Value|Description|
 |:--:|:--:|:--:|:--|
 |audit_level|false|low|The value of `--audit-level` flag|
+|production_flag|false|false|Runnning `npm audit` with `--production`|
 |issue_assignees|false|N/A|Issue assignees (separated by commma)|
 |issue_labels|false|N/A|Issue labels (separated by commma)|
 |issue_title|false|npm audit found vulnerabilities|Issue title|

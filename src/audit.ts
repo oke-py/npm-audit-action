@@ -7,11 +7,17 @@ export class Audit {
   stdout = ''
   private status: number | null = null
 
-  public run(auditLevel: string): void {
+  public run(auditLevel: string, productionFlag: string): void {
     try {
+      const auditOptions: Array<string> =['audit', '--audit-level', auditLevel];
+      
+      if(productionFlag === 'true') {
+        auditOptions.push('--production');
+      }
+
       const result: SpawnSyncReturns<string> = spawnSync(
         'npm',
-        ['audit', '--audit-level', auditLevel],
+        auditOptions,
         {
           encoding: 'utf-8',
           maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
