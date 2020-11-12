@@ -25,9 +25,14 @@ export async function run(): Promise<void> {
       throw new Error('Invalid input: audit_level')
     }
 
+    const productionFlag = core.getInput('production_flag',  {required: false});
+    if (!['true', 'false'].includes(productionFlag)) {
+      throw new Error('Invalid input: production_flag')
+    }
+
     // run `npm audit`
     const audit = new Audit()
-    audit.run(auditLevel)
+    audit.run(auditLevel, productionFlag)
     core.info(audit.stdout)
 
     if (audit.foundVulnerability()) {

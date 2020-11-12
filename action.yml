@@ -6,6 +6,10 @@ inputs:
     description: 'The value of `--audit-level` flag'
     default: low
     required: false
+  production_flag:
+    description: 'Run npm audit with --production'
+    default: 'false'
+    required: false
   github_context:
     description: 'The `github` context'
     default: ${{ toJson(github) }}
