@@ -556,9 +556,13 @@ class Audit {
         this.stdout = '';
         this.status = null;
     }
-    run(auditLevel) {
+    run(auditLevel, productionFlag) {
         try {
-            const result = child_process_1.spawnSync('npm', ['audit', '--audit-level', auditLevel], {
+            const auditOptions = ['audit', '--audit-level', auditLevel];
+            if (productionFlag === 'true') {
+                auditOptions.push('--production');
+            }
+            const result = child_process_1.spawnSync('npm', auditOptions, {
                 encoding: 'utf-8',
                 maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
             });
@@ -1427,9 +1431,13 @@ function run() {
             if (!['critical', 'high', 'moderate', 'low'].includes(auditLevel)) {
                 throw new Error('Invalid input: audit_level');
             }
+            const productionFlag = core.getInput('production_flag', { required: false });
+            if (!['true', 'false'].includes(productionFlag)) {
+                throw new Error('Invalid input: production_flag');
+            }
             // run `npm audit`
             const audit = new audit_1.Audit();
-            audit.run(auditLevel);
+            audit.run(auditLevel, productionFlag);
             core.info(audit.stdout);
             if (audit.foundVulnerability()) {
                 // vulnerabilities are found

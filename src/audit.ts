@@ -9,20 +9,16 @@ export class Audit {
 
   public run(auditLevel: string, productionFlag: string): void {
     try {
-      const auditOptions: Array<string> =['audit', '--audit-level', auditLevel];
-      
-      if(productionFlag === 'true') {
-        auditOptions.push('--production');
+      const auditOptions: Array<string> = ['audit', '--audit-level', auditLevel]
+
+      if (productionFlag === 'true') {
+        auditOptions.push('--production')
       }
 
-      const result: SpawnSyncReturns<string> = spawnSync(
-        'npm',
-        auditOptions,
-        {
-          encoding: 'utf-8',
-          maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-        }
-      )
+      const result: SpawnSyncReturns<string> = spawnSync('npm', auditOptions, {
+        encoding: 'utf-8',
+        maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
+      })
 
       if (result.error) {
         throw result.error
