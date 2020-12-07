@@ -30,9 +30,15 @@ export async function run(): Promise<void> {
       throw new Error('Invalid input: production_flag')
     }
 
+    const jsonFlag = core.getInput('json_flag', {required: false})
+    if (!['true', 'false'].includes(jsonFlag)) {
+      throw new Error('Invalid input: json_flag')
+    }
+
+
     // run `npm audit`
     const audit = new Audit()
-    audit.run(auditLevel, productionFlag)
+    audit.run(auditLevel, productionFlag, jsonFlag)
     core.info(audit.stdout)
 
     if (audit.foundVulnerability()) {

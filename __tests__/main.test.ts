@@ -16,6 +16,7 @@ describe('run', () => {
 
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
+    process.env.INPUT_JSON_FLAG = 'false'
     process.env.INPUT_GITHUB_CONTEXT =
       '{ "event_name": "pull_request", "event": { "number": 100} }'
     process.env.INPUT_GITHUB_TOKEN = '***'
