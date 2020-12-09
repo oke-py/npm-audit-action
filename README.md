@@ -34,7 +34,9 @@ If vulnerabilities are found by `npm audit`, Action triggered by push, schedule 
 
 ### Outputs
 
-N/A
+|Parameter name|Description|
+|:--:|:--|
+|npm_audit|The output of the npm audit report in a text format|
 
 ## Example Workflow
 

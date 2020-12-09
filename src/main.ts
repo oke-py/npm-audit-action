@@ -40,6 +40,7 @@ export async function run(): Promise<void> {
     const audit = new Audit()
     audit.run(auditLevel, productionFlag, jsonFlag)
     core.info(audit.stdout)
+    core.setOutput('npm_audit', audit.stdout);
 
     if (audit.foundVulnerability()) {
       // vulnerabilities are found
