@@ -563,8 +563,8 @@ class Audit {
                 auditOptions.push('--production');
             }
             if (jsonFlag === 'true') {
-              auditOptions.push('--json');
-          }
+                auditOptions.push('--json');
+            }
             const result = child_process_1.spawnSync('npm', auditOptions, {
                 encoding: 'utf-8',
                 maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
@@ -1444,8 +1444,9 @@ function run() {
             }
             // run `npm audit`
             const audit = new audit_1.Audit();
-            audit.run(auditLevel, productionFlag);
+            audit.run(auditLevel, productionFlag, jsonFlag);
             core.info(audit.stdout);
+            core.setOutput('npm_audit', audit.stdout);
             if (audit.foundVulnerability()) {
                 // vulnerabilities are found
                 // get GitHub information

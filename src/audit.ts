@@ -7,7 +7,11 @@ export class Audit {
   stdout = ''
   private status: number | null = null
 
-  public run(auditLevel: string, productionFlag: string, jsonFlag: string): void {
+  public run(
+    auditLevel: string,
+    productionFlag: string,
+    jsonFlag: string
+  ): void {
     try {
       const auditOptions: Array<string> = ['audit', '--audit-level', auditLevel]
 
