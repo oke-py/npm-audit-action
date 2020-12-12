@@ -556,12 +556,15 @@ class Audit {
         this.stdout = '';
         this.status = null;
     }
-    run(auditLevel, productionFlag) {
+    run(auditLevel, productionFlag, jsonFlag) {
         try {
             const auditOptions = ['audit', '--audit-level', auditLevel];
             if (productionFlag === 'true') {
                 auditOptions.push('--production');
             }
+            if (jsonFlag === 'true') {
+              auditOptions.push('--json');
+          }
             const result = child_process_1.spawnSync('npm', auditOptions, {
                 encoding: 'utf-8',
                 maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
@@ -1434,6 +1437,10 @@ function run() {
             const productionFlag = core.getInput('production_flag', { required: false });
             if (!['true', 'false'].includes(productionFlag)) {
                 throw new Error('Invalid input: production_flag');
+            }
+            const jsonFlag = core.getInput('json_flag', { required: false });
+            if (!['true', 'false'].includes(jsonFlag)) {
+                throw new Error('Invalid input: json_flag');
             }
             // run `npm audit`
             const audit = new audit_1.Audit();

@@ -10,6 +10,10 @@ inputs:
     description: 'Run npm audit with --production'
     default: 'false'
     required: false
+  json_flag:
+    description: 'Run npm audit with --json'
+    default: 'false'
+    required: false
   github_context:
     description: 'The `github` context'
     default: ${{ toJson(github) }}
@@ -34,6 +38,9 @@ inputs:
     description: 'Flag to de-dupe against open issues'
     default: 'false'
     required: false
+outputs:
+  npm_audit:
+    description: 'The output of the npm audit report in a text format'
 runs:
   using: 'node12'
   main: 'dist/index.js'

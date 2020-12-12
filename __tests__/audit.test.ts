@@ -30,7 +30,7 @@ describe('run', () => {
       }
     })
 
-    audit.run('low', 'false')
+    audit.run('low', 'false', 'false')
     expect(audit.foundVulnerability()).toBeTruthy()
   })
 
@@ -51,7 +51,28 @@ describe('run', () => {
       }
     })
 
-    audit.run('low', 'true')
+    audit.run('low', 'true', 'false')
+    expect(audit.foundVulnerability()).toBeTruthy()
+  })
+
+  test('finds vulnerabilities with json flag enabled', () => {
+    mocked(child_process).spawnSync.mockImplementation((): any => {
+      const stdout = fs.readFileSync(
+        path.join(__dirname, 'testdata/audit/error.json')
+      )
+
+      return {
+        pid: 100,
+        output: [stdout],
+        stdout,
+        stderr: '',
+        status: 1,
+        signal: null,
+        error: null
+      }
+    })
+
+    audit.run('low', 'false', 'true')
     expect(audit.foundVulnerability()).toBeTruthy()
   })
 
@@ -72,7 +93,7 @@ describe('run', () => {
       }
     })
 
-    audit.run('low', 'false')
+    audit.run('low', 'false', 'false')
     expect(audit.foundVulnerability()).toBeFalsy()
   })
 
@@ -91,7 +112,7 @@ describe('run', () => {
 
     expect.assertions(1)
     const e = new Error('Something is wrong')
-    expect(() => audit.run('low', 'false')).toThrowError(e)
+    expect(() => audit.run('low', 'false', 'false')).toThrowError(e)
   })
 
   test('throws an error if status is null', () => {
@@ -109,7 +130,7 @@ describe('run', () => {
 
     expect.assertions(1)
     const e = new Error('the subprocess terminated due to a signal.')
-    expect(() => audit.run('low', 'false')).toThrowError(e)
+    expect(() => audit.run('low', 'false', 'false')).toThrowError(e)
   })
 
   test('throws an error if stderr is null', () => {
@@ -127,6 +148,6 @@ describe('run', () => {
 
     expect.assertions(1)
     const e = new Error('Something is wrong')
-    expect(() => audit.run('low', 'false')).toThrowError(e)
+    expect(() => audit.run('low', 'false', 'false')).toThrowError(e)
   })
 })

@@ -7,12 +7,16 @@ export class Audit {
   stdout = ''
   private status: number | null = null
 
-  public run(auditLevel: string, productionFlag: string): void {
+  public run(auditLevel: string, productionFlag: string, jsonFlag: string): void {
     try {
       const auditOptions: Array<string> = ['audit', '--audit-level', auditLevel]
 
       if (productionFlag === 'true') {
         auditOptions.push('--production')
+      }
+
+      if (jsonFlag === 'true') {
+        auditOptions.push('--json')
       }
 
       const result: SpawnSyncReturns<string> = spawnSync('npm', auditOptions, {
