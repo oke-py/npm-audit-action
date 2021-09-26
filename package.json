@@ -29,7 +29,7 @@
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
     "@octokit/rest": "^18.0.12",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
