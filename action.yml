@@ -42,7 +42,7 @@ outputs:
   npm_audit:
     description: 'The output of the npm audit report in a text format'
 runs:
-  using: 'node12'
+  using: 'node14'
   main: 'dist/index.js'
 branding:
   icon: 'search'
