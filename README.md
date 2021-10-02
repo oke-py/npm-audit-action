@@ -1,6 +1,6 @@
 # npm audit action
 
-[![Coverage Status](https://coveralls.io/repos/github/oke-py/npm-audit-action/badge.svg?branch=master)](https://coveralls.io/github/oke-py/npm-audit-action?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/oke-py/npm-audit-action/badge.svg?branch=main)](https://coveralls.io/github/oke-py/npm-audit-action?branch=main)
 
 GitHub Action to run `npm audit`
 
@@ -14,7 +14,7 @@ If vulnerabilities are found by `npm audit`, Action triggered by PR creates a co
 
 If vulnerabilities are found by `npm audit`, Action triggered by push, schedule creates the following GitHub Issue.
 
-![image](https://github.com/oke-py/npm-audit-action/blob/master/issue.png)
+![image](https://github.com/oke-py/npm-audit-action/blob/main/issue.png)
 
 ## Usage
 
@@ -47,7 +47,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
       - 'releases/*'
 # on:
 #   schedule:
