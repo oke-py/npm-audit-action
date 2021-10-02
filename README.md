@@ -14,7 +14,7 @@ If vulnerabilities are found by `npm audit`, Action triggered by PR creates a co
 
 If vulnerabilities are found by `npm audit`, Action triggered by push, schedule creates the following GitHub Issue.
 
-![image](https://github.com/oke-py/npm-audit-action/blob/master/issue.png)
+![image](https://github.com/oke-py/npm-audit-action/blob/main/issue.png)
 
 ## Usage
 
