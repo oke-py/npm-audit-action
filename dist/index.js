@@ -209,7 +209,13 @@ function run() {
                     auth: token
                 });
                 if (ctx.event_name === 'pull_request') {
-                    yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
+                    const createPRComments = core.getInput('create_pr_comments');
+                    if (!['true', 'false'].includes(createPRComments)) {
+                        throw new Error('Invalid input: create_pr_comments');
+                    }
+                    if (createPRComments === 'true') {
+                        yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
+                    }
                     core.setFailed('This repo has some vulnerabilities');
                     return;
                 }

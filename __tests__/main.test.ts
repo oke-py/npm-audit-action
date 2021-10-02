@@ -21,6 +21,7 @@ describe('run', () => {
       '{ "event_name": "pull_request", "event": { "number": 100} }'
     process.env.INPUT_GITHUB_TOKEN = '***'
     process.env.GITHUB_REPOSITORY = 'alice/example'
+    process.env.INPUT_CREATE_PR_COMMENTS = 'true'
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', () => {
@@ -87,5 +88,30 @@ describe('run', () => {
 
     expect(run).not.toThrowError()
     expect(pr.createComment).toHaveBeenCalled()
+  })
+
+  test('does not call pr.createComment if create_pr_comments is set to false', () => {
+    process.env.INPUT_CREATE_PR_COMMENTS = 'false'
+
+    mocked(Audit).mockImplementation((): any => {
+      return {
+        stdout: fs.readFileSync(
+          path.join(__dirname, 'testdata/audit/error.txt')
+        ),
+        status: 1,
+        run: (auditLevel: string): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return path.join(__dirname, 'testdata/audit/error.txt')
+        }
+      }
+    })
+
+    expect(run).not.toThrowError()
+    expect(pr.createComment).not.toHaveBeenCalled()
   })
 })
