@@ -70,6 +70,16 @@ export async function run(): Promise<void> {
         return
       } else {
         core.debug('open an issue')
+        const createIssues = core.getInput('create_issues')
+        if (!['true', 'false'].includes(createIssues)) {
+          throw new Error('Invalid input: create_issues')
+        }
+
+        if (createIssues === 'false') {
+          core.setFailed('This repo has some vulnerabilities')
+          return
+        }
+
         // remove control characters and create a code block
         const issueBody = audit.strippedStdout()
         const option: IssueOption = issue.getIssueOption(issueBody)
