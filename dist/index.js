@@ -209,12 +209,26 @@ function run() {
                     auth: token
                 });
                 if (ctx.event_name === 'pull_request') {
-                    yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
+                    const createPRComments = core.getInput('create_pr_comments');
+                    if (!['true', 'false'].includes(createPRComments)) {
+                        throw new Error('Invalid input: create_pr_comments');
+                    }
+                    if (createPRComments === 'true') {
+                        yield pr.createComment(token, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
+                    }
                     core.setFailed('This repo has some vulnerabilities');
                     return;
                 }
                 else {
                     core.debug('open an issue');
+                    const createIssues = core.getInput('create_issues');
+                    if (!['true', 'false'].includes(createIssues)) {
+                        throw new Error('Invalid input: create_issues');
+                    }
+                    if (createIssues === 'false') {
+                        core.setFailed('This repo has some vulnerabilities');
+                        return;
+                    }
                     // remove control characters and create a code block
                     const issueBody = audit.strippedStdout();
                     const option = issue.getIssueOption(issueBody);

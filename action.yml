@@ -38,6 +38,14 @@ inputs:
     description: 'Flag to de-dupe against open issues'
     default: 'false'
     required: false
+  create_issues:
+    description: 'Flag to create issues when vulnerabilities are found'
+    default: 'true'
+    required: false
+  create_pr_comments:
+    description: 'Flag to create pr comments when vulnerabilities are found'
+    default: 'true'
+    required: false
 outputs:
   npm_audit:
     description: 'The output of the npm audit report in a text format'

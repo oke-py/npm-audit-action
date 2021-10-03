@@ -31,6 +31,8 @@ If vulnerabilities are found by `npm audit`, Action triggered by push, schedule 
 |github_token|true|N/A|GitHub Access Token.<br>${{ secrets.GITHUB_TOKEN }} is recommended.|
 |working_directory|false|N/A|The directory which contains package.json (since v1.4.0)|
 |dedupe_issues|false|false|If 'true', action will not create a new issue when one is already open (since v1.5.0)|
+|create_issues|false|true|If 'false', action will not create a new issue even if vulnerabilities are found (since v1.8.0)|
+|create_pr_comments|false|true|If 'false', action will not create a pr comment even if vulnerabilities are found (since v1.8.0)|
 
 ### Outputs
 
