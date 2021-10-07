@@ -41,6 +41,20 @@ describe('getIssueOption', () => {
     }
     expect(issue.getIssueOption('hi')).toEqual(expected)
   })
+
+  test('with label containing spaces', () => {
+    process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
+    process.env.INPUT_ISSUE_ASSIGNEES = 'alice'
+    process.env.INPUT_ISSUE_LABELS = 'status: ready, work: frontend'
+
+    const expected: IssueOption = {
+      title: 'npm audit found vulnerabilities',
+      body: 'hi',
+      assignees: ['alice'],
+      labels: ['status: ready', 'work: frontend']
+    }
+    expect(issue.getIssueOption('hi')).toEqual(expected)
+  })
 })
 
 describe('getExistingIssueNumber', () => {

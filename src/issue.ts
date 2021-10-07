@@ -9,7 +9,7 @@ export function getIssueOption(body: string): IssueOption {
     assignees = core.getInput('issue_assignees').replace(/\s+/g, '').split(',')
   }
   if (core.getInput('issue_labels')) {
-    labels = core.getInput('issue_labels').replace(/\s+/g, '').split(',')
+    labels = core.getInput('issue_labels').split(',').map(label => label.trim())
   }
 
   return {
