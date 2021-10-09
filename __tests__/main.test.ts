@@ -135,7 +135,7 @@ describe('run: issue', () => {
     process.env.INPUT_DEDUPE_ISSUES = 'true'
   })
 
-  test('does not call octokit.issues.create if create_issues is set to false', () => {
+  test('does not call octokit.rest.issues.create if create_issues is set to false', () => {
     process.env.INPUT_CREATE_ISSUES = 'false'
 
     mocked(Audit).mockImplementation((): any => {
