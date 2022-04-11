@@ -187,7 +187,7 @@ function run() {
             core.info(`Current working directory: ${process.cwd()}`);
             // get audit-level
             const auditLevel = core.getInput('audit_level', { required: true });
-            if (!['critical', 'high', 'moderate', 'low'].includes(auditLevel)) {
+            if (!['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(auditLevel)) {
                 throw new Error('Invalid input: audit_level');
             }
             const productionFlag = core.getInput('production_flag', { required: false });
