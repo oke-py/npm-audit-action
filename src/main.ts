@@ -21,7 +21,7 @@ export async function run(): Promise<void> {
 
     // get audit-level
     const auditLevel = core.getInput('audit_level', {required: true})
-    if (!['critical', 'high', 'moderate', 'low', 'none'].includes(auditLevel)) {
+    if (!['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(auditLevel)) {
       throw new Error('Invalid input: audit_level')
     }
 
