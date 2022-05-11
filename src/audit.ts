@@ -15,6 +15,9 @@ export class Audit {
     try {
       const auditOptions: Array<string> = ['audit', '--audit-level', auditLevel]
 
+      const isWindowsEnvironment: boolean = process.platform == "win32";
+      const cmd: string = (isWindowsEnvironment) ? 'npm.cmd' : 'npm';
+
       if (productionFlag === 'true') {
         auditOptions.push('--production')
       }
@@ -23,7 +26,7 @@ export class Audit {
         auditOptions.push('--json')
       }
 
-      const result: SpawnSyncReturns<string> = spawnSync('npm', auditOptions, {
+      const result: SpawnSyncReturns<string> = spawnSync(cmd, auditOptions, {
         encoding: 'utf-8',
         maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
       })
