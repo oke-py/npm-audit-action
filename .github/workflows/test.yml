@@ -28,7 +28,7 @@ jobs:
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
     - run: |
         npm install npm-windows-upgrade --location=global
-        npm-windows-upgrade
+        npm-windows-upgrade --npm-version latest
     - run: |
         npm ci
         npm run all
