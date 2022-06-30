@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-      - run: npm -g update
+      - run: sudo npm update --location=global
       - name: install dependencies
         run: npm ci
       - uses: oke-py/npm-audit-action@v2

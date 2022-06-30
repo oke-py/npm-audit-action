@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-    - run: npm -g update
+    - run: sudo npm update --location=global
     - run: |
         npm ci
         npm run all
@@ -35,7 +35,7 @@ jobs:
       run: echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v3
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-    - run: npm -g update
+    - run: sudo npm update --location=global
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
