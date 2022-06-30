@@ -36,7 +36,7 @@ jobs:
   test: # make sure the action works on a clean machine without building
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Dump GitHub context
@@ -64,7 +64,7 @@ jobs:
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
     - run: |
         npm install npm-windows-upgrade --location=global
-        npm-windows-upgrade
+        npm-windows-upgrade --npm-version latest
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
