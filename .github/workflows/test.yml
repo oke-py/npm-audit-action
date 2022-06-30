@@ -10,18 +10,28 @@ jobs:
   build: # make sure build/ci work properly
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
-    # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-    - run: sudo npm update --location=global
     - run: |
         npm ci
         npm run all
     - uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-on-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
+    - run: |
+        npm install npm-windows-upgrade --location=global
+        npm-windows-upgrade
+    - run: |
+        npm ci
+        npm run all
 
   test: # make sure the action works on a clean machine without building
     strategy:
@@ -34,8 +44,27 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v3
+    - uses: ./
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_title: npm audit run by test job
+    - uses: ./
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        working_directory: __tests__/testdata/workdir/
+
+  test-on-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v3
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-    - run: sudo npm update --location=global
+    - run: |
+        npm install npm-windows-upgrade --location=global
+        npm-windows-upgrade
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
