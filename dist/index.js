@@ -25,7 +25,7 @@ class Audit {
             const isWindowsEnvironment = process.platform == "win32";
             const cmd = (isWindowsEnvironment) ? 'npm.cmd' : 'npm';
             if (productionFlag === 'true') {
-                auditOptions.push('--production');
+                auditOptions.push('--omit=dev');
             }
             if (jsonFlag === 'true') {
                 auditOptions.push('--json');
