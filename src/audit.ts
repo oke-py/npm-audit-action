@@ -19,7 +19,7 @@ export class Audit {
       const cmd: string = isWindowsEnvironment ? 'npm.cmd' : 'npm'
 
       if (productionFlag === 'true') {
-        auditOptions.push('--production')
+        auditOptions.push('--omit=dev')
       }
 
       if (jsonFlag === 'true') {

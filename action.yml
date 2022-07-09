@@ -7,7 +7,7 @@ inputs:
     default: low
     required: false
   production_flag:
-    description: 'Run npm audit with --production'
+    description: 'Run npm audit with --omit=dev'
     default: 'false'
     required: false
   json_flag:
