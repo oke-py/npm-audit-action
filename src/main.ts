@@ -114,8 +114,10 @@ export async function run(): Promise<void> {
         core.setFailed('This repo has some vulnerabilities')
       }
     }
-  } catch (error) {
-    core.setFailed(error.message)
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      core.setFailed(e.message)
+    }
   }
 }
 
