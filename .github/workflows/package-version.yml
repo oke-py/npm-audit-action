@@ -21,7 +21,7 @@ jobs:
     - name: git push
       run: |
         git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
-        git push origin HEAD:${{ github.head_ref }}
+        git push origin ${{ github.head_ref }}
   patch:
     runs-on: ubuntu-latest
     if: ${{ github.event.label.name == 'release patch' }}
@@ -38,4 +38,4 @@ jobs:
     - name: git push
       run: |
         git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
-        git push origin HEAD:${{ github.head_ref }}
+        git push origin ${{ github.head_ref }}
