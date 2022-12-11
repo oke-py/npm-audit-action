@@ -1,0 +1,27 @@
+name: "update dist/index.js"
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+    - name: check out repository code
+      uses: actions/checkout@v3
+    - name: install dependencies
+      run: |
+        npm ci
+    - name: format TypeScript code
+      run: |
+        npm run format
+    - name: compile TypeScript code
+      run: |
+        npm run build
+    - name: compile TypeScript code into dist/index.js
+      run: |
+        npm run pack
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "chore(build): automated change"
