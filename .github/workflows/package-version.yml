@@ -11,6 +11,8 @@ jobs:
     steps:
     - name: check out repository code
       uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
     - name: git config
       run: |
         git config --global user.name "${GITHUB_ACTOR}"
@@ -30,6 +32,8 @@ jobs:
     steps:
     - name: check out repository code
       uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
     - name: git config
       run: |
         git config --global user.name "${GITHUB_ACTOR}"
