@@ -7,7 +7,7 @@ on:
 jobs:
   minor:
     runs-on: ubuntu-latest
-    if: ${{ github.event.label.name == "release minor" }}
+    if: ${{ github.event.label.name == 'release minor' }}
     steps:
     - name: check out repository code
       uses: actions/checkout@v3
@@ -19,7 +19,7 @@ jobs:
         commit_message: "release: automated change"
   patch:
     runs-on: ubuntu-latest
-    if: ${{ github.event.label.name == "release patch" }}
+    if: ${{ github.event.label.name == 'release patch' }}
     steps:
     - name: check out repository code
       uses: actions/checkout@v3
