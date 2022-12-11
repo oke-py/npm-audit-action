@@ -13,14 +13,15 @@ jobs:
       uses: actions/checkout@v3
     - name: git config
       run: |
-        git config user.email "noreply@github.com"
-        git config user.name "GitHub"
+        git config --global user.name "${GITHUB_ACTOR}"
+        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
     - name: increment minor version
       run: |
-        npm version minor
-    - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "release: automated change"
+        npm version minor --no-git-tag-version
+    - name: git push
+      run: |
+        git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
+        git push origin HEAD:${{ github.head_ref }}
   patch:
     runs-on: ubuntu-latest
     if: ${{ github.event.label.name == 'release patch' }}
@@ -29,11 +30,12 @@ jobs:
       uses: actions/checkout@v3
     - name: git config
       run: |
-        git config user.email "noreply@github.com"
-        git config user.name "GitHub"
+        git config --global user.name "${GITHUB_ACTOR}"
+        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
     - name: increment patch version
       run: |
-        npm version patch
-    - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "release: automated change"
+        npm version patch --no-git-tag-version
+    - name: git push
+      run: |
+        git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
+        git push origin HEAD:${{ github.head_ref }}
