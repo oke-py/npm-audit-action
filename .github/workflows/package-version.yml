@@ -19,7 +19,7 @@ jobs:
         git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
     - name: increment minor version
       run: |
-        npm version minor --no-git-tag-version
+        npm version minor
     - name: git push
       run: |
         git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
@@ -40,7 +40,7 @@ jobs:
         git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
     - name: increment patch version
       run: |
-        npm version patch --no-git-tag-version
+        npm version patch
     - name: git push
       run: |
         git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
