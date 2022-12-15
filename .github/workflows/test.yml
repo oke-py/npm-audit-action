@@ -10,10 +10,14 @@ jobs:
   build: # make sure build/ci work properly
     strategy:
       matrix:
+        node: [16, 18]
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
     - run: |
         npm ci
         npm run all
@@ -22,9 +26,15 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build-on-windows:
+    strategy:
+      matrix:
+        node: [16, 18]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
     - run: |
         npm install npm-windows-upgrade --location=global
@@ -36,6 +46,7 @@ jobs:
   test: # make sure the action works on a clean machine without building
     strategy:
       matrix:
+        node: [16, 18]
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -44,6 +55,9 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -56,6 +70,9 @@ jobs:
         create_issues: false
 
   test-on-windows:
+    strategy:
+      matrix:
+        node: [16, 18]
     runs-on: windows-latest
     steps:
     - name: Dump GitHub context
@@ -63,6 +80,9 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
     - run: |
         npm install npm-windows-upgrade --location=global
