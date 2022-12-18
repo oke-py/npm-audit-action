@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import {Octokit} from '@octokit/rest'
-import {mocked} from 'ts-jest/utils'
 import {Audit} from '../src/audit'
 import {run} from '../src/main'
 import * as issue from '../src/issue'
@@ -14,8 +13,8 @@ jest.mock('../src/pr')
 describe('run: pr', () => {
   beforeEach(() => {
     // initialize mock
-    mocked(Audit).mockClear()
-    mocked(pr).createComment.mockClear()
+    jest.mocked(Audit).mockClear()
+    jest.mocked(pr).createComment.mockClear()
 
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
@@ -28,7 +27,7 @@ describe('run: pr', () => {
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', () => {
-    mocked(Audit).mockImplementation((): any => {
+    jest.mocked(Audit).mockImplementation((): any => {
       return {
         stdout: fs.readFileSync(
           path.join(__dirname, 'testdata/audit/success.txt')
@@ -46,7 +45,7 @@ describe('run: pr', () => {
       }
     })
 
-    mocked(pr).createComment.mockResolvedValue({
+    jest.mocked(pr).createComment.mockResolvedValue({
       config: {},
       headers: {},
       status: 201,
@@ -61,7 +60,7 @@ describe('run: pr', () => {
   })
 
   test('calls pr.createComment if vulnerabilities are found in PR', () => {
-    mocked(Audit).mockImplementation((): any => {
+    jest.mocked(Audit).mockImplementation((): any => {
       return {
         stdout: fs.readFileSync(
           path.join(__dirname, 'testdata/audit/error.txt')
@@ -79,7 +78,7 @@ describe('run: pr', () => {
       }
     })
 
-    mocked(pr).createComment.mockResolvedValue({
+    jest.mocked(pr).createComment.mockResolvedValue({
       config: {},
       headers: {},
       status: 201,
@@ -96,7 +95,7 @@ describe('run: pr', () => {
   test('does not call pr.createComment if create_pr_comments is set to false', () => {
     process.env.INPUT_CREATE_PR_COMMENTS = 'false'
 
-    mocked(Audit).mockImplementation((): any => {
+    jest.mocked(Audit).mockImplementation((): any => {
       return {
         stdout: fs.readFileSync(
           path.join(__dirname, 'testdata/audit/error.txt')
@@ -122,8 +121,8 @@ describe('run: pr', () => {
 describe('run: issue', () => {
   beforeEach(() => {
     // initialize mock
-    mocked(Audit).mockClear()
-    mocked(issue).getExistingIssueNumber.mockClear()
+    jest.mocked(Audit).mockClear()
+    jest.mocked(issue).getExistingIssueNumber.mockClear()
 
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
@@ -138,7 +137,7 @@ describe('run: issue', () => {
   test('does not call octokit.rest.issues.create if create_issues is set to false', () => {
     process.env.INPUT_CREATE_ISSUES = 'false'
 
-    mocked(Audit).mockImplementation((): any => {
+    jest.mocked(Audit).mockImplementation((): any => {
       return {
         stdout: fs.readFileSync(
           path.join(__dirname, 'testdata/audit/error.txt')
@@ -156,7 +155,7 @@ describe('run: issue', () => {
       }
     })
 
-    mocked(issue).getExistingIssueNumber.mockResolvedValue(null)
+    jest.mocked(issue).getExistingIssueNumber.mockResolvedValue(null)
 
     expect(run).not.toThrowError()
     expect(issue.getExistingIssueNumber).not.toHaveBeenCalled()
