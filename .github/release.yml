@@ -1,0 +1,14 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - github-actions[bot]
+  categories:
+    - title: Production code updates
+      labels:
+        - dependencies
+        - enhancement
+    - title: Other Changes
+      labels:
+        - "*"
