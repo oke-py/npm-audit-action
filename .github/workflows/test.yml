@@ -63,11 +63,13 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         issue_title: npm audit run by test job
         create_issues: false
+        production_flag: true
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         working_directory: __tests__/testdata/workdir/
         create_issues: false
+        production_flag: true
 
   test-on-windows:
     strategy:
@@ -92,8 +94,10 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         issue_title: npm audit run by test job
         create_issues: false
+        production_flag: true
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         working_directory: __tests__/testdata/workdir/
         create_issues: false
+        production_flag: true
