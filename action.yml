@@ -6,38 +6,6 @@ inputs:
     description: 'The value of `--audit-level` flag'
     default: low
     required: false
-  production_flag:
-    description: 'Run npm audit with --omit=dev'
-    default: 'false'
-    required: false
-  json_flag:
-    description: 'Run npm audit with --json'
-    default: 'false'
-    required: false
-  github_context:
-    description: 'The `github` context'
-    default: ${{ toJson(github) }}
-    required: false
-  github_token:
-    description: 'GitHub access token used to create an issue'
-    required: true
-  issue_assignees:
-    description: 'Issue assignees (separated by commma)'
-    required: false
-  issue_labels:
-    description: 'Issue assignees (separated by commma)'
-    required: false
-  issue_title:
-    description: 'Issue title'
-    default: 'npm audit found vulnerabilities'
-    required: false
-  working_directory:
-    description: 'The directory which contains package.json (since v1.4.0)'
-    required: false
-  dedupe_issues:
-    description: 'Flag to de-dupe against open issues'
-    default: 'false'
-    required: false
   create_issues:
     description: 'Flag to create issues when vulnerabilities are found'
     default: 'true'
@@ -45,6 +13,38 @@ inputs:
   create_pr_comments:
     description: 'Flag to create pr comments when vulnerabilities are found'
     default: 'true'
+    required: false
+  dedupe_issues:
+    description: 'Flag to de-dupe against open issues'
+    default: 'false'
+    required: false
+  github_context:
+    description: 'The `github` context'
+    default: ${{ toJson(github) }}
+    required: false
+  github_token:
+    description: 'GitHub Access Token. ${{ secrets.GITHUB_TOKEN }} is recommended.'
+    required: true
+  issue_assignees:
+    description: 'Issue assignees (separated by commma)'
+    required: false
+  issue_labels:
+    description: 'Issue labels (separated by commma)'
+    required: false
+  issue_title:
+    description: 'Issue title'
+    default: 'npm audit found vulnerabilities'
+    required: false
+  json_flag:
+    description: 'Run `npm audit` with `--json`'
+    default: 'false'
+    required: false
+  production_flag:
+    description: 'Run `npm audit` with `--omit=dev`'
+    default: 'false'
+    required: false
+  working_directory:
+    description: 'The directory which contains package.json'
     required: false
 outputs:
   npm_audit:

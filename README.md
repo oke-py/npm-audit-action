@@ -23,16 +23,17 @@ If vulnerabilities are found by `npm audit`, Action triggered by push, schedule 
 |Parameter|Required|Default Value|Description|
 |:--:|:--:|:--:|:--|
 |audit_level|false|low|The value of `--audit-level` flag|
-|production_flag|false|false|Runnning `npm audit` with `--omit=dev`|
-|json_flag|false|false|Runnning `npm audit` with `--json`|
+|create_issues|false|true|Flag to create issues when vulnerabilities are found|
+|create_pr_comments|false|true|Flag to create pr comments when vulnerabilities are found|
+|dedupe_issues|false|false|Flag to de-dupe against open issues|
+|github_context|false|`${{ toJson(github) }}`|The `github` context|
+|github_token|true|N/A|GitHub Access Token.<br>${{ secrets.GITHUB_TOKEN }} is recommended.|
 |issue_assignees|false|N/A|Issue assignees (separated by commma)|
 |issue_labels|false|N/A|Issue labels (separated by commma)|
 |issue_title|false|npm audit found vulnerabilities|Issue title|
-|github_token|true|N/A|GitHub Access Token.<br>${{ secrets.GITHUB_TOKEN }} is recommended.|
-|working_directory|false|N/A|The directory which contains package.json (since v1.4.0)|
-|dedupe_issues|false|false|If 'true', action will not create a new issue when one is already open (since v1.5.0)|
-|create_issues|false|true|If 'false', action will not create a new issue even if vulnerabilities are found (since v1.8.0)|
-|create_pr_comments|false|true|If 'false', action will not create a pr comment even if vulnerabilities are found (since v1.8.0)|
+|json_flag|false|false|Run `npm audit` with `--json`|
+|production_flag|false|false|Run `npm audit` with `--omit=dev`|
+|working_directory|false|N/A|The directory which contains package.json|
 
 ### Outputs
 
