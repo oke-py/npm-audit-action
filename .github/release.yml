@@ -2,6 +2,8 @@ changelog:
   exclude:
     labels:
       - ignore-for-release
+      - release minor
+      - release patch
     authors:
       - github-actions[bot]
   categories:
