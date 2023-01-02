@@ -6,12 +6,16 @@ inputs:
     description: 'The value of `--audit-level` flag'
     default: low
     required: false
-  production_flag:
-    description: 'Run npm audit with --omit=dev'
-    default: 'false'
+  create_issues:
+    description: 'Flag to create issues when vulnerabilities are found'
+    default: 'true'
     required: false
-  json_flag:
-    description: 'Run npm audit with --json'
+  create_pr_comments:
+    description: 'Flag to create pr comments when vulnerabilities are found'
+    default: 'true'
+    required: false
+  dedupe_issues:
+    description: 'Flag to de-dupe against open issues'
     default: 'false'
     required: false
   github_context:
@@ -31,20 +35,16 @@ inputs:
     description: 'Issue title'
     default: 'npm audit found vulnerabilities'
     required: false
-  working_directory:
-    description: 'The directory which contains package.json (since v1.4.0)'
-    required: false
-  dedupe_issues:
-    description: 'Flag to de-dupe against open issues'
+  json_flag:
+    description: 'Run npm audit with --json'
     default: 'false'
     required: false
-  create_issues:
-    description: 'Flag to create issues when vulnerabilities are found'
-    default: 'true'
+  production_flag:
+    description: 'Run npm audit with --omit=dev'
+    default: 'false'
     required: false
-  create_pr_comments:
-    description: 'Flag to create pr comments when vulnerabilities are found'
-    default: 'true'
+  working_directory:
+    description: 'The directory which contains package.json (since v1.4.0)'
     required: false
 outputs:
   npm_audit:
