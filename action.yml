@@ -23,7 +23,7 @@ inputs:
     default: ${{ toJson(github) }}
     required: false
   github_token:
-    description: 'GitHub Access Token. ${{ secrets.GITHUB_TOKEN }} is recommended.'
+    description: 'GitHub Access Token.'
     required: true
   issue_assignees:
     description: 'Issue assignees (separated by commma)'
