@@ -17,7 +17,6 @@ jobs:
     - name: git tag
       run: |
         git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
-        git tag -d v2
         git push origin -d v2
         git tag v2 ${GITHUB_SHA}
         git push origin v2
