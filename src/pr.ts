@@ -1,19 +1,16 @@
-import axios, {AxiosResponse} from 'axios'
+import {Octokit} from '@octokit/rest'
 
 export async function createComment(
-  token: string,
+  octokit: Octokit,
   owner: string,
   repo: string,
   prNumber: number,
   body: string
-): Promise<AxiosResponse> {
-  const instance = axios.create({
-    baseURL: 'https://api.github.com',
-    headers: {
-      Authorization: `token ${token}`
-    }
-  })
-  return instance.post(`/repos/${owner}/${repo}/issues/${prNumber}/comments`, {
+): Promise<void> {
+  octokit.rest.issues.createComment({
+    owner,
+    repo,
+    issue_number: prNumber,
     body
   })
 }

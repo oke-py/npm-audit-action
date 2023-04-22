@@ -1,6 +1,5 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import {Octokit} from '@octokit/rest'
 import {Audit} from '../src/audit'
 import {run} from '../src/main'
 import * as issue from '../src/issue'
@@ -45,15 +44,7 @@ describe('run: pr', () => {
       }
     })
 
-    jest.mocked(pr).createComment.mockResolvedValue({
-      config: {},
-      headers: {},
-      status: 201,
-      statusText: 'Created',
-      data: {
-        value: []
-      }
-    })
+    jest.mocked(pr).createComment.mockResolvedValue()
 
     expect(run).not.toThrowError()
     expect(pr.createComment).not.toHaveBeenCalled()
@@ -78,15 +69,7 @@ describe('run: pr', () => {
       }
     })
 
-    jest.mocked(pr).createComment.mockResolvedValue({
-      config: {},
-      headers: {},
-      status: 201,
-      statusText: 'Created',
-      data: {
-        value: []
-      }
-    })
+    jest.mocked(pr).createComment.mockResolvedValue()
 
     expect(run).not.toThrowError()
     expect(pr.createComment).toHaveBeenCalled()

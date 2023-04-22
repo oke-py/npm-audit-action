@@ -63,7 +63,7 @@ export async function run(): Promise<void> {
 
         if (createPRComments === 'true') {
           await pr.createComment(
-            token,
+            octokit,
             github.context.repo.owner,
             github.context.repo.repo,
             ctx.event.number,
