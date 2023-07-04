@@ -21,6 +21,7 @@ jobs:
           issue_assignees: oke-py
           issue_labels: vulnerability
           dedupe_issues: true
+          production_flag: true
 
   scan-on-windows:
     name: npm audit
@@ -39,3 +40,4 @@ jobs:
           issue_assignees: oke-py
           issue_labels: vulnerability
           dedupe_issues: true
+          production_flag: true
