@@ -12,7 +12,7 @@ jobs:
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: install dependencies
         run: npm ci
       - uses: oke-py/npm-audit-action@v2
@@ -27,7 +27,7 @@ jobs:
     name: npm audit
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
       - run: |
           npm install npm-windows-upgrade --location=global
