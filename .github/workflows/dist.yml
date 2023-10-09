@@ -22,6 +22,6 @@ jobs:
     - name: compile TypeScript code into dist/index.js
       run: |
         npm run pack
-    - uses: stefanzweifel/git-auto-commit-action@v4
+    - uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "chore(build): automated change"
