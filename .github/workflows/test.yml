@@ -9,7 +9,7 @@ jobs:
   build: # make sure build/ci work properly
     strategy:
       matrix:
-        node: [18]
+        node: [18, 20]
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -27,7 +27,7 @@ jobs:
   build-on-windows:
     strategy:
       matrix:
-        node: [18]
+        node: [18, 20]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
   test: # make sure the action works on a clean machine without building
     strategy:
       matrix:
-        node: [18]
+        node: [18, 20]
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -73,7 +73,7 @@ jobs:
   test-on-windows:
     strategy:
       matrix:
-        node: [18]
+        node: [18, 20]
     runs-on: windows-latest
     steps:
     - name: Dump GitHub context
