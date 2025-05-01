@@ -50,7 +50,7 @@ outputs:
   npm_audit:
     description: 'The output of the npm audit report in a text format'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 branding:
   icon: 'search'
