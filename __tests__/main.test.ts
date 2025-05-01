@@ -8,6 +8,19 @@ import * as pr from '../src/pr'
 jest.mock('../src/audit')
 jest.mock('../src/issue')
 jest.mock('../src/pr')
+jest.mock('@octokit/rest', () => {
+  return {
+    Octokit: jest.fn().mockImplementation(() => {
+      return {
+        issues: {
+          listForRepo: jest.fn(),
+          createComment: jest.fn(),
+          create: jest.fn()
+        }
+      }
+    })
+  }
+})
 
 describe('run: pr', () => {
   beforeEach(() => {
