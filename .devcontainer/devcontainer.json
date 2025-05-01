@@ -1,11 +1,12 @@
 {
   "name": "npm-audit-action-dev",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
   "customizations": {
     "vscode": {
       "extensions": [
         "EditorConfig.EditorConfig",
-        "GitHub.copilot"
+        "GitHub.copilot",
+        "saoudrizwan.claude-dev"
       ]
     }
   }
