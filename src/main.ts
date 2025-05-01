@@ -91,21 +91,20 @@ export async function run(): Promise<void> {
         const existingIssueNumber =
           core.getInput('dedupe_issues') === 'true'
             ? await issue.getExistingIssueNumber(
-                octokit.rest.issues.listForRepo,
+                octokit.issues.listForRepo,
                 github.context.repo
               )
             : null
 
         if (existingIssueNumber !== null) {
-          const {data: createdComment} =
-            await octokit.rest.issues.createComment({
-              ...github.context.repo,
-              issue_number: existingIssueNumber,
-              body: option.body
-            })
+          const {data: createdComment} = await octokit.issues.createComment({
+            ...github.context.repo,
+            issue_number: existingIssueNumber,
+            body: option.body
+          })
           core.debug(`comment ${createdComment.url}`)
         } else {
-          const {data: createdIssue} = await octokit.rest.issues.create({
+          const {data: createdIssue} = await octokit.issues.create({
             ...github.context.repo,
             ...option
           })
