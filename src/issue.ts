@@ -27,6 +27,8 @@ export type GetIssuesFunc = (options: {
   owner: string
   repo: string
   state: 'open' | 'closed' | 'all' | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any // Allow additional properties
 }) => Promise<{data: {title: string; number: number}[]}>
 
 export async function getExistingIssueNumber(
