@@ -24,6 +24,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
+  # Adding a comment to clarify the purpose of the Windows build job
   build-on-windows:
     strategy:
       matrix:
@@ -34,10 +35,7 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
-    # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-    - run: |
-        npm install npm-windows-upgrade --location=global
-        npm-windows-upgrade --npm-version latest
+    # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
     - run: |
         npm ci
         npm run all
@@ -84,10 +82,7 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
-    # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-    - run: |
-        npm install npm-windows-upgrade --location=global
-        npm-windows-upgrade --npm-version latest
+    # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
     - uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
