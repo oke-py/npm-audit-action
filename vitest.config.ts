@@ -6,7 +6,7 @@ export default defineConfig({
     environment: 'node',
     include: ['__tests__/**/*.test.ts'],
     coverage: {
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
     },
   },
 });
