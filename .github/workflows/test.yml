@@ -17,7 +17,8 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
-    - run: |
+    - name: Install dependencies and run all scripts
+      run: |
         npm ci
         npm run all
     - uses: coverallsapp/github-action@master
@@ -36,7 +37,8 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
-    - run: |
+    - name: Install dependencies and run all scripts
+      run: |
         npm ci
         npm run all
 
@@ -55,13 +57,15 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
-    - uses: ./
+    - name: Run npm audit action
+      uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         issue_title: npm audit run by test job
         create_issues: false
         production_flag: true
-    - uses: ./
+    - name: Run npm audit action in testdata workdir
+      uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         working_directory: __tests__/testdata/workdir/
@@ -83,13 +87,15 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
-    - uses: ./
+    - name: Run npm audit action
+      uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         issue_title: npm audit run by test job
         create_issues: false
         production_flag: true
-    - uses: ./
+    - name: Run npm audit action in testdata workdir
+      uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         working_directory: __tests__/testdata/workdir/
