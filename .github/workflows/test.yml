@@ -92,11 +92,6 @@ jobs:
         echo "Verifying npm installation..."
         npm --version
         node --version
-    - name: Fix npm PATH issue on Windows
-      if: runner.os == 'Windows'
-      run: |
-        echo "Fixing npm PATH..."
-        $env:PATH = "$env:APPDATA\npm;$env:PATH"
     - name: Run npm audit action
       uses: ./
       with:
