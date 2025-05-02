@@ -3,17 +3,17 @@ import * as fs from 'fs'
 import * as path from 'path'
 import {Audit} from '../src/audit'
 
-jest.mock('child_process')
+vi.mock('child_process')
 
 const audit = new Audit()
 
 describe('run', () => {
   beforeEach(() => {
-    jest.mocked(child_process).spawnSync.mockClear()
+    vi.mocked(child_process).spawnSync.mockClear()
   })
 
   test('finds vulnerabilities with default values', () => {
-    jest.mocked(child_process).spawnSync.mockImplementation((): any => {
+    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
       const stdout = fs.readFileSync(
         path.join(__dirname, 'testdata/audit/error.txt')
       )
@@ -34,7 +34,7 @@ describe('run', () => {
   })
 
   test('finds vulnerabilities with production flag enabled', () => {
-    jest.mocked(child_process).spawnSync.mockImplementation((): any => {
+    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
       const stdout = fs.readFileSync(
         path.join(__dirname, 'testdata/audit/error.txt')
       )
@@ -55,7 +55,7 @@ describe('run', () => {
   })
 
   test('finds vulnerabilities with json flag enabled', () => {
-    jest.mocked(child_process).spawnSync.mockImplementation((): any => {
+    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
       const stdout = fs.readFileSync(
         path.join(__dirname, 'testdata/audit/error.json')
       )
@@ -76,7 +76,7 @@ describe('run', () => {
   })
 
   test('does not find vulnerabilities', () => {
-    jest.mocked(child_process).spawnSync.mockImplementation((): any => {
+    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
       const stdout = fs.readFileSync(
         path.join(__dirname, 'testdata/audit/success.txt')
       )
@@ -97,7 +97,7 @@ describe('run', () => {
   })
 
   test('throws an error if error is not null', () => {
-    jest.mocked(child_process).spawnSync.mockImplementation((): any => {
+    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
       return {
         pid: 100,
         output: '',
@@ -115,7 +115,7 @@ describe('run', () => {
   })
 
   test('throws an error if status is null', () => {
-    jest.mocked(child_process).spawnSync.mockImplementation((): any => {
+    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
       return {
         pid: 100,
         output: '',
@@ -133,7 +133,7 @@ describe('run', () => {
   })
 
   test('throws an error if stderr is null', () => {
-    jest.mocked(child_process).spawnSync.mockImplementation((): any => {
+    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
       return {
         pid: 100,
         output: '',

@@ -68,7 +68,7 @@ describe('getExistingIssueNumber', () => {
   })
 
   test('gets existing open issue', async () => {
-    const getIssues = jest.fn()
+    const getIssues = vi.fn()
     getIssues.mockResolvedValue({
       data: [
         {
@@ -89,7 +89,7 @@ describe('getExistingIssueNumber', () => {
   })
 
   test('returns null when there is no open issue', async () => {
-    const getIssues = jest.fn()
+    const getIssues = vi.fn()
     getIssues.mockResolvedValue({data: []})
 
     const result = await issue.getExistingIssueNumber(getIssues, {repo, owner})
@@ -104,7 +104,7 @@ describe('getExistingIssueNumber', () => {
   })
 
   test('returns null when no issues match the issue title', async () => {
-    const getIssues = jest.fn()
+    const getIssues = vi.fn()
     getIssues.mockResolvedValue({
       data: [
         {

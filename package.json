@@ -13,8 +13,9 @@
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
     "pack": "ncc build",
-    "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run pack && npm test -- --coverage"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "all": "npm run build && npm run format && npm run lint && npm run pack && npm run test:coverage"
   },
   "repository": {
     "type": "git",
@@ -35,18 +36,17 @@
     "strip-ansi": "^6.0.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.14",
     "@types/node": "^20.0.0",
     "@typescript-eslint/parser": "^6.7.4",
     "@vercel/ncc": "^0.38.3",
+    "@vitest/coverage-v8": "^3.1.2",
     "eslint": "^8.51.0",
     "eslint-plugin-github": "^4.10.1",
     "eslint-plugin-jest": "^27.4.2",
-    "jest": "^29.7.0",
-    "jest-circus": "^29.7.0",
     "js-yaml": "^4.0.0",
     "prettier": "^3.5.3",
-    "ts-jest": "^29.3.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vite": "^6.3.4",
+    "vitest": "^3.1.2"
   }
 }

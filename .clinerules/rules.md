@@ -30,7 +30,7 @@ This document outlines the development guidelines and best practices for our Typ
 - **Testing**
   - Write unit tests for all business logic
   - Aim for high test coverage (at least 80%)
-  - Use Jest or Mocha for testing frameworks
+  - Use Vitest as the testing framework
   - Implement integration tests for critical paths
 
 - **Build Process**
