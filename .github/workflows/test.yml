@@ -96,7 +96,7 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         echo "Fixing npm PATH..."
-        SET PATH=%APPDATA%\npm;%PATH%
+        $env:PATH = "$env:APPDATA\npm;$env:PATH"
     - name: Run npm audit action
       uses: ./
       with:
