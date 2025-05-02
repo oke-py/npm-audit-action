@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies and run tests
       run: |
         npm ci
-        npm run test -- --run
+        npm run test -- --run --coverage
     - uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
