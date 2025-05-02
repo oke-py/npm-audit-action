@@ -37,16 +37,6 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
-    - name: Ensure npm is installed and accessible
-      run: |
-        echo "Verifying npm installation..."
-        npm --version
-        node --version
-    - name: Fix npm PATH issue on Windows
-      if: runner.os == 'Windows'
-      run: |
-        echo "Fixing npm PATH..."
-        SET PATH=%APPDATA%\npm;%PATH%
     - name: Install dependencies and run all scripts
       run: |
         npm ci
@@ -97,6 +87,16 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
+    - name: Ensure npm is installed and accessible
+      run: |
+        echo "Verifying npm installation..."
+        npm --version
+        node --version
+    - name: Fix npm PATH issue on Windows
+      if: runner.os == 'Windows'
+      run: |
+        echo "Fixing npm PATH..."
+        SET PATH=%APPDATA%\npm;%PATH%
     - name: Run npm audit action
       uses: ./
       with:
