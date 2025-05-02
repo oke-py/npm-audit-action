@@ -73,6 +73,28 @@ jobs:
           dedupe_issues: true
 ```
 
+## Development
+
+### Running Tests
+
+This project uses [Vitest](https://vitest.dev/) for testing. To run the tests, use the following command:
+
+```bash
+npm run test
+```
+
+Vitest will execute all test files and provide a detailed report of the results. For coverage reports, you can use:
+
+```bash
+npm run test:coverage
+```
+
+Ensure all dependencies are installed before running the tests:
+
+```bash
+npm ci
+```
+
 - - -
 
 This action is inspired by [homoluctus/gitrivy](https://github.com/homoluctus/gitrivy).
