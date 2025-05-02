@@ -90,11 +90,8 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-    - name: Set PowerShell Execution Policy
-      run: |
-        Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
-      shell: pwsh
     - run: |
+        Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
         npm install npm-windows-upgrade --location=global
         npm-windows-upgrade --npm-version latest
       shell: pwsh
