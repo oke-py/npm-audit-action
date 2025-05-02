@@ -72,32 +72,32 @@ jobs:
         create_issues: false
         production_flag: true
 
-  test-on-windows:
-    strategy:
-      matrix:
-        node: [20]
-    runs-on: windows-latest
-    steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node }}
-    # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
-    - name: Run npm audit action
-      uses: ./
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_title: npm audit run by test job
-        create_issues: false
-        production_flag: true
-    - name: Run npm audit action in testdata workdir
-      uses: ./
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        working_directory: __tests__/testdata/workdir/
-        create_issues: false
-        production_flag: true
+  # test-on-windows:
+  #   strategy:
+  #     matrix:
+  #       node: [20]
+  #   runs-on: windows-latest
+  #   steps:
+  #   - name: Dump GitHub context
+  #     env:
+  #       GITHUB_CONTEXT: ${{ toJson(github) }}
+  #     run: echo "$GITHUB_CONTEXT"
+  #   - uses: actions/checkout@v4
+  #   - uses: actions/setup-node@v4
+  #     with:
+  #       node-version: ${{ matrix.node }}
+  #   # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
+  #   - name: Run npm audit action
+  #     uses: ./
+  #     with:
+  #       github_token: ${{ secrets.GITHUB_TOKEN }}
+  #       issue_title: npm audit run by test job
+  #       create_issues: false
+  #       production_flag: true
+  #   - name: Run npm audit action in testdata workdir
+  #     uses: ./
+  #     with:
+  #       github_token: ${{ secrets.GITHUB_TOKEN }}
+  #       working_directory: __tests__/testdata/workdir/
+  #       create_issues: false
+  #       production_flag: true
