@@ -84,6 +84,20 @@ This document outlines the development guidelines and best practices for our Typ
   ```bash
   gh pr create --title 'Your PR title' --body 'Detailed description' --base main
   ```
+  - Enclose title and body in single quotes (`'`) to handle spaces and special characters
+  - For multi-line body text, use actual line breaks instead of `\n` escape sequences
+  - Format the body text with Markdown for better readability:
+    ```bash
+    gh pr create --title 'fix: resolve issue with authentication' --body 'Fixed the authentication issue by updating the token validation logic.
+
+    ## Changes
+
+    1. Updated the token validation in `auth.ts`
+    2. Added unit tests for the new validation logic
+    3. Updated documentation
+
+    Fixes #123'
+    ```
 
 ## Code Review
 
