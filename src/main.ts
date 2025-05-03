@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {Octokit} from '@octokit/rest'
-import {Audit} from './audit.js'
-import {IssueOption} from './interface.js'
+import { Octokit } from '@octokit/rest'
+import { Audit } from './audit.js'
+import { IssueOption } from './interface.js'
 import * as issue from './issue.js'
 import * as pr from './pr.js'
 import * as workdir from './workdir.js'
@@ -20,7 +20,7 @@ export async function run(): Promise<void> {
     core.info(`Current working directory: ${process.cwd()}`)
 
     // get audit-level
-    const auditLevel = core.getInput('audit_level', {required: true})
+    const auditLevel = core.getInput('audit_level', { required: true })
     if (
       !['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(
         auditLevel
@@ -29,12 +29,12 @@ export async function run(): Promise<void> {
       throw new Error('Invalid input: audit_level')
     }
 
-    const productionFlag = core.getInput('production_flag', {required: false})
+    const productionFlag = core.getInput('production_flag', { required: false })
     if (!['true', 'false'].includes(productionFlag)) {
       throw new Error('Invalid input: production_flag')
     }
 
-    const jsonFlag = core.getInput('json_flag', {required: false})
+    const jsonFlag = core.getInput('json_flag', { required: false })
     if (!['true', 'false'].includes(jsonFlag)) {
       throw new Error('Invalid input: json_flag')
     }
@@ -50,7 +50,7 @@ export async function run(): Promise<void> {
 
       // get GitHub information
       const ctx = JSON.parse(core.getInput('github_context'))
-      const token: string = core.getInput('github_token', {required: true})
+      const token: string = core.getInput('github_token', { required: true })
       const octokit = new Octokit({
         auth: token
       })
@@ -97,14 +97,14 @@ export async function run(): Promise<void> {
             : null
 
         if (existingIssueNumber !== null) {
-          const {data: createdComment} = await octokit.issues.createComment({
+          const { data: createdComment } = await octokit.issues.createComment({
             ...github.context.repo,
             issue_number: existingIssueNumber,
             body: option.body
           })
           core.debug(`comment ${createdComment.url}`)
         } else {
-          const {data: createdIssue} = await octokit.issues.create({
+          const { data: createdIssue } = await octokit.issues.create({
             ...github.context.repo,
             ...option
           })

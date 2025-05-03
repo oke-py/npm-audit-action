@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {IssueOption} from './interface.js'
+import { IssueOption } from './interface.js'
 
 export function getIssueOption(body: string): IssueOption {
   let assignees: string[] | undefined
@@ -29,7 +29,7 @@ export type GetIssuesFunc = (options: {
   state: 'open' | 'closed' | 'all' | undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any // Allow additional properties
-}) => Promise<{data: Array<{title: string; number: number}>}>
+}) => Promise<{ data: Array<{ title: string; number: number }> }>
 
 export async function getExistingIssueNumber(
   getIssues: GetIssuesFunc,
@@ -38,7 +38,7 @@ export async function getExistingIssueNumber(
     repo: string
   }
 ): Promise<number | null> {
-  const {data: issues} = await getIssues({
+  const { data: issues } = await getIssues({
     ...repo,
     state: 'open'
   })
