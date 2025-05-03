@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {IssueOption} from './interface'
+import {IssueOption} from './interface.js'
 
 export function getIssueOption(body: string): IssueOption {
   let assignees

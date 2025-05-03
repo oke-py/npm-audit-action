@@ -4,6 +4,7 @@
   "private": true,
   "description": "GitHub Action to run `npm audit`",
   "main": "lib/main.js",
+  "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -33,7 +34,7 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@octokit/rest": "^21.1.1",
-    "strip-ansi": "^6.0.1"
+    "strip-ansi": "^7.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
