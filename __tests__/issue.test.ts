@@ -1,5 +1,5 @@
 import * as issue from '../src/issue'
-import {IssueOption} from '../src/interface'
+import { IssueOption } from '../src/interface'
 
 describe('getIssueOption', () => {
   test('without assignee and label', () => {
@@ -77,7 +77,10 @@ describe('getExistingIssueNumber', () => {
         }
       ]
     })
-    const result = await issue.getExistingIssueNumber(getIssues, {repo, owner})
+    const result = await issue.getExistingIssueNumber(getIssues, {
+      repo,
+      owner
+    })
 
     expect(getIssues).toHaveBeenCalledWith({
       repo,
@@ -90,9 +93,12 @@ describe('getExistingIssueNumber', () => {
 
   test('returns null when there is no open issue', async () => {
     const getIssues = vi.fn()
-    getIssues.mockResolvedValue({data: []})
+    getIssues.mockResolvedValue({ data: [] })
 
-    const result = await issue.getExistingIssueNumber(getIssues, {repo, owner})
+    const result = await issue.getExistingIssueNumber(getIssues, {
+      repo,
+      owner
+    })
 
     expect(getIssues).toHaveBeenCalledWith({
       repo,
@@ -114,7 +120,10 @@ describe('getExistingIssueNumber', () => {
       ]
     })
 
-    const result = await issue.getExistingIssueNumber(getIssues, {repo, owner})
+    const result = await issue.getExistingIssueNumber(getIssues, {
+      repo,
+      owner
+    })
 
     expect(getIssues).toHaveBeenCalledWith({
       repo,
