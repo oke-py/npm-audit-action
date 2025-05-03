@@ -4,6 +4,7 @@
   "private": true,
   "description": "GitHub Action to run `npm audit`",
   "main": "lib/main.js",
+  "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -12,7 +13,7 @@
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "pack": "ncc build",
+    "pack": "ncc build --v8-cache --source-map --target es2020",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "all": "npm run build && npm run format && npm run lint && npm run pack && npm run test:coverage"
@@ -33,7 +34,7 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@octokit/rest": "^21.1.1",
-    "strip-ansi": "^6.0.1"
+    "strip-ansi": "^7.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

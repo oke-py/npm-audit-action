@@ -4,6 +4,11 @@ import {Audit} from '../src/audit'
 import {run} from '../src/main'
 import * as issue from '../src/issue'
 import * as pr from '../src/pr'
+import {fileURLToPath} from 'url'
+import {dirname} from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 vi.mock('../src/audit')
 vi.mock('../src/issue')

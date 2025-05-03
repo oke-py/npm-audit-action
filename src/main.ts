@@ -1,11 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {Octokit} from '@octokit/rest'
-import {Audit} from './audit'
-import {IssueOption} from './interface'
-import * as issue from './issue'
-import * as pr from './pr'
-import * as workdir from './workdir'
+import {Audit} from './audit.js'
+import {IssueOption} from './interface.js'
+import * as issue from './issue.js'
+import * as pr from './pr.js'
+import * as workdir from './workdir.js'
 
 export async function run(): Promise<void> {
   try {
