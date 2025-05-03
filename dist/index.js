@@ -35901,35 +35901,30 @@ class Audit {
         this.status = null;
     }
     run(auditLevel, productionFlag, jsonFlag) {
-        try {
-            const auditOptions = ['audit', '--audit-level', auditLevel];
-            const isWindowsEnvironment = process.platform == 'win32';
-            const cmd = isWindowsEnvironment ? 'npm.cmd' : 'npm';
-            if (productionFlag === 'true') {
-                auditOptions.push('--omit=dev');
-            }
-            if (jsonFlag === 'true') {
-                auditOptions.push('--json');
-            }
-            const result = (0,external_child_process_.spawnSync)(cmd, auditOptions, {
-                encoding: 'utf-8',
-                maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-            });
-            if (result.error) {
-                throw result.error;
-            }
-            if (result.status === null) {
-                throw new Error('the subprocess terminated due to a signal.');
-            }
-            if (result.stderr && result.stderr.length > 0) {
-                throw new Error(result.stderr);
-            }
-            this.status = result.status;
-            this.stdout = result.stdout;
+        const auditOptions = ['audit', '--audit-level', auditLevel];
+        const isWindowsEnvironment = process.platform === 'win32';
+        const cmd = isWindowsEnvironment ? 'npm.cmd' : 'npm';
+        if (productionFlag === 'true') {
+            auditOptions.push('--omit=dev');
         }
-        catch (error) {
-            throw error;
+        if (jsonFlag === 'true') {
+            auditOptions.push('--json');
         }
+        const result = (0,external_child_process_.spawnSync)(cmd, auditOptions, {
+            encoding: 'utf-8',
+            maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
+        });
+        if (result.error) {
+            throw result.error;
+        }
+        if (result.status === null) {
+            throw new Error('the subprocess terminated due to a signal.');
+        }
+        if (result.stderr?.length > 0) {
+            throw new Error(result.stderr);
+        }
+        this.status = result.status;
+        this.stdout = result.stdout;
     }
     foundVulnerability() {
         // `npm audit` return 1 when it found vulnerabilities
@@ -35941,15 +35936,6 @@ class Audit {
 }
 
 ;// CONCATENATED MODULE: ./lib/issue.js
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 
 function getIssueOption(body) {
     let assignees;
@@ -35969,34 +35955,24 @@ function getIssueOption(body) {
         labels
     };
 }
-function getExistingIssueNumber(getIssues, repo) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { data: issues } = yield getIssues(Object.assign(Object.assign({}, repo), { state: 'open' }));
-        const iss = issues
-            .filter(i => i.title === core.getInput('issue_title'))
-            .shift();
-        return iss === undefined ? null : iss.number;
+async function getExistingIssueNumber(getIssues, repo) {
+    const { data: issues } = await getIssues({
+        ...repo,
+        state: 'open'
     });
+    const iss = issues
+        .filter(i => i.title === core.getInput('issue_title'))
+        .shift();
+    return iss?.number ?? null;
 }
 
 ;// CONCATENATED MODULE: ./lib/pr.js
-var pr_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-function createComment(octokit, owner, repo, prNumber, body) {
-    return pr_awaiter(this, void 0, void 0, function* () {
-        octokit.issues.createComment({
-            owner,
-            repo,
-            issue_number: prNumber,
-            body
-        });
+async function createComment(octokit, owner, repo, prNumber, body) {
+    await octokit.issues.createComment({
+        owner,
+        repo,
+        issue_number: prNumber,
+        body
     });
 }
 
@@ -36006,15 +35982,6 @@ function isValid(dir) {
 }
 
 ;// CONCATENATED MODULE: ./lib/main.js
-var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 
 
 
@@ -36022,89 +35989,92 @@ var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
 
 
 
-function run() {
-    return main_awaiter(this, void 0, void 0, function* () {
-        try {
-            // move to working directory
-            const workingDirectory = core.getInput('working_directory');
-            if (workingDirectory) {
-                if (!isValid(workingDirectory)) {
-                    throw new Error('Invalid input: working_directory');
+async function run() {
+    try {
+        // move to working directory
+        const workingDirectory = core.getInput('working_directory');
+        if (workingDirectory) {
+            if (!isValid(workingDirectory)) {
+                throw new Error('Invalid input: working_directory');
+            }
+            process.chdir(workingDirectory);
+        }
+        core.info(`Current working directory: ${process.cwd()}`);
+        // get audit-level
+        const auditLevel = core.getInput('audit_level', { required: true });
+        if (!['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(auditLevel)) {
+            throw new Error('Invalid input: audit_level');
+        }
+        const productionFlag = core.getInput('production_flag', { required: false });
+        if (!['true', 'false'].includes(productionFlag)) {
+            throw new Error('Invalid input: production_flag');
+        }
+        const jsonFlag = core.getInput('json_flag', { required: false });
+        if (!['true', 'false'].includes(jsonFlag)) {
+            throw new Error('Invalid input: json_flag');
+        }
+        // run `npm audit`
+        const audit = new Audit();
+        audit.run(auditLevel, productionFlag, jsonFlag);
+        core.info(audit.stdout);
+        core.setOutput('npm_audit', audit.stdout);
+        if (audit.foundVulnerability()) {
+            // vulnerabilities are found
+            // get GitHub information
+            const ctx = JSON.parse(core.getInput('github_context'));
+            const token = core.getInput('github_token', { required: true });
+            const octokit = new dist_src_Octokit({
+                auth: token
+            });
+            if (ctx.event_name === 'pull_request') {
+                const createPRComments = core.getInput('create_pr_comments');
+                if (!['true', 'false'].includes(createPRComments)) {
+                    throw new Error('Invalid input: create_pr_comments');
                 }
-                process.chdir(workingDirectory);
+                if (createPRComments === 'true') {
+                    await createComment(octokit, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
+                }
+                core.setFailed('This repo has some vulnerabilities');
+                return;
             }
-            core.info(`Current working directory: ${process.cwd()}`);
-            // get audit-level
-            const auditLevel = core.getInput('audit_level', { required: true });
-            if (!['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(auditLevel)) {
-                throw new Error('Invalid input: audit_level');
-            }
-            const productionFlag = core.getInput('production_flag', { required: false });
-            if (!['true', 'false'].includes(productionFlag)) {
-                throw new Error('Invalid input: production_flag');
-            }
-            const jsonFlag = core.getInput('json_flag', { required: false });
-            if (!['true', 'false'].includes(jsonFlag)) {
-                throw new Error('Invalid input: json_flag');
-            }
-            // run `npm audit`
-            const audit = new Audit();
-            audit.run(auditLevel, productionFlag, jsonFlag);
-            core.info(audit.stdout);
-            core.setOutput('npm_audit', audit.stdout);
-            if (audit.foundVulnerability()) {
-                // vulnerabilities are found
-                // get GitHub information
-                const ctx = JSON.parse(core.getInput('github_context'));
-                const token = core.getInput('github_token', { required: true });
-                const octokit = new dist_src_Octokit({
-                    auth: token
-                });
-                if (ctx.event_name === 'pull_request') {
-                    const createPRComments = core.getInput('create_pr_comments');
-                    if (!['true', 'false'].includes(createPRComments)) {
-                        throw new Error('Invalid input: create_pr_comments');
-                    }
-                    if (createPRComments === 'true') {
-                        yield createComment(octokit, github.context.repo.owner, github.context.repo.repo, ctx.event.number, audit.strippedStdout());
-                    }
+            else {
+                core.debug('open an issue');
+                const createIssues = core.getInput('create_issues');
+                if (!['true', 'false'].includes(createIssues)) {
+                    throw new Error('Invalid input: create_issues');
+                }
+                if (createIssues === 'false') {
                     core.setFailed('This repo has some vulnerabilities');
                     return;
                 }
-                else {
-                    core.debug('open an issue');
-                    const createIssues = core.getInput('create_issues');
-                    if (!['true', 'false'].includes(createIssues)) {
-                        throw new Error('Invalid input: create_issues');
-                    }
-                    if (createIssues === 'false') {
-                        core.setFailed('This repo has some vulnerabilities');
-                        return;
-                    }
-                    // remove control characters and create a code block
-                    const issueBody = audit.strippedStdout();
-                    const option = getIssueOption(issueBody);
-                    const existingIssueNumber = core.getInput('dedupe_issues') === 'true'
-                        ? yield getExistingIssueNumber(octokit.issues.listForRepo, github.context.repo)
-                        : null;
-                    if (existingIssueNumber !== null) {
-                        const { data: createdComment } = yield octokit.issues.createComment(Object.assign(Object.assign({}, github.context.repo), { issue_number: existingIssueNumber, body: option.body }));
-                        core.debug(`comment ${createdComment.url}`);
-                    }
-                    else {
-                        const { data: createdIssue } = yield octokit.issues.create(Object.assign(Object.assign({}, github.context.repo), option));
-                        core.debug(`#${createdIssue.number}`);
-                    }
-                    core.setFailed('This repo has some vulnerabilities');
+                // remove control characters and create a code block
+                const issueBody = audit.strippedStdout();
+                const option = getIssueOption(issueBody);
+                const existingIssueNumber = core.getInput('dedupe_issues') === 'true'
+                    ? await getExistingIssueNumber(octokit.issues.listForRepo, github.context.repo)
+                    : null;
+                if (existingIssueNumber !== null) {
+                    const { data: createdComment } = await octokit.issues.createComment({
+                        ...github.context.repo,
+                        issue_number: existingIssueNumber,
+                        body: option.body
+                    });
+                    core.debug(`comment ${createdComment.url}`);
                 }
+                else {
+                    const { data: createdIssue } = await octokit.issues.create({
+                        ...github.context.repo,
+                        ...option
+                    });
+                    core.debug(`#${createdIssue.number}`);
+                }
+                core.setFailed('This repo has some vulnerabilities');
             }
         }
-        catch (e) {
-            if (e instanceof Error) {
-                core.setFailed(e.message);
-            }
-        }
-    });
+    }
+    catch (e) {
+        core.setFailed(e?.message ?? 'Unknown error occurred');
+    }
 }
 run();
 
