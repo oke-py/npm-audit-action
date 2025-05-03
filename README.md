@@ -61,10 +61,10 @@ jobs:
     name: npm audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: install dependencies
         run: npm ci
-      - uses: oke-py/npm-audit-action@v2
+      - uses: oke-py/npm-audit-action@v3
         with:
           audit_level: moderate
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,11 +1,11 @@
-name: "git tag v2"
+name: "git tag major version"
 on:
   release:
     types:
       - published
 
 jobs:
-  v2:
+  tag-major-version:
     runs-on: ubuntu-latest
     steps:
     - name: check out repository code
@@ -17,8 +17,15 @@ jobs:
     - name: git tag
       run: |
         git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
-        git push origin -d v2
-        git tag v2 ${GITHUB_SHA}
-        git push origin v2
+        # Extract major version from release tag (e.g., v3.0.0 -> v3)
+        MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*")
+        echo "Tagging with major version: ${MAJOR_VERSION}"
+
+        # Delete the major version tag if it exists
+        git push origin -d ${MAJOR_VERSION} || true
+
+        # Create and push the new major version tag
+        git tag ${MAJOR_VERSION} ${GITHUB_SHA}
+        git push origin ${MAJOR_VERSION}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
