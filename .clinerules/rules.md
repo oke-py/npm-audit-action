@@ -13,15 +13,17 @@ This document outlines the development guidelines and best practices for our Typ
   - Use `module: NodeNext` for the latest Node.js module resolution
   - Use `noImplicitAny: true` to ensure all types are explicitly defined
   - Configure `outDir: "./lib"` and `rootDir: "./src"` to control the output directory structure
+  - Set `baseUrl: "./"` and configure `paths` for module resolution
 
 - **Code Formatting**
   - Use Prettier for consistent code formatting with the following settings:
+    - Maximum line width of 80 characters (`printWidth: 80`)
     - 2-space indentation (`tabWidth: 2`)
     - No semicolons (`semi: false`)
     - Single quotes (`singleQuote: true`)
     - No trailing commas (`trailingComma: "none"`)
-    - No spaces inside brackets (`bracketSpacing: false`)
     - Avoid parentheses around single arrow function parameters (`arrowParens: "avoid"`)
+    - Use TypeScript parser (`parser: "typescript"`)
   - Configure ESLint with TypeScript parser for static code analysis
   - Enforce consistent naming conventions:
     - camelCase for variables and functions
