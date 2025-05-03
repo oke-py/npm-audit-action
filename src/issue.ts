@@ -47,5 +47,5 @@ export async function getExistingIssueNumber(
     .filter(i => i.title === core.getInput('issue_title'))
     .shift()
 
-  return iss === undefined ? null : iss.number
+  return iss?.number ?? null
 }

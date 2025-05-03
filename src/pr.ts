@@ -7,7 +7,7 @@ export async function createComment(
   prNumber: number,
   body: string
 ): Promise<void> {
-  octokit.issues.createComment({
+  await octokit.issues.createComment({
     owner,
     repo,
     issue_number: prNumber,

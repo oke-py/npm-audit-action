@@ -114,9 +114,7 @@ export async function run(): Promise<void> {
       }
     }
   } catch (e: unknown) {
-    if (e instanceof Error) {
-      core.setFailed(e.message)
-    }
+    core.setFailed((e as Error)?.message ?? 'Unknown error occurred')
   }
 }
 
