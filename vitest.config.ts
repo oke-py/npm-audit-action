@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -6,7 +6,9 @@ export default defineConfig({
     environment: 'node',
     include: ['__tests__/**/*.test.ts'],
     coverage: {
-      reporter: ['text', 'json', 'html', 'lcov'],
-    },
-  },
-});
+      include: ['src/**/*.ts'], // Only target the src directory
+      exclude: ['lib/**'], // Exclude the lib directory
+      reporter: ['text', 'json', 'html', 'lcov']
+    }
+  }
+})
