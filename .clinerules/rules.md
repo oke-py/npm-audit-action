@@ -9,15 +9,24 @@ This document outlines the development guidelines and best practices for our Typ
 - **TypeScript Configuration**
   - Use `strict: true` in tsconfig.json to enable all strict type checking options
   - Enable `esModuleInterop` for better interoperability between CommonJS and ES Modules
-  - Set `target` to ES6 or higher for modern JavaScript features
+  - Set `target` to ES2020 for modern JavaScript features
+  - Use `module: NodeNext` for the latest Node.js module resolution
   - Use `noImplicitAny: true` to ensure all types are explicitly defined
-  - Configure `outDir` and `rootDir` to control the output directory structure
+  - Configure `outDir: "./lib"` and `rootDir: "./src"` to control the output directory structure
 
 - **Code Formatting**
-  - Use Prettier for consistent code formatting
+  - Use Prettier for consistent code formatting with the following settings:
+    - 2-space indentation (`tabWidth: 2`)
+    - No semicolons (`semi: false`)
+    - Single quotes (`singleQuote: true`)
+    - No trailing commas (`trailingComma: "none"`)
+    - No spaces inside brackets (`bracketSpacing: false`)
+    - Avoid parentheses around single arrow function parameters (`arrowParens: "avoid"`)
   - Configure ESLint with TypeScript parser for static code analysis
-  - Enforce consistent naming conventions (camelCase for variables/functions, PascalCase for classes/interfaces)
-  - Use 2-space indentation for all files
+  - Enforce consistent naming conventions:
+    - camelCase for variables and functions
+    - PascalCase for classes, interfaces, and type aliases
+    - UPPER_CASE allowed for constants
   - Run `npm run format` to automatically format all TypeScript files according to project standards
   - Ensure code formatting is checked in CI with `npm run format-check`
 
@@ -73,7 +82,7 @@ This document outlines the development guidelines and best practices for our Typ
 - Reference related issues using GitHub keywords (Fixes #123, Closes #456)
 - Use the GitHub CLI (`gh` command) to create pull requests:
   ```bash
-  gh pr create --title "Your PR title" --body "Detailed description" --base main
+  gh pr create --title 'Your PR title' --body 'Detailed description' --base main
   ```
 
 ## Code Review
