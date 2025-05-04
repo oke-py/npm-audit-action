@@ -84,6 +84,10 @@ jobs:
   #   - uses: actions/setup-node@v4
   #     with:
   #       node-version: ${{ matrix.node }}
+  #   # Set PowerShell execution policy for this process
+  #   - name: Set PowerShell execution policy
+  #     shell: powershell
+  #     run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
   #   # Node.js 20 already includes a recent npm version, so npm upgrade is not needed
   #   - name: Run npm audit action
   #     uses: ./
