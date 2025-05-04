@@ -23,21 +23,22 @@ jobs:
           dedupe_issues: true
           production_flag: true
 
-  scan-on-windows:
-    name: npm audit
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-      - run: |
-          npm install npm-windows-upgrade --location=global
-          npm-windows-upgrade --npm-version latest
-      - name: install dependencies
-        run: npm ci
-      - uses: oke-py/npm-audit-action@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_assignees: oke-py
-          issue_labels: vulnerability
-          dedupe_issues: true
-          production_flag: true
+  # scan-on-windows job disabled due to npm.cmd EINVAL error on Windows
+  # scan-on-windows:
+  #   name: npm audit
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
+  #     - run: |
+  #         npm install npm-windows-upgrade --location=global
+  #         npm-windows-upgrade --npm-version latest
+  #     - name: install dependencies
+  #       run: npm ci
+  #     - uses: oke-py/npm-audit-action@v3
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         issue_assignees: oke-py
+  #         issue_labels: vulnerability
+  #         dedupe_issues: true
+  #         production_flag: true
