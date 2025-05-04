@@ -75,7 +75,7 @@ This document outlines the development guidelines and best practices for our Typ
 
 ### Pull Requests
 
-- Write PR titles and descriptions in English
+- **IMPORTANT**: Write PR titles and descriptions in English ONLY, NOT in Japanese
 - Use clear, descriptive titles that summarize the changes
 - Include detailed descriptions explaining:
   - What changes were made
