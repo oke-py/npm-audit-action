@@ -28,10 +28,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      # Set PowerShell execution policy for this process
+      - name: Set PowerShell execution policy
+        shell: powershell
+        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
       # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-      - run: |
+      - name: Upgrade npm
+        shell: powershell
+        run: |
           npm install npm-windows-upgrade --location=global
-          npm-windows-upgrade --npm-version latest
+          npm-windows-upgrade --npm-version latest --no-prompt
       - name: install dependencies
         run: npm ci
       - uses: oke-py/npm-audit-action@v3
