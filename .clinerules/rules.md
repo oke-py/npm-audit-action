@@ -21,9 +21,15 @@ This document outlines the development guidelines and best practices for our Typ
     - 2-space indentation (`tabWidth: 2`)
     - No semicolons (`semi: false`)
     - Single quotes (`singleQuote: true`)
+    - Quote properties as-needed (`quoteProps: "as-needed"`)
+    - No single quotes in JSX (`jsxSingleQuote: false`)
     - No trailing commas (`trailingComma: "none"`)
-    - Avoid parentheses around single arrow function parameters (`arrowParens: "avoid"`)
-    - Use TypeScript parser (`parser: "typescript"`)
+    - Include spaces in object literals (`bracketSpacing: true`)
+    - Place closing brackets on the same line (`bracketSameLine: true`)
+    - Always include parentheses around arrow function parameters (`arrowParens: "always"`)
+    - Always wrap prose (`proseWrap: "always"`)
+    - CSS-based HTML whitespace sensitivity (`htmlWhitespaceSensitivity: "css"`)
+    - Use LF line endings (`endOfLine: "lf"`)
   - Configure ESLint with TypeScript parser for static code analysis
   - Enforce consistent naming conventions:
     - camelCase for variables and functions
