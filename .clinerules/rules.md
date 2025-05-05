@@ -13,12 +13,17 @@ TypeScript/JavaScript projects.
     options
   - Enable `esModuleInterop` for better interoperability between CommonJS and ES
     Modules
-  - Set `target` to ES2020 for modern JavaScript features
-  - Use `module: NodeNext` for the latest Node.js module resolution
+  - Set `target` to ES2022 for modern JavaScript features
+  - Use `module: NodeNext` and `moduleResolution: NodeNext` for the latest
+    Node.js module resolution
   - Use `noImplicitAny: true` to ensure all types are explicitly defined
-  - Configure `outDir: "./lib"` and `rootDir: "./src"` to control the output
+  - Configure `outDir: "./dist"` and `rootDir: "./src"` to control the output
     directory structure
-  - Set `baseUrl: "./"` and configure `paths` for module resolution
+  - Use `type: "module"` in package.json for ES modules support
+  - Require Node.js version 20 or higher (`"node": ">=20.0.0"` in engines)
+  - Enable `resolveJsonModule: true` for importing JSON files
+  - Set `forceConsistentCasingInFileNames: true` to prevent issues on
+    case-sensitive file systems
 
 - **Code Formatting**
 
@@ -37,14 +42,16 @@ TypeScript/JavaScript projects.
     - Always wrap prose (`proseWrap: "always"`)
     - CSS-based HTML whitespace sensitivity (`htmlWhitespaceSensitivity: "css"`)
     - Use LF line endings (`endOfLine: "lf"`)
-  - Configure ESLint with TypeScript parser for static code analysis
+  - Configure ESLint with the new flat config format (eslint.config.mjs) for
+    static code analysis
+  - Use TypeScript ESLint for TypeScript-specific linting rules
   - Enforce consistent naming conventions:
     - camelCase for variables and functions
     - PascalCase for classes, interfaces, and type aliases
     - UPPER_CASE allowed for constants
-  - Run `npm run format` to automatically format all TypeScript files according
-    to project standards
-  - Ensure code formatting is checked in CI with `npm run format-check`
+  - Run `npm run format:write` to automatically format all files according to
+    project standards
+  - Ensure code formatting is checked in CI with `npm run format:check`
 
 - **Package Management**
 
@@ -52,19 +59,24 @@ TypeScript/JavaScript projects.
   - Regularly update dependencies and run security audits
   - Specify exact versions for critical dependencies
   - Use `npm ci` instead of `npm install` in CI/CD pipelines
+  - Set minimum Node.js version requirement in package.json engines field
 
 - **Testing**
 
   - Write unit tests for all business logic
   - Aim for high test coverage (at least 80%)
   - Use Vitest as the testing framework
+  - Run tests with `npm test` or `npm run test:coverage` for coverage reports
   - Implement integration tests for critical paths
 
 - **Build Process**
-  - Use TypeScript compiler (`tsc`) for building the project
-  - Use Rollup for bundling the code
+  - Use TypeScript for type checking and transpilation
+  - Use Rollup for bundling the code with TypeScript plugin
   - Run `npm run package` to bundle the code with Rollup
+    (`npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript`)
   - Run `npm run all` to format, lint, test, and package the project
+    (`npm run format:write && npm run lint && npm run test:coverage && npm run package`)
+  - Output ES modules to dist/index.js with source maps
   - Note that dist/index.js updates are handled by GitHub Actions and should not
     be included in commits or pull requests
 
