@@ -34545,10 +34545,14 @@ async function run() {
         // move to working directory
         const workingDirectory = coreExports.getInput('working_directory');
         if (workingDirectory) {
-            if (!isValid(workingDirectory)) {
+            // Remove trailing slash if present
+            const normalizedWorkingDirectory = workingDirectory.endsWith('/')
+                ? workingDirectory.slice(0, -1)
+                : workingDirectory;
+            if (!isValid(normalizedWorkingDirectory)) {
                 throw new Error('Invalid input: working_directory');
             }
-            process.chdir(workingDirectory);
+            process.chdir(normalizedWorkingDirectory);
         }
         coreExports.info(`Current working directory: ${process.cwd()}`);
         // get audit-level
