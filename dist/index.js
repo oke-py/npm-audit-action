@@ -35946,7 +35946,7 @@ function getIssueOption(body) {
     if (core.getInput('issue_labels')) {
         labels = core.getInput('issue_labels')
             .split(',')
-            .map(label => label.trim());
+            .map((label) => label.trim());
     }
     return {
         title: core.getInput('issue_title'),
@@ -35961,7 +35961,7 @@ async function getExistingIssueNumber(getIssues, repo) {
         state: 'open'
     });
     const iss = issues
-        .filter(i => i.title === core.getInput('issue_title'))
+        .filter((i) => i.title === core.getInput('issue_title'))
         .shift();
     return iss?.number ?? null;
 }

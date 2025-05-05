@@ -12,7 +12,7 @@ export function getIssueOption(body: string): IssueOption {
     labels = core
       .getInput('issue_labels')
       .split(',')
-      .map(label => label.trim())
+      .map((label) => label.trim())
   }
 
   return {
@@ -44,7 +44,7 @@ export async function getExistingIssueNumber(
   })
 
   const iss = issues
-    .filter(i => i.title === core.getInput('issue_title'))
+    .filter((i) => i.title === core.getInput('issue_title'))
     .shift()
 
   return iss?.number ?? null
