@@ -34552,7 +34552,17 @@ async function run() {
             if (!isValid(normalizedWorkingDirectory)) {
                 throw new Error('Invalid input: working_directory');
             }
-            process.chdir(normalizedWorkingDirectory);
+            try {
+                // Try to change directory
+                process.chdir(normalizedWorkingDirectory);
+                coreExports.info(`Successfully changed directory to: ${normalizedWorkingDirectory}`);
+            }
+            catch (error) {
+                // If changing directory fails, log the error but continue
+                coreExports.warning(`Failed to change directory to: ${normalizedWorkingDirectory}`);
+                coreExports.warning(`Error: ${error instanceof Error ? error.message : String(error)}`);
+                coreExports.warning('Continuing with current directory');
+            }
         }
         coreExports.info(`Current working directory: ${process.cwd()}`);
         // get audit-level
