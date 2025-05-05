@@ -9,7 +9,8 @@
   "include": [
     "__tests__",
     "src",
-    "eslint.config.js",
-    "rollup.config.ts"
+    "eslint.config.mjs",
+    "rollup.config.ts",
+    "vitest.config.ts"
   ]
 }
