@@ -12,10 +12,31 @@ export async function run(): Promise<void> {
     // move to working directory
     const workingDirectory = core.getInput('working_directory')
     if (workingDirectory) {
-      if (!workdir.isValid(workingDirectory)) {
+      // Remove trailing slash if present
+      const normalizedWorkingDirectory = workingDirectory.endsWith('/')
+        ? workingDirectory.slice(0, -1)
+        : workingDirectory
+
+      if (!workdir.isValid(normalizedWorkingDirectory)) {
         throw new Error('Invalid input: working_directory')
       }
-      process.chdir(workingDirectory)
+
+      try {
+        // Try to change directory
+        process.chdir(normalizedWorkingDirectory)
+        core.info(
+          `Successfully changed directory to: ${normalizedWorkingDirectory}`
+        )
+      } catch (error) {
+        // If changing directory fails, log the error but continue
+        core.warning(
+          `Failed to change directory to: ${normalizedWorkingDirectory}`
+        )
+        core.warning(
+          `Error: ${error instanceof Error ? error.message : String(error)}`
+        )
+        core.warning('Continuing with current directory')
+      }
     }
     core.info(`Current working directory: ${process.cwd()}`)
 

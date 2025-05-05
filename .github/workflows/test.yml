@@ -1,4 +1,4 @@
-name: "build-test"
+name: 'build-test'
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
@@ -10,20 +10,20 @@ jobs:
     strategy:
       matrix:
         node: [20]
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node }}
-    - name: Install dependencies and run tests
-      run: |
-        npm ci
-        npm run test:coverage
-    - uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies and run tests
+        run: |
+          npm ci
+          npm run test:coverage
+      - uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build-on-windows:
     strategy:
@@ -31,44 +31,44 @@ jobs:
         node: [20]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node }}
-    - name: Install dependencies and run tests
-      run: |
-        npm ci
-        npm run test
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies and run tests
+        run: |
+          npm ci
+          npm run test
 
   test: # make sure the action works on a clean machine without building
     strategy:
       matrix:
         node: [20]
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node }}
-    - name: Run npm audit action
-      uses: ./
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_title: npm audit run by test job
-        create_issues: false
-        production_flag: true
-    - name: Run npm audit action in testdata workdir
-      uses: ./
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        working_directory: __tests__/testdata/workdir/
-        create_issues: false
-        production_flag: true
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Run npm audit action
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_title: npm audit run by test job
+          create_issues: false
+          production_flag: true
+      - name: Run npm audit action in testdata workdir
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          working_directory: __tests__/testdata/workdir
+          create_issues: false
+          production_flag: true
 
   # test-on-windows:
   #   strategy:
@@ -100,6 +100,6 @@ jobs:
   #     uses: ./
   #     with:
   #       github_token: ${{ secrets.GITHUB_TOKEN }}
-  #       working_directory: __tests__/testdata/workdir/
+  #       working_directory: __tests__/testdata/workdir
   #       create_issues: false
   #       production_flag: true

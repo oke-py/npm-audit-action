@@ -12,6 +12,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "bundle": "npm run format && npm run package",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
