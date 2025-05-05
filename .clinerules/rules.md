@@ -1,21 +1,27 @@
 # Cline Rules
 
-This document outlines the development guidelines and best practices for our TypeScript/JavaScript projects.
+This document outlines the development guidelines and best practices for our
+TypeScript/JavaScript projects.
 
 ## Project Configuration
 
 ### TypeScript/JavaScript Best Practices
 
 - **TypeScript Configuration**
-  - Use `strict: true` in tsconfig.json to enable all strict type checking options
-  - Enable `esModuleInterop` for better interoperability between CommonJS and ES Modules
+
+  - Use `strict: true` in tsconfig.json to enable all strict type checking
+    options
+  - Enable `esModuleInterop` for better interoperability between CommonJS and ES
+    Modules
   - Set `target` to ES2020 for modern JavaScript features
   - Use `module: NodeNext` for the latest Node.js module resolution
   - Use `noImplicitAny: true` to ensure all types are explicitly defined
-  - Configure `outDir: "./lib"` and `rootDir: "./src"` to control the output directory structure
+  - Configure `outDir: "./lib"` and `rootDir: "./src"` to control the output
+    directory structure
   - Set `baseUrl: "./"` and configure `paths` for module resolution
 
 - **Code Formatting**
+
   - Use Prettier for consistent code formatting with the following settings:
     - Maximum line width of 80 characters (`printWidth: 80`)
     - 2-space indentation (`tabWidth: 2`)
@@ -26,7 +32,8 @@ This document outlines the development guidelines and best practices for our Typ
     - No trailing commas (`trailingComma: "none"`)
     - Include spaces in object literals (`bracketSpacing: true`)
     - Place closing brackets on the same line (`bracketSameLine: true`)
-    - Always include parentheses around arrow function parameters (`arrowParens: "always"`)
+    - Always include parentheses around arrow function parameters
+      (`arrowParens: "always"`)
     - Always wrap prose (`proseWrap: "always"`)
     - CSS-based HTML whitespace sensitivity (`htmlWhitespaceSensitivity: "css"`)
     - Use LF line endings (`endOfLine: "lf"`)
@@ -35,16 +42,19 @@ This document outlines the development guidelines and best practices for our Typ
     - camelCase for variables and functions
     - PascalCase for classes, interfaces, and type aliases
     - UPPER_CASE allowed for constants
-  - Run `npm run format` to automatically format all TypeScript files according to project standards
+  - Run `npm run format` to automatically format all TypeScript files according
+    to project standards
   - Ensure code formatting is checked in CI with `npm run format-check`
 
 - **Package Management**
+
   - Use npm with package-lock.json for consistent dependency management
   - Regularly update dependencies and run security audits
   - Specify exact versions for critical dependencies
   - Use `npm ci` instead of `npm install` in CI/CD pipelines
 
 - **Testing**
+
   - Write unit tests for all business logic
   - Aim for high test coverage (at least 80%)
   - Use Vitest as the testing framework
@@ -55,7 +65,8 @@ This document outlines the development guidelines and best practices for our Typ
   - Use Rollup for bundling the code
   - Run `npm run package` to bundle the code with Rollup
   - Run `npm run all` to format, lint, test, and package the project
-  - Note that dist/index.js updates are handled by GitHub Actions and should not be included in commits or pull requests
+  - Note that dist/index.js updates are handled by GitHub Actions and should not
+    be included in commits or pull requests
 
 ## Git Workflow
 
@@ -66,7 +77,8 @@ This document outlines the development guidelines and best practices for our Typ
   - Example: `fix(auth): resolve token validation issue`
   - Common types: feat, fix, docs, style, refactor, test, chore
 - Keep commit messages concise but descriptive
-- Reference issue numbers when applicable: `fix(api): correct response format (#123)`
+- Reference issue numbers when applicable:
+  `fix(api): correct response format (#123)`
 
 ### Branches
 
@@ -80,7 +92,8 @@ This document outlines the development guidelines and best practices for our Typ
 
 ### Pull Requests
 
-- **IMPORTANT**: Write PR titles and descriptions in English ONLY, NOT in Japanese
+- **IMPORTANT**: Write PR titles and descriptions in English ONLY, NOT in
+  Japanese
 - Use clear, descriptive titles that summarize the changes
 - Include detailed descriptions explaining:
   - What changes were made
@@ -88,12 +101,17 @@ This document outlines the development guidelines and best practices for our Typ
   - Any potential side effects or areas to test
 - Reference related issues using GitHub keywords (Fixes #123, Closes #456)
 - Use the GitHub CLI (`gh` command) to create pull requests:
+
   ```bash
   gh pr create --title 'Your PR title' --body 'Detailed description' --base main
   ```
-  - Enclose title and body in single quotes (`'`) to handle spaces and special characters
-  - For multi-line body text, use actual line breaks instead of `\n` escape sequences
+
+  - Enclose title and body in single quotes (`'`) to handle spaces and special
+    characters
+  - For multi-line body text, use actual line breaks instead of `\n` escape
+    sequences
   - Format the body text with Markdown for better readability:
+
     ```bash
     gh pr create --title 'fix: resolve issue with authentication' --body 'Fixed the authentication issue by updating the token validation logic.
 
