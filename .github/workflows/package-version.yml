@@ -1,4 +1,4 @@
-name: "update package version"
+name: 'update package version'
 on:
   pull_request:
     types:
@@ -9,41 +9,41 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.label.name == 'release minor' }}
     steps:
-    - name: check out repository code
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
-    - name: git config
-      run: |
-        git config --global user.name "${GITHUB_ACTOR}"
-        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-    - name: increment minor version
-      run: |
-        npm version minor
-    - name: git push
-      run: |
-        git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
-        git push origin HEAD:${{ github.head_ref }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: check out repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: git config
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: increment minor version
+        run: |
+          npm version minor
+      - name: git push
+        run: |
+          git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
+          git push origin HEAD:${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   patch:
     runs-on: ubuntu-latest
     if: ${{ github.event.label.name == 'release patch' }}
     steps:
-    - name: check out repository code
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
-    - name: git config
-      run: |
-        git config --global user.name "${GITHUB_ACTOR}"
-        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-    - name: increment patch version
-      run: |
-        npm version patch
-    - name: git push
-      run: |
-        git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
-        git push origin HEAD:${{ github.head_ref }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: check out repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: git config
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: increment patch version
+        run: |
+          npm version patch
+      - name: git push
+        run: |
+          git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
+          git push origin HEAD:${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
