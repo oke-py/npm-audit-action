@@ -1,34 +1,32 @@
-'use strict';
-
-var require$$0 = require('os');
-var require$$0$1 = require('crypto');
-var require$$1 = require('fs');
-var require$$1$5 = require('path');
-var require$$2$1 = require('http');
-var require$$3$1 = require('https');
-var require$$0$5 = require('net');
-var require$$1$1 = require('tls');
-var require$$4$1 = require('events');
-var require$$0$3 = require('assert');
-var require$$0$2 = require('util');
-var require$$0$4 = require('stream');
-var require$$7 = require('buffer');
-var require$$8 = require('querystring');
-var require$$14 = require('stream/web');
-var require$$0$7 = require('node:stream');
-var require$$1$2 = require('node:util');
-var require$$0$6 = require('node:events');
-var require$$0$8 = require('worker_threads');
-var require$$2$2 = require('perf_hooks');
-var require$$5 = require('util/types');
-var require$$4$2 = require('async_hooks');
-var require$$1$3 = require('console');
-var require$$1$4 = require('url');
-var require$$3$2 = require('zlib');
-var require$$6 = require('string_decoder');
-var require$$0$9 = require('diagnostics_channel');
-var require$$2$3 = require('child_process');
-var require$$6$1 = require('timers');
+import require$$0 from 'os';
+import require$$0$1 from 'crypto';
+import require$$1 from 'fs';
+import require$$1$5 from 'path';
+import require$$2$1 from 'http';
+import require$$3$1 from 'https';
+import require$$0$5 from 'net';
+import require$$1$1 from 'tls';
+import require$$4$1 from 'events';
+import require$$0$3 from 'assert';
+import require$$0$2 from 'util';
+import require$$0$4 from 'stream';
+import require$$7 from 'buffer';
+import require$$8 from 'querystring';
+import require$$14 from 'stream/web';
+import require$$0$7 from 'node:stream';
+import require$$1$2 from 'node:util';
+import require$$0$6 from 'node:events';
+import require$$0$8 from 'worker_threads';
+import require$$2$2 from 'perf_hooks';
+import require$$5 from 'util/types';
+import require$$4$2 from 'async_hooks';
+import require$$1$3 from 'console';
+import require$$1$4 from 'url';
+import require$$3$2 from 'zlib';
+import require$$6 from 'string_decoder';
+import require$$0$9 from 'diagnostics_channel';
+import require$$2$3, { spawnSync } from 'child_process';
+import require$$6$1 from 'timers';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -34463,10 +34461,8 @@ function stripAnsi(string) {
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MiB
 class Audit {
-    constructor() {
-        this.stdout = '';
-        this.status = null;
-    }
+    stdout = '';
+    status = null;
     run(auditLevel, productionFlag, jsonFlag) {
         const auditOptions = ['audit', '--audit-level', auditLevel];
         const isWindowsEnvironment = process.platform === 'win32';
@@ -34477,7 +34473,7 @@ class Audit {
         if (jsonFlag === 'true') {
             auditOptions.push('--json');
         }
-        const result = require$$2$3.spawnSync(cmd, auditOptions, {
+        const result = spawnSync(cmd, auditOptions, {
             encoding: 'utf-8',
             maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
         });
@@ -34633,5 +34629,10 @@ async function run() {
 }
 run();
 
-exports.run = run;
+/**
+ * The entrypoint for the action. This file simply imports and runs the action's
+ * main logic.
+ */
+/* istanbul ignore next */
+run();
 //# sourceMappingURL=index.js.map
