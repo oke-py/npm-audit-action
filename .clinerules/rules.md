@@ -52,10 +52,9 @@ This document outlines the development guidelines and best practices for our Typ
 
 - **Build Process**
   - Use TypeScript compiler (`tsc`) for building the project
-  - Use `@vercel/ncc` for bundling the code into a single file
-  - Run `npm run build` to compile TypeScript files
-  - Run `npm run pack` to bundle the code with ncc
-  - Run `npm run all` to build, format, lint, pack, and test the project
+  - Use Rollup for bundling the code
+  - Run `npm run package` to bundle the code with Rollup
+  - Run `npm run all` to format, lint, test, and package the project
   - Note that dist/index.js updates are handled by GitHub Actions and should not be included in commits or pull requests
 
 ## Git Workflow
