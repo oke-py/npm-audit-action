@@ -1,19 +1,18 @@
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import typescript from '@rollup/plugin-typescript';
+// See: https://rollupjs.org/introduction/
+
+import commonjs from '@rollup/plugin-commonjs'
+import nodeResolve from '@rollup/plugin-node-resolve'
+import typescript from '@rollup/plugin-typescript'
 
 const config = {
-  input: 'src/main.ts',
+  input: 'src/index.ts',
   output: {
+    esModule: true,
     file: 'dist/index.js',
-    format: 'cjs',
+    format: 'es',
     sourcemap: true
   },
-  plugins: [
-    resolve(),
-    commonjs(),
-    typescript()
-  ]
-};
+  plugins: [typescript(), nodeResolve({ preferBuiltins: true }), commonjs()]
+}
 
-export default config;
+export default config
