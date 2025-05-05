@@ -12,14 +12,14 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "bundle": "npm run format && npm run package",
-    "format": "prettier --write **/*.ts",
-    "format-check": "prettier --check **/*.ts",
+    "bundle": "npm run format:write && npm run package",
+    "format:write": "npx prettier --write .",
+    "format:check": "npx prettier --check .",
     "lint": "eslint src/**/*.ts",
     "package": "npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage",
-    "all": "npm run format && npm run lint && npm run test:coverage && npm run package"
+    "all": "npm run format:write && npm run lint && npm run test:coverage && npm run package"
   },
   "repository": {
     "type": "git",
