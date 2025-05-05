@@ -21,9 +21,7 @@
       "findings": [
         {
           "version": "2.19.2",
-          "paths": [
-            "moment"
-          ]
+          "paths": ["moment"]
         }
       ],
       "id": 532,
