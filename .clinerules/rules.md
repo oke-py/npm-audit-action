@@ -77,8 +77,9 @@ TypeScript/JavaScript projects.
   - Run `npm run all` to format, lint, test, and package the project
     (`npm run format:write && npm run lint && npm run test:coverage && npm run package`)
   - Output ES modules to dist/index.js with source maps
-  - Note that dist/index.js updates are handled by GitHub Actions and should not
-    be included in commits or pull requests
+  - Note that dist/index.js updates should be included in commits and pull
+    requests as the CI workflow checks that the dist/ directory matches what is
+    expected from the build
 
 ## Git Workflow
 
