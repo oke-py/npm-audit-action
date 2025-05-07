@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as core from '../__fixtures__/core'
 import { Audit } from '../src/audit'
 import { run } from '../src/main'
 import * as issue from '../src/issue'
@@ -10,6 +11,8 @@ import { dirname } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+// Mocks should be declared before the module being tested is imported.
+vi.mock('@actions/core', () => core)
 vi.mock('../src/audit')
 vi.mock('../src/issue')
 vi.mock('../src/pr')
