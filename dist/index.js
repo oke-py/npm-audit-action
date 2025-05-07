@@ -35223,7 +35223,6 @@ async function run() {
         coreExports.setFailed(e?.message ?? 'Unknown error occurred');
     }
 }
-run();
 
 /**
  * The entrypoint for the action. This file simply imports and runs the action's
