@@ -18,101 +18,111 @@ describe('run', () => {
   })
 
   test('finds vulnerabilities with default values', () => {
-    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
-      const stdout = fs.readFileSync(
-        path.join(__dirname, 'testdata/audit/error.txt')
-      )
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        const stdout = fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString()
 
-      return {
-        pid: 100,
-        output: [stdout],
-        stdout,
-        stderr: '',
-        status: 1,
-        signal: null,
-        error: null
+        return {
+          pid: 100,
+          output: [null, stdout, ''],
+          stdout,
+          stderr: '',
+          status: 1,
+          signal: null,
+          error: undefined
+        }
       }
-    })
+    )
 
     audit.run('low', 'false', 'false')
     expect(audit.foundVulnerability()).toBeTruthy()
   })
 
   test('finds vulnerabilities with production flag enabled', () => {
-    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
-      const stdout = fs.readFileSync(
-        path.join(__dirname, 'testdata/audit/error.txt')
-      )
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        const stdout = fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString()
 
-      return {
-        pid: 100,
-        output: [stdout],
-        stdout,
-        stderr: '',
-        status: 1,
-        signal: null,
-        error: null
+        return {
+          pid: 100,
+          output: [null, stdout, ''],
+          stdout,
+          stderr: '',
+          status: 1,
+          signal: null,
+          error: undefined
+        }
       }
-    })
+    )
 
     audit.run('low', 'true', 'false')
     expect(audit.foundVulnerability()).toBeTruthy()
   })
 
   test('finds vulnerabilities with json flag enabled', () => {
-    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
-      const stdout = fs.readFileSync(
-        path.join(__dirname, 'testdata/audit/error.json')
-      )
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        const stdout = fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.json'))
+          .toString()
 
-      return {
-        pid: 100,
-        output: [stdout],
-        stdout,
-        stderr: '',
-        status: 1,
-        signal: null,
-        error: null
+        return {
+          pid: 100,
+          output: [null, stdout, ''],
+          stdout,
+          stderr: '',
+          status: 1,
+          signal: null,
+          error: undefined
+        }
       }
-    })
+    )
 
     audit.run('low', 'false', 'true')
     expect(audit.foundVulnerability()).toBeTruthy()
   })
 
   test('does not find vulnerabilities', () => {
-    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
-      const stdout = fs.readFileSync(
-        path.join(__dirname, 'testdata/audit/success.txt')
-      )
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        const stdout = fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/success.txt'))
+          .toString()
 
-      return {
-        pid: 100,
-        output: [stdout],
-        stdout,
-        stderr: '',
-        status: 0,
-        signal: null,
-        error: null
+        return {
+          pid: 100,
+          output: [null, stdout, ''],
+          stdout,
+          stderr: '',
+          status: 0,
+          signal: null,
+          error: undefined
+        }
       }
-    })
+    )
 
     audit.run('low', 'false', 'false')
     expect(audit.foundVulnerability()).toBeFalsy()
   })
 
   test('throws an error if error is not null', () => {
-    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
-      return {
-        pid: 100,
-        output: '',
-        stdout: '',
-        stderr: '',
-        status: 0,
-        signal: null,
-        error: new Error('Something is wrong')
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        return {
+          pid: 100,
+          output: [null, '', ''],
+          stdout: '',
+          stderr: '',
+          status: 0,
+          signal: null,
+          error: new Error('Something is wrong')
+        }
       }
-    })
+    )
 
     expect.assertions(1)
     const e = new Error('Something is wrong')
@@ -120,17 +130,19 @@ describe('run', () => {
   })
 
   test('throws an error if status is null', () => {
-    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
-      return {
-        pid: 100,
-        output: '',
-        stdout: '',
-        stderr: '',
-        status: null,
-        signal: 'SIGTERM',
-        error: null
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        return {
+          pid: 100,
+          output: [null, '', ''],
+          stdout: '',
+          stderr: '',
+          status: null,
+          signal: 'SIGTERM',
+          error: undefined
+        }
       }
-    })
+    )
 
     expect.assertions(1)
     const e = new Error('the subprocess terminated due to a signal.')
@@ -138,17 +150,19 @@ describe('run', () => {
   })
 
   test('throws an error if stderr is null', () => {
-    vi.mocked(child_process).spawnSync.mockImplementation((): any => {
-      return {
-        pid: 100,
-        output: '',
-        stdout: '',
-        stderr: 'Something is wrong',
-        status: 1,
-        signal: null,
-        error: null
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        return {
+          pid: 100,
+          output: [null, '', 'Something is wrong'],
+          stdout: '',
+          stderr: 'Something is wrong',
+          status: 1,
+          signal: null,
+          error: undefined
+        }
       }
-    })
+    )
 
     expect.assertions(1)
     const e = new Error('Something is wrong')
