@@ -6,7 +6,7 @@ export const error = vi.fn<typeof core.error>()
 export const info = vi.fn<typeof core.info>()
 export const getInput = vi
   .fn<typeof core.getInput>()
-  .mockImplementation((name, options) => {
+  .mockImplementation((name) => {
     const key = `INPUT_${name.replace(/ /g, '_').toUpperCase()}`
     return process.env[key] || ''
   })
