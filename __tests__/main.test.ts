@@ -47,12 +47,11 @@ describe('run: pr', () => {
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', () => {
-    vi.mocked(Audit).mockImplementation((): any => {
+    vi.mocked(Audit).mockImplementation((): unknown => {
       return {
-        stdout: fs.readFileSync(
-          path.join(__dirname, 'testdata/audit/success.txt')
-        ),
-        status: 0,
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/success.txt'))
+          .toString(),
         run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
@@ -72,12 +71,11 @@ describe('run: pr', () => {
   })
 
   test('calls pr.createComment if vulnerabilities are found in PR', () => {
-    vi.mocked(Audit).mockImplementation((): any => {
+    vi.mocked(Audit).mockImplementation((): unknown => {
       return {
-        stdout: fs.readFileSync(
-          path.join(__dirname, 'testdata/audit/error.txt')
-        ),
-        status: 1,
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString(),
         run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
@@ -99,12 +97,11 @@ describe('run: pr', () => {
   test('does not call pr.createComment if create_pr_comments is set to false', () => {
     process.env.INPUT_CREATE_PR_COMMENTS = 'false'
 
-    vi.mocked(Audit).mockImplementation((): any => {
+    vi.mocked(Audit).mockImplementation((): unknown => {
       return {
-        stdout: fs.readFileSync(
-          path.join(__dirname, 'testdata/audit/error.txt')
-        ),
-        status: 1,
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString(),
         run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
@@ -141,12 +138,11 @@ describe('run: issue', () => {
   test('does not call octokit.rest.issues.create if create_issues is set to false', () => {
     process.env.INPUT_CREATE_ISSUES = 'false'
 
-    vi.mocked(Audit).mockImplementation((): any => {
+    vi.mocked(Audit).mockImplementation((): unknown => {
       return {
-        stdout: fs.readFileSync(
-          path.join(__dirname, 'testdata/audit/error.txt')
-        ),
-        status: 1,
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString(),
         run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
