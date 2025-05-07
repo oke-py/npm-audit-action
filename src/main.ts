@@ -138,5 +138,3 @@ export async function run(): Promise<void> {
     core.setFailed((e as Error)?.message ?? 'Unknown error occurred')
   }
 }
-
-run()
