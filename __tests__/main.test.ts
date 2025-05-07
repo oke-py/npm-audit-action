@@ -53,7 +53,7 @@ describe('run: pr', () => {
           path.join(__dirname, 'testdata/audit/success.txt')
         ),
         status: 0,
-        run: (auditLevel: string): Promise<void> => {
+        run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
         foundVulnerability: (): boolean => {
@@ -78,7 +78,7 @@ describe('run: pr', () => {
           path.join(__dirname, 'testdata/audit/error.txt')
         ),
         status: 1,
-        run: (auditLevel: string): Promise<void> => {
+        run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
         foundVulnerability: (): boolean => {
@@ -105,7 +105,7 @@ describe('run: pr', () => {
           path.join(__dirname, 'testdata/audit/error.txt')
         ),
         status: 1,
-        run: (auditLevel: string): Promise<void> => {
+        run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
         foundVulnerability: (): boolean => {
@@ -147,7 +147,7 @@ describe('run: issue', () => {
           path.join(__dirname, 'testdata/audit/error.txt')
         ),
         status: 1,
-        run: (auditLevel: string): Promise<void> => {
+        run: (): Promise<void> => {
           return Promise.resolve(void 0)
         },
         foundVulnerability: (): boolean => {
