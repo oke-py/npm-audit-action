@@ -21,7 +21,9 @@ jobs:
         run: |
           npm ci
           npm run test:coverage
-      - uses: coverallsapp/github-action@master
+      - name: Upload coverage to Coveralls
+        if: matrix.os == 'ubuntu-latest'
+        uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
