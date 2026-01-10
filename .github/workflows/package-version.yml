@@ -10,7 +10,7 @@ jobs:
     if: ${{ github.event.label.name == 'release minor' }}
     steps:
       - name: check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
       - name: git config
@@ -31,7 +31,7 @@ jobs:
     if: ${{ github.event.label.name == 'release patch' }}
     steps:
       - name: check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
       - name: git config
