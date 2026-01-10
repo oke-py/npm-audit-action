@@ -1,4 +1,6 @@
 name: 'build-test'
+permissions:
+  issues: write
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
