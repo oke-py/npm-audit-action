@@ -1,31 +1,28 @@
 {
   "name": "npm-audit-action-dev",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:24",
   "postCreateCommand": "npm install",
   "customizations": {
     "codespaces": {
-      "openFiles": ["README.md"]
+      "openFiles": [
+        "README.md"
+      ]
     },
     "vscode": {
       "extensions": [
         "bierner.markdown-preview-github-styles",
         "davidanson.vscode-markdownlint",
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
         "github.copilot",
         "github.copilot-chat",
         "github.vscode-github-actions",
         "github.vscode-pull-request-github",
         "me-dutour-mathieu.vscode-github-actions",
         "redhat.vscode-yaml",
-        "rvest.vs-code-prettier-eslint",
         "saoudrizwan.claude-dev",
         "yzhang.markdown-all-in-one"
       ],
       "settings": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.tabSize": 2,
-        "editor.formatOnSave": true,
         "markdown.extension.list.indentationSize": "adaptive",
         "markdown.extension.italic.indicator": "_",
         "markdown.extension.orderedList.marker": "one"
@@ -33,7 +30,6 @@
     }
   },
   "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers-contrib/features/prettier:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   }
 }
