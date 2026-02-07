@@ -28,6 +28,7 @@ creates the following GitHub Issue.
 |   create_issues    |  false   |              true               | Flag to create issues when vulnerabilities are found                |
 | create_pr_comments |  false   |              true               | Flag to create pr comments when vulnerabilities are found           |
 |   dedupe_issues    |  false   |              false              | Flag to de-dupe against open issues                                 |
+| fail_on_vulnerabilities | false |            true               | Fail the action when vulnerabilities are found                      |
 |   github_context   |  false   |     `${{ toJson(github) }}`     | The `github` context                                                |
 |    github_token    |   true   |               N/A               | GitHub Access Token.<br>${{ secrets.GITHUB_TOKEN }} is recommended. |
 |  issue_assignees   |  false   |               N/A               | Issue assignees (separated by commma)                               |

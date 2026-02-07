@@ -9,13 +9,13 @@
     ".": "./dist/index.js"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "bundle": "npm run format:write && npm run package",
-    "format:write": "npx prettier --write .",
-    "format:check": "npx prettier --check .",
-    "lint": "npx eslint .",
+    "format:write": "npx biome format --write .",
+    "format:check": "npx biome format --check .",
+    "lint": "npx biome lint .",
     "package": "npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage",
@@ -25,44 +25,26 @@
     "type": "git",
     "url": "git+https://github.com/oke-py/npm-audit-action"
   },
-  "keywords": [
-    "actions",
-    "node",
-    "security",
-    "vulnerability"
-  ],
+  "keywords": ["actions", "node", "security", "vulnerability"],
   "author": "Naoki Oketani <okepy.naoki@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1",
-    "@octokit/rest": "^22.0.0",
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@octokit/rest": "^22.0.1",
     "strip-ansi": "^7.1.0"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.9",
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.27.0",
+    "@biomejs/biome": "^1.9.4",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
-    "@types/node": "^20.17.50",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
-    "@typescript-eslint/parser": "^8.32.1",
-    "@vitest/coverage-v8": "^3.1.4",
-    "eslint": "^9.27.0",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-import-resolver-typescript": "^4.4.1",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.4.0",
-    "globals": "^16.2.0",
-    "js-yaml": "^4.1.1",
-    "prettier": "^3.5.3",
+    "@types/node": "^24.10.11",
+    "@vitest/coverage-v8": "^4.0.18",
     "rollup": "^4.41.1",
-    "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
     "typescript": "^5.8.3",
     "vite": "^6.4.1",
-    "vitest": "^3.1.2"
+    "vitest": "^4.0.18"
   }
 }

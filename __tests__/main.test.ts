@@ -1,12 +1,12 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as core from '../__fixtures__/core'
 import { Audit } from '../src/audit'
 import { run } from '../src/main'
 import * as issue from '../src/issue'
 import * as pr from '../src/pr'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -18,7 +18,7 @@ vi.mock('../src/issue')
 vi.mock('../src/pr')
 vi.mock('@octokit/rest', () => {
   return {
-    Octokit: vi.fn().mockImplementation(() => {
+    Octokit: vi.fn().mockImplementation(function () {
       return {
         issues: {
           listForRepo: vi.fn(),
@@ -44,10 +44,11 @@ describe('run: pr', () => {
     process.env.INPUT_GITHUB_TOKEN = '***'
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
+    process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
   })
 
-  test('does not call pr.createComment if vulnerabilities are not found', () => {
-    vi.mocked(Audit).mockImplementation((): unknown => {
+  test('does not call pr.createComment if vulnerabilities are not found', async () => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/success.txt'))
@@ -66,12 +67,12 @@ describe('run: pr', () => {
 
     vi.mocked(pr).createComment.mockResolvedValue()
 
-    expect(run).not.toThrowError()
+    await run()
     expect(pr.createComment).not.toHaveBeenCalled()
   })
 
-  test('calls pr.createComment if vulnerabilities are found in PR', () => {
-    vi.mocked(Audit).mockImplementation((): unknown => {
+  test('calls pr.createComment if vulnerabilities are found in PR', async () => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
@@ -90,14 +91,14 @@ describe('run: pr', () => {
 
     vi.mocked(pr).createComment.mockResolvedValue()
 
-    expect(run).not.toThrowError()
+    await run()
     expect(pr.createComment).toHaveBeenCalled()
   })
 
-  test('does not call pr.createComment if create_pr_comments is set to false', () => {
+  test('does not call pr.createComment if create_pr_comments is set to false', async () => {
     process.env.INPUT_CREATE_PR_COMMENTS = 'false'
 
-    vi.mocked(Audit).mockImplementation((): unknown => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
@@ -114,7 +115,7 @@ describe('run: pr', () => {
       }
     })
 
-    expect(run).not.toThrowError()
+    await run()
     expect(pr.createComment).not.toHaveBeenCalled()
   })
 })
@@ -133,12 +134,13 @@ describe('run: issue', () => {
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_ISSUES = 'true'
+    process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
   })
 
-  test('does not call octokit.rest.issues.create if create_issues is set to false', () => {
+  test('does not call octokit.rest.issues.create if create_issues is set to false', async () => {
     process.env.INPUT_CREATE_ISSUES = 'false'
 
-    vi.mocked(Audit).mockImplementation((): unknown => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
@@ -157,7 +159,7 @@ describe('run: issue', () => {
 
     vi.mocked(issue).getExistingIssueNumber.mockResolvedValue(null)
 
-    expect(run).not.toThrowError()
+    await run()
     expect(issue.getExistingIssueNumber).not.toHaveBeenCalled()
   })
 })
