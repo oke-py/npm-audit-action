@@ -62,6 +62,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_title: npm audit run by test job
+          create_pr_comments: false
           create_issues: false
           production_flag: true
       - name: Run npm audit action in testdata workdir
@@ -69,6 +70,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           working_directory: __tests__/testdata/workdir
+          create_pr_comments: false
           create_issues: false
           fail_on_vulnerabilities: false
           production_flag: true
