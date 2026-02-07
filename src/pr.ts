@@ -1,4 +1,4 @@
-import { Octokit } from '@octokit/rest'
+import type { Octokit } from '@octokit/rest'
 
 export async function createComment(
   octokit: Octokit,

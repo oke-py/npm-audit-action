@@ -30,8 +30,9 @@ import require$$5$2 from 'node:async_hooks';
 import require$$1$4 from 'node:console';
 import require$$1$5 from 'node:dns';
 import require$$5$3 from 'string_decoder';
-import { spawnSync } from 'child_process';
+import 'child_process';
 import 'timers';
+import { spawnSync } from 'node:child_process';
 
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -32926,39 +32927,37 @@ async function run() {
                 setFailed('This repo has some vulnerabilities');
                 return;
             }
-            else {
-                debug('open an issue');
-                const createIssues = getInput('create_issues');
-                if (!['true', 'false'].includes(createIssues)) {
-                    throw new Error('Invalid input: create_issues');
-                }
-                if (createIssues === 'false') {
-                    setFailed('This repo has some vulnerabilities');
-                    return;
-                }
-                // remove control characters and create a code block
-                const issueBody = audit.strippedStdout();
-                const option = getIssueOption(issueBody);
-                const existingIssueNumber = getInput('dedupe_issues') === 'true'
-                    ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo)
-                    : null;
-                if (existingIssueNumber !== null) {
-                    const { data: createdComment } = await octokit.issues.createComment({
-                        ...context.repo,
-                        issue_number: existingIssueNumber,
-                        body: option.body
-                    });
-                    debug(`comment ${createdComment.url}`);
-                }
-                else {
-                    const { data: createdIssue } = await octokit.issues.create({
-                        ...context.repo,
-                        ...option
-                    });
-                    debug(`#${createdIssue.number}`);
-                }
-                setFailed('This repo has some vulnerabilities');
+            debug('open an issue');
+            const createIssues = getInput('create_issues');
+            if (!['true', 'false'].includes(createIssues)) {
+                throw new Error('Invalid input: create_issues');
             }
+            if (createIssues === 'false') {
+                setFailed('This repo has some vulnerabilities');
+                return;
+            }
+            // remove control characters and create a code block
+            const issueBody = audit.strippedStdout();
+            const option = getIssueOption(issueBody);
+            const existingIssueNumber = getInput('dedupe_issues') === 'true'
+                ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo)
+                : null;
+            if (existingIssueNumber !== null) {
+                const { data: createdComment } = await octokit.issues.createComment({
+                    ...context.repo,
+                    issue_number: existingIssueNumber,
+                    body: option.body
+                });
+                debug(`comment ${createdComment.url}`);
+            }
+            else {
+                const { data: createdIssue } = await octokit.issues.create({
+                    ...context.repo,
+                    ...option
+                });
+                debug(`#${createdIssue.number}`);
+            }
+            setFailed('This repo has some vulnerabilities');
         }
     }
     catch (e) {

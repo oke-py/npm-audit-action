@@ -1,14 +1,14 @@
-import * as child_process from 'child_process'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as child_process from 'node:child_process'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { Audit } from '../src/audit'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-vi.mock('child_process')
+vi.mock('node:child_process')
 
 const audit = new Audit()
 
