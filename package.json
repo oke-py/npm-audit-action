@@ -34,9 +34,9 @@
   "author": "Naoki Oketani <okepy.naoki@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1",
-    "@octokit/rest": "^22.0.0",
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@octokit/rest": "^22.0.1",
     "strip-ansi": "^7.1.0"
   },
   "devDependencies": {
