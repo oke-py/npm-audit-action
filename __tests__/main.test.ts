@@ -18,7 +18,7 @@ vi.mock('../src/issue')
 vi.mock('../src/pr')
 vi.mock('@octokit/rest', () => {
   return {
-    Octokit: vi.fn().mockImplementation(() => {
+    Octokit: vi.fn().mockImplementation(function () {
       return {
         issues: {
           listForRepo: vi.fn(),
@@ -46,8 +46,8 @@ describe('run: pr', () => {
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
   })
 
-  test('does not call pr.createComment if vulnerabilities are not found', () => {
-    vi.mocked(Audit).mockImplementation((): unknown => {
+  test('does not call pr.createComment if vulnerabilities are not found', async () => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/success.txt'))
@@ -66,12 +66,12 @@ describe('run: pr', () => {
 
     vi.mocked(pr).createComment.mockResolvedValue()
 
-    expect(run).not.toThrowError()
+    await run()
     expect(pr.createComment).not.toHaveBeenCalled()
   })
 
-  test('calls pr.createComment if vulnerabilities are found in PR', () => {
-    vi.mocked(Audit).mockImplementation((): unknown => {
+  test('calls pr.createComment if vulnerabilities are found in PR', async () => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
@@ -90,14 +90,14 @@ describe('run: pr', () => {
 
     vi.mocked(pr).createComment.mockResolvedValue()
 
-    expect(run).not.toThrowError()
+    await run()
     expect(pr.createComment).toHaveBeenCalled()
   })
 
-  test('does not call pr.createComment if create_pr_comments is set to false', () => {
+  test('does not call pr.createComment if create_pr_comments is set to false', async () => {
     process.env.INPUT_CREATE_PR_COMMENTS = 'false'
 
-    vi.mocked(Audit).mockImplementation((): unknown => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
@@ -114,7 +114,7 @@ describe('run: pr', () => {
       }
     })
 
-    expect(run).not.toThrowError()
+    await run()
     expect(pr.createComment).not.toHaveBeenCalled()
   })
 })
@@ -135,10 +135,10 @@ describe('run: issue', () => {
     process.env.INPUT_DEDUPE_ISSUES = 'true'
   })
 
-  test('does not call octokit.rest.issues.create if create_issues is set to false', () => {
+  test('does not call octokit.rest.issues.create if create_issues is set to false', async () => {
     process.env.INPUT_CREATE_ISSUES = 'false'
 
-    vi.mocked(Audit).mockImplementation((): unknown => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
       return {
         stdout: fs
           .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
@@ -157,7 +157,7 @@ describe('run: issue', () => {
 
     vi.mocked(issue).getExistingIssueNumber.mockResolvedValue(null)
 
-    expect(run).not.toThrowError()
+    await run()
     expect(issue.getExistingIssueNumber).not.toHaveBeenCalled()
   })
 })
