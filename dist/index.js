@@ -32910,6 +32910,10 @@ async function run() {
         setOutput('npm_audit', audit.stdout);
         if (audit.foundVulnerability()) {
             // vulnerabilities are found
+            const failOnVulnerabilities = getInput('fail_on_vulnerabilities');
+            if (!['true', 'false'].includes(failOnVulnerabilities)) {
+                throw new Error('Invalid input: fail_on_vulnerabilities');
+            }
             // get GitHub information
             const ctx = JSON.parse(getInput('github_context'));
             const token = getInput('github_token', { required: true });
@@ -32924,7 +32928,11 @@ async function run() {
                 if (createPRComments === 'true') {
                     await createComment(octokit, context.repo.owner, context.repo.repo, ctx.event.number, audit.strippedStdout());
                 }
-                setFailed('This repo has some vulnerabilities');
+                if (failOnVulnerabilities === 'true') {
+                    setFailed('This repo has some vulnerabilities');
+                    return;
+                }
+                info('This repo has some vulnerabilities');
                 return;
             }
             debug('open an issue');
@@ -32933,7 +32941,11 @@ async function run() {
                 throw new Error('Invalid input: create_issues');
             }
             if (createIssues === 'false') {
-                setFailed('This repo has some vulnerabilities');
+                if (failOnVulnerabilities === 'true') {
+                    setFailed('This repo has some vulnerabilities');
+                    return;
+                }
+                info('This repo has some vulnerabilities');
                 return;
             }
             // remove control characters and create a code block
@@ -32957,7 +32969,11 @@ async function run() {
                 });
                 debug(`#${createdIssue.number}`);
             }
-            setFailed('This repo has some vulnerabilities');
+            if (failOnVulnerabilities === 'true') {
+                setFailed('This repo has some vulnerabilities');
+                return;
+            }
+            info('This repo has some vulnerabilities');
         }
     }
     catch (e) {

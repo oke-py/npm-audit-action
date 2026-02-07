@@ -14,6 +14,10 @@ inputs:
     description: 'Flag to create pr comments when vulnerabilities are found'
     default: 'true'
     required: false
+  fail_on_vulnerabilities:
+    description: 'Fail the action when vulnerabilities are found'
+    default: 'true'
+    required: false
   dedupe_issues:
     description: 'Flag to de-dupe against open issues'
     default: 'false'

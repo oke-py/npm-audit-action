@@ -69,6 +69,11 @@ export async function run(): Promise<void> {
     if (audit.foundVulnerability()) {
       // vulnerabilities are found
 
+      const failOnVulnerabilities = core.getInput('fail_on_vulnerabilities')
+      if (!['true', 'false'].includes(failOnVulnerabilities)) {
+        throw new Error('Invalid input: fail_on_vulnerabilities')
+      }
+
       // get GitHub information
       const ctx = JSON.parse(core.getInput('github_context'))
       const token: string = core.getInput('github_token', { required: true })
@@ -91,7 +96,11 @@ export async function run(): Promise<void> {
             audit.strippedStdout()
           )
         }
-        core.setFailed('This repo has some vulnerabilities')
+        if (failOnVulnerabilities === 'true') {
+          core.setFailed('This repo has some vulnerabilities')
+          return
+        }
+        core.info('This repo has some vulnerabilities')
         return
       }
 
@@ -102,7 +111,11 @@ export async function run(): Promise<void> {
       }
 
       if (createIssues === 'false') {
-        core.setFailed('This repo has some vulnerabilities')
+        if (failOnVulnerabilities === 'true') {
+          core.setFailed('This repo has some vulnerabilities')
+          return
+        }
+        core.info('This repo has some vulnerabilities')
         return
       }
 
@@ -132,7 +145,11 @@ export async function run(): Promise<void> {
         })
         core.debug(`#${createdIssue.number}`)
       }
-      core.setFailed('This repo has some vulnerabilities')
+      if (failOnVulnerabilities === 'true') {
+        core.setFailed('This repo has some vulnerabilities')
+        return
+      }
+      core.info('This repo has some vulnerabilities')
     }
   } catch (e: unknown) {
     core.setFailed((e as Error)?.message ?? 'Unknown error occurred')

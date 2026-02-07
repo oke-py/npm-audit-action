@@ -44,6 +44,7 @@ describe('run: pr', () => {
     process.env.INPUT_GITHUB_TOKEN = '***'
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
+    process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', async () => {
@@ -133,6 +134,7 @@ describe('run: issue', () => {
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_ISSUES = 'true'
+    process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
   })
 
   test('does not call octokit.rest.issues.create if create_issues is set to false', async () => {
