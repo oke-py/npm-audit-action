@@ -31,8 +31,7 @@
   "dependencies": {
     "@actions/core": "^3.0.0",
     "@actions/github": "^9.0.0",
-    "@octokit/rest": "^22.0.1",
-    "strip-ansi": "^7.1.0"
+    "@octokit/rest": "^22.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

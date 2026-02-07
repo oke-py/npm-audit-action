@@ -16,7 +16,7 @@ import require$$0$3 from 'node:net';
 import require$$2 from 'node:http';
 import require$$0$2 from 'node:stream';
 import require$$0 from 'node:buffer';
-import require$$0$4 from 'node:util';
+import require$$0$4, { stripVTControlCharacters } from 'node:util';
 import require$$7 from 'node:querystring';
 import require$$8 from 'node:events';
 import require$$0$5 from 'node:diagnostics_channel';
@@ -32760,30 +32760,6 @@ const Octokit = Octokit$1.plugin(requestLog, legacyRestEndpointMethods, paginate
   }
 );
 
-function ansiRegex({onlyFirst = false} = {}) {
-	// Valid string terminator sequences are BEL, ESC\, and 0x9c
-	const ST = '(?:\\u0007|\\u001B\\u005C|\\u009C)';
-	const pattern = [
-		`[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?${ST})`,
-		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
-	].join('|');
-
-	return new RegExp(pattern, onlyFirst ? undefined : 'g');
-}
-
-const regex = ansiRegex();
-
-function stripAnsi(string) {
-	if (typeof string !== 'string') {
-		throw new TypeError(`Expected a \`string\`, got \`${typeof string}\``);
-	}
-
-	// Even though the regex is global, we don't need to reset the `.lastIndex`
-	// because unlike `.exec()` and `.test()`, `.replace()` does it automatically
-	// and doing it manually has a performance penalty.
-	return string.replace(regex, '');
-}
-
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MiB
 class Audit {
     stdout = '';
@@ -32819,7 +32795,7 @@ class Audit {
         return this.status === 1;
     }
     strippedStdout() {
-        return `\`\`\`\n${stripAnsi(this.stdout)}\n\`\`\``;
+        return `\`\`\`\n${stripVTControlCharacters(this.stdout)}\n\`\`\``;
     }
 }
 
