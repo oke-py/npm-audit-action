@@ -1,5 +1,5 @@
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process'
-import stripAnsi from 'strip-ansi'
+import { stripVTControlCharacters } from 'node:util'
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760 // 10MiB
 
@@ -50,6 +50,6 @@ export class Audit {
   }
 
   public strippedStdout(): string {
-    return `\`\`\`\n${stripAnsi(this.stdout)}\n\`\`\``
+    return `\`\`\`\n${stripVTControlCharacters(this.stdout)}\n\`\`\``
   }
 }
