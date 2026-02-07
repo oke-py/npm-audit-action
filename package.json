@@ -36,13 +36,13 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@rollup/plugin-commonjs": "^28.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/node": "^24.10.11",
     "@vitest/coverage-v8": "^4.0.18",
-    "rollup": "^4.41.1",
+    "rollup": "^4.57.1",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "vite": "^6.4.1",
     "vitest": "^4.0.18"
   }
