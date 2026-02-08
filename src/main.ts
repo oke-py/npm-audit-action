@@ -10,30 +10,17 @@ import * as workdir from './workdir.js'
 export async function run(): Promise<void> {
   try {
     // move to working directory
-    const workingDirectory = core.getInput('working_directory', {
-      trimWhitespace: true
-    })
+    const workingDirectory = workdir.getNormalizedWorkingDirectory(
+      core.getInput
+    )
     if (workingDirectory) {
-      // Remove trailing slash if present
-      const normalizedWorkingDirectory = workingDirectory.endsWith('/')
-        ? workingDirectory.slice(0, -1)
-        : workingDirectory
-
-      if (!workdir.isValid(normalizedWorkingDirectory)) {
-        throw new Error('Invalid input: working_directory')
-      }
-
       try {
         // Try to change directory
-        process.chdir(normalizedWorkingDirectory)
-        core.info(
-          `Successfully changed directory to: ${normalizedWorkingDirectory}`
-        )
+        process.chdir(workingDirectory)
+        core.info(`Successfully changed directory to: ${workingDirectory}`)
       } catch (error) {
         // If changing directory fails, log the error but continue
-        core.warning(
-          `Failed to change directory to: ${normalizedWorkingDirectory}`
-        )
+        core.warning(`Failed to change directory to: ${workingDirectory}`)
         core.warning(
           `Error: ${error instanceof Error ? error.message : String(error)}`
         )
