@@ -10,7 +10,9 @@ import * as workdir from './workdir.js'
 export async function run(): Promise<void> {
   try {
     // move to working directory
-    const workingDirectory = workdir.getNormalizedWorkingDirectory(core.getInput)
+    const workingDirectory = workdir.getNormalizedWorkingDirectory(
+      core.getInput
+    )
     if (workingDirectory) {
       try {
         // Try to change directory
