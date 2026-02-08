@@ -7,7 +7,7 @@ export default defineConfig({
     include: ['__tests__/**/*.test.ts'],
     coverage: {
       include: ['src/**/*.ts'], // Only target the src directory
-      exclude: ['lib/**'], // Exclude the lib directory
+      exclude: ['lib/**', '__fixtures__/**', '__tests__/**'], // Exclude the lib directory
       reporter: ['text', 'json', 'html', 'lcov']
     }
   }
