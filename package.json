@@ -25,7 +25,12 @@
     "type": "git",
     "url": "git+https://github.com/oke-py/npm-audit-action"
   },
-  "keywords": ["actions", "node", "security", "vulnerability"],
+  "keywords": [
+    "actions",
+    "node",
+    "security",
+    "vulnerability"
+  ],
   "author": "Naoki Oketani <okepy.naoki@gmail.com>",
   "license": "MIT",
   "dependencies": {
@@ -34,7 +39,7 @@
     "@octokit/rest": "^22.0.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.3.14",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
