@@ -32820,6 +32820,37 @@ class Audit {
     }
 }
 
+const auditLevels = new Set([
+    'critical',
+    'high',
+    'moderate',
+    'low',
+    'info',
+    'none'
+]);
+function getInputs() {
+    const auditLevel = getInput('audit_level', { trimWhitespace: true });
+    if (!auditLevels.has(auditLevel)) {
+        throw new Error('Invalid input: audit_level');
+    }
+    const githubContext = JSON.parse(getInput('github_context', { trimWhitespace: true }));
+    return {
+        auditLevel,
+        productionFlag: getBooleanInput('production_flag'),
+        jsonFlag: getBooleanInput('json_flag'),
+        failOnVulnerabilities: getBooleanInput('fail_on_vulnerabilities'),
+        createPRComments: getBooleanInput('create_pr_comments'),
+        createIssues: getBooleanInput('create_issues'),
+        dedupeIssues: getBooleanInput('dedupe_issues'),
+        issueTitle: getInput('issue_title', { trimWhitespace: true }),
+        githubContext,
+        token: getInput('github_token', {
+            required: true,
+            trimWhitespace: true
+        })
+    };
+}
+
 function getIssueOption(body, issueTitle) {
     let assignees;
     let labels;
@@ -32912,36 +32943,23 @@ async function run() {
             }
         }
         info(`Current working directory: ${process.cwd()}`);
-        // get audit-level
-        const auditLevel = getInput('audit_level', { trimWhitespace: true });
-        if (!['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(auditLevel)) {
-            throw new Error('Invalid input: audit_level');
-        }
-        const productionFlag = getBooleanInput('production_flag');
-        const jsonFlag = getBooleanInput('json_flag');
+        const inputs = getInputs();
         // run `npm audit`
         const audit = new Audit();
-        audit.run(auditLevel, productionFlag, jsonFlag);
+        audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag);
         info(audit.stdout);
         setOutput('npm_audit', audit.stdout);
         if (audit.foundVulnerability()) {
             // vulnerabilities are found
-            const failOnVulnerabilities = getBooleanInput('fail_on_vulnerabilities');
             // get GitHub information
-            const ctx = JSON.parse(getInput('github_context', { trimWhitespace: true }));
-            const token = getInput('github_token', {
-                required: true,
-                trimWhitespace: true
-            });
             const octokit = new Octokit({
-                auth: token
+                auth: inputs.token
             });
-            if (ctx.event_name === 'pull_request') {
-                const createPRComments = getBooleanInput('create_pr_comments');
-                if (createPRComments) {
-                    await createComment(octokit, context.repo.owner, context.repo.repo, ctx.event.number, audit.strippedStdout());
+            if (inputs.githubContext.event_name === 'pull_request') {
+                if (inputs.createPRComments) {
+                    await createComment(octokit, context.repo.owner, context.repo.repo, inputs.githubContext.event.number, audit.strippedStdout());
                 }
-                if (failOnVulnerabilities) {
+                if (inputs.failOnVulnerabilities) {
                     setFailed('This repo has some vulnerabilities');
                     return;
                 }
@@ -32949,9 +32967,8 @@ async function run() {
                 return;
             }
             debug('open an issue');
-            const createIssues = getBooleanInput('create_issues');
-            if (!createIssues) {
-                if (failOnVulnerabilities) {
+            if (!inputs.createIssues) {
+                if (inputs.failOnVulnerabilities) {
                     setFailed('This repo has some vulnerabilities');
                     return;
                 }
@@ -32960,10 +32977,9 @@ async function run() {
             }
             // remove control characters and create a code block
             const issueBody = audit.strippedStdout();
-            const issueTitle = getInput('issue_title', { trimWhitespace: true });
-            const option = getIssueOption(issueBody, issueTitle);
-            const existingIssueNumber = getBooleanInput('dedupe_issues')
-                ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo, issueTitle)
+            const option = getIssueOption(issueBody, inputs.issueTitle);
+            const existingIssueNumber = inputs.dedupeIssues
+                ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo, inputs.issueTitle)
                 : null;
             if (existingIssueNumber !== null) {
                 const { data: createdComment } = await octokit.issues.createComment({
@@ -32980,7 +32996,7 @@ async function run() {
                 });
                 debug(`#${createdIssue.number}`);
             }
-            if (failOnVulnerabilities) {
+            if (inputs.failOnVulnerabilities) {
                 setFailed('This repo has some vulnerabilities');
                 return;
             }
