@@ -17,7 +17,7 @@ jobs:
       - name: git tag
         run: |
           git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
-          # Extract major version from release tag (e.g., v3.0.0 -> v3)
+          # Extract major version from release tag (e.g., v4.0.0 -> v4)
           MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*")
           echo "Tagging with major version: ${MAJOR_VERSION}"
 

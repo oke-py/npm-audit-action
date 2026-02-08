@@ -62,7 +62,7 @@ npm run bundle
 3. Update usage references to the new major tag (README and workflows).
 4. Merge to `main` and wait for the `update-dist` workflow to update `dist/index.js`.
 5. Create a GitHub Release from the commit that includes the updated `dist/index.js`.
-6. The `git-tag` workflow updates the major tag (e.g. `v3`).
+6. The `git-tag` workflow updates the major tag (e.g. `v4`).
 
 ### Minor and Patch Releases
 
