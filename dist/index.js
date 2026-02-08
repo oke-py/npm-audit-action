@@ -27972,6 +27972,27 @@ function getInput(name, options) {
     return val.trim();
 }
 /**
+ * Gets the input value of the boolean type in the YAML 1.2 "core schema" specification.
+ * Support boolean input list: `true | True | TRUE | false | False | FALSE` .
+ * The return value is also in boolean type.
+ * ref: https://yaml.org/spec/1.2/spec.html#id2804923
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   boolean
+ */
+function getBooleanInput(name, options) {
+    const trueValue = ['true', 'True', 'TRUE'];
+    const falseValue = ['false', 'False', 'FALSE'];
+    const val = getInput(name, options);
+    if (trueValue.includes(val))
+        return true;
+    if (falseValue.includes(val))
+        return false;
+    throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}\n` +
+        `Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
+}
+/**
  * Sets the value of an output.
  *
  * @param     name     name of the output to set
@@ -32768,10 +32789,10 @@ class Audit {
         const auditOptions = ['audit', '--audit-level', auditLevel];
         const isWindowsEnvironment = process.platform === 'win32';
         const cmd = isWindowsEnvironment ? 'npm.cmd' : 'npm';
-        if (productionFlag === 'true') {
+        if (productionFlag) {
             auditOptions.push('--omit=dev');
         }
-        if (jsonFlag === 'true') {
+        if (jsonFlag) {
             auditOptions.push('--json');
         }
         const result = spawnSync(cmd, auditOptions, {
@@ -32799,31 +32820,48 @@ class Audit {
     }
 }
 
-function getIssueOption(body) {
+function getIssueOption(body, issueTitle) {
     let assignees;
     let labels;
-    if (getInput('issue_assignees')) {
-        assignees = getInput('issue_assignees').replace(/\s+/g, '').split(',');
-    }
-    if (getInput('issue_labels')) {
-        labels = getInput('issue_labels')
+    const issueAssigneesInput = getInput('issue_assignees', {
+        trimWhitespace: true
+    });
+    if (issueAssigneesInput) {
+        const parsed = issueAssigneesInput
             .split(',')
-            .map((label) => label.trim());
+            .map((assignee) => assignee.trim())
+            .filter(Boolean);
+        if (parsed.length > 0) {
+            assignees = parsed;
+        }
+    }
+    const issueLabelsInput = getInput('issue_labels', {
+        trimWhitespace: true
+    });
+    if (issueLabelsInput) {
+        const parsed = issueLabelsInput
+            .split(',')
+            .map((label) => label.trim())
+            .filter(Boolean);
+        if (parsed.length > 0) {
+            labels = parsed;
+        }
     }
     return {
-        title: getInput('issue_title'),
+        title: issueTitle ?? getInput('issue_title', { trimWhitespace: true }),
         body,
         assignees,
         labels
     };
 }
-async function getExistingIssueNumber(getIssues, repo) {
+async function getExistingIssueNumber(getIssues, repo, issueTitle) {
     const { data: issues } = await getIssues({
         ...repo,
         state: 'open'
     });
     const iss = issues
-        .filter((i) => i.title === getInput('issue_title'))
+        .filter((i) => i.title ===
+        (issueTitle ?? getInput('issue_title', { trimWhitespace: true })))
         .shift();
     return iss?.number ?? null;
 }
@@ -32844,7 +32882,9 @@ function isValid(dir) {
 async function run() {
     try {
         // move to working directory
-        const workingDirectory = getInput('working_directory');
+        const workingDirectory = getInput('working_directory', {
+            trimWhitespace: true
+        });
         if (workingDirectory) {
             // Remove trailing slash if present
             const normalizedWorkingDirectory = workingDirectory.endsWith('/')
@@ -32867,18 +32907,12 @@ async function run() {
         }
         info(`Current working directory: ${process.cwd()}`);
         // get audit-level
-        const auditLevel = getInput('audit_level', { required: true });
+        const auditLevel = getInput('audit_level', { trimWhitespace: true });
         if (!['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(auditLevel)) {
             throw new Error('Invalid input: audit_level');
         }
-        const productionFlag = getInput('production_flag', { required: false });
-        if (!['true', 'false'].includes(productionFlag)) {
-            throw new Error('Invalid input: production_flag');
-        }
-        const jsonFlag = getInput('json_flag', { required: false });
-        if (!['true', 'false'].includes(jsonFlag)) {
-            throw new Error('Invalid input: json_flag');
-        }
+        const productionFlag = getBooleanInput('production_flag');
+        const jsonFlag = getBooleanInput('json_flag');
         // run `npm audit`
         const audit = new Audit();
         audit.run(auditLevel, productionFlag, jsonFlag);
@@ -32886,25 +32920,22 @@ async function run() {
         setOutput('npm_audit', audit.stdout);
         if (audit.foundVulnerability()) {
             // vulnerabilities are found
-            const failOnVulnerabilities = getInput('fail_on_vulnerabilities');
-            if (!['true', 'false'].includes(failOnVulnerabilities)) {
-                throw new Error('Invalid input: fail_on_vulnerabilities');
-            }
+            const failOnVulnerabilities = getBooleanInput('fail_on_vulnerabilities');
             // get GitHub information
-            const ctx = JSON.parse(getInput('github_context'));
-            const token = getInput('github_token', { required: true });
+            const ctx = JSON.parse(getInput('github_context', { trimWhitespace: true }));
+            const token = getInput('github_token', {
+                required: true,
+                trimWhitespace: true
+            });
             const octokit = new Octokit({
                 auth: token
             });
             if (ctx.event_name === 'pull_request') {
-                const createPRComments = getInput('create_pr_comments');
-                if (!['true', 'false'].includes(createPRComments)) {
-                    throw new Error('Invalid input: create_pr_comments');
-                }
-                if (createPRComments === 'true') {
+                const createPRComments = getBooleanInput('create_pr_comments');
+                if (createPRComments) {
                     await createComment(octokit, context.repo.owner, context.repo.repo, ctx.event.number, audit.strippedStdout());
                 }
-                if (failOnVulnerabilities === 'true') {
+                if (failOnVulnerabilities) {
                     setFailed('This repo has some vulnerabilities');
                     return;
                 }
@@ -32912,12 +32943,9 @@ async function run() {
                 return;
             }
             debug('open an issue');
-            const createIssues = getInput('create_issues');
-            if (!['true', 'false'].includes(createIssues)) {
-                throw new Error('Invalid input: create_issues');
-            }
-            if (createIssues === 'false') {
-                if (failOnVulnerabilities === 'true') {
+            const createIssues = getBooleanInput('create_issues');
+            if (!createIssues) {
+                if (failOnVulnerabilities) {
                     setFailed('This repo has some vulnerabilities');
                     return;
                 }
@@ -32926,9 +32954,10 @@ async function run() {
             }
             // remove control characters and create a code block
             const issueBody = audit.strippedStdout();
-            const option = getIssueOption(issueBody);
-            const existingIssueNumber = getInput('dedupe_issues') === 'true'
-                ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo)
+            const issueTitle = getInput('issue_title', { trimWhitespace: true });
+            const option = getIssueOption(issueBody, issueTitle);
+            const existingIssueNumber = getBooleanInput('dedupe_issues')
+                ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo, issueTitle)
                 : null;
             if (existingIssueNumber !== null) {
                 const { data: createdComment } = await octokit.issues.createComment({
@@ -32945,7 +32974,7 @@ async function run() {
                 });
                 debug(`#${createdIssue.number}`);
             }
-            if (failOnVulnerabilities === 'true') {
+            if (failOnVulnerabilities) {
                 setFailed('This repo has some vulnerabilities');
                 return;
             }
