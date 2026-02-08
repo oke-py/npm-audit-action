@@ -3,8 +3,7 @@ import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
 import { Audit } from './audit.js'
 import { getInputs } from './inputs.js'
-import type { IssueOption } from './interface.js'
-import * as issue from './issue.js'
+import { handleIssueFlow } from './issue-flow.js'
 import { handlePullRequest } from './pr-flow.js'
 import * as workdir from './workdir.js'
 
@@ -60,49 +59,12 @@ export async function run(): Promise<void> {
       }
 
       core.debug('open an issue')
-      if (!inputs.createIssues) {
-        if (inputs.failOnVulnerabilities) {
-          core.setFailed('This repo has some vulnerabilities')
-          return
-        }
-        core.info('This repo has some vulnerabilities')
-        return
-      }
-
-      // remove control characters and create a code block
-      const issueBody = audit.strippedStdout()
-      const option: IssueOption = issue.getIssueOption(
-        issueBody,
-        inputs.issueTitle
-      )
-
-      const existingIssueNumber = inputs.dedupeIssues
-        ? await issue.getExistingIssueNumber(
-            octokit.issues.listForRepo,
-            github.context.repo,
-            inputs.issueTitle
-          )
-        : null
-
-      if (existingIssueNumber !== null) {
-        const { data: createdComment } = await octokit.issues.createComment({
-          ...github.context.repo,
-          issue_number: existingIssueNumber,
-          body: option.body
-        })
-        core.debug(`comment ${createdComment.url}`)
-      } else {
-        const { data: createdIssue } = await octokit.issues.create({
-          ...github.context.repo,
-          ...option
-        })
-        core.debug(`#${createdIssue.number}`)
-      }
-      if (inputs.failOnVulnerabilities) {
-        core.setFailed('This repo has some vulnerabilities')
-        return
-      }
-      core.info('This repo has some vulnerabilities')
+      await handleIssueFlow(octokit, audit.strippedStdout(), {
+        createIssues: inputs.createIssues,
+        dedupeIssues: inputs.dedupeIssues,
+        failOnVulnerabilities: inputs.failOnVulnerabilities,
+        issueTitle: inputs.issueTitle
+      })
     }
   } catch (e: unknown) {
     core.setFailed((e as Error)?.message ?? 'Unknown error occurred')
