@@ -1,6 +1,6 @@
 import * as core from '../__fixtures__/core'
-import { handlePullRequest } from '../src/pr-flow'
 import * as pr from '../src/pr'
+import { handlePullRequest } from '../src/pr-flow'
 
 vi.mock('@actions/core', () => core)
 vi.mock('../src/pr')
