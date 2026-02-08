@@ -9,19 +9,19 @@ export class Audit {
 
   public run(
     auditLevel: string,
-    productionFlag: string,
-    jsonFlag: string
+    productionFlag: boolean,
+    jsonFlag: boolean
   ): void {
     const auditOptions: string[] = ['audit', '--audit-level', auditLevel]
 
     const isWindowsEnvironment: boolean = process.platform === 'win32'
     const cmd: string = isWindowsEnvironment ? 'npm.cmd' : 'npm'
 
-    if (productionFlag === 'true') {
+    if (productionFlag) {
       auditOptions.push('--omit=dev')
     }
 
-    if (jsonFlag === 'true') {
+    if (jsonFlag) {
       auditOptions.push('--json')
     }
 
