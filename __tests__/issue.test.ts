@@ -1,5 +1,5 @@
-import * as issue from '../src/issue'
 import type { IssueOption } from '../src/interface'
+import * as issue from '../src/issue'
 
 describe('getIssueOption', () => {
   test('without assignee and label', () => {
