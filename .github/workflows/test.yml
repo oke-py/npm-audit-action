@@ -20,6 +20,8 @@ jobs:
       - name: Install dependencies and run tests
         run: |
           npm ci
+          npm run format:check
+          npm run lint
           npm run test:coverage
       - name: Upload coverage to Coveralls
         if: matrix.os == 'ubuntu-latest'
