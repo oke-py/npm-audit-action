@@ -10,7 +10,9 @@ import * as workdir from './workdir.js'
 export async function run(): Promise<void> {
   try {
     // move to working directory
-    const workingDirectory = core.getInput('working_directory')
+    const workingDirectory = core.getInput('working_directory', {
+      trimWhitespace: true
+    })
     if (workingDirectory) {
       // Remove trailing slash if present
       const normalizedWorkingDirectory = workingDirectory.endsWith('/')
@@ -41,7 +43,7 @@ export async function run(): Promise<void> {
     core.info(`Current working directory: ${process.cwd()}`)
 
     // get audit-level
-    const auditLevel = core.getInput('audit_level', { required: true })
+    const auditLevel = core.getInput('audit_level', { trimWhitespace: true })
     if (
       !['critical', 'high', 'moderate', 'low', 'info', 'none'].includes(
         auditLevel
@@ -50,15 +52,8 @@ export async function run(): Promise<void> {
       throw new Error('Invalid input: audit_level')
     }
 
-    const productionFlag = core.getInput('production_flag', { required: false })
-    if (!['true', 'false'].includes(productionFlag)) {
-      throw new Error('Invalid input: production_flag')
-    }
-
-    const jsonFlag = core.getInput('json_flag', { required: false })
-    if (!['true', 'false'].includes(jsonFlag)) {
-      throw new Error('Invalid input: json_flag')
-    }
+    const productionFlag = core.getBooleanInput('production_flag')
+    const jsonFlag = core.getBooleanInput('json_flag')
 
     // run `npm audit`
     const audit = new Audit()
@@ -69,25 +64,26 @@ export async function run(): Promise<void> {
     if (audit.foundVulnerability()) {
       // vulnerabilities are found
 
-      const failOnVulnerabilities = core.getInput('fail_on_vulnerabilities')
-      if (!['true', 'false'].includes(failOnVulnerabilities)) {
-        throw new Error('Invalid input: fail_on_vulnerabilities')
-      }
+      const failOnVulnerabilities = core.getBooleanInput(
+        'fail_on_vulnerabilities'
+      )
 
       // get GitHub information
-      const ctx = JSON.parse(core.getInput('github_context'))
-      const token: string = core.getInput('github_token', { required: true })
+      const ctx = JSON.parse(
+        core.getInput('github_context', { trimWhitespace: true })
+      )
+      const token: string = core.getInput('github_token', {
+        required: true,
+        trimWhitespace: true
+      })
       const octokit = new Octokit({
         auth: token
       })
 
       if (ctx.event_name === 'pull_request') {
-        const createPRComments = core.getInput('create_pr_comments')
-        if (!['true', 'false'].includes(createPRComments)) {
-          throw new Error('Invalid input: create_pr_comments')
-        }
+        const createPRComments = core.getBooleanInput('create_pr_comments')
 
-        if (createPRComments === 'true') {
+        if (createPRComments) {
           await pr.createComment(
             octokit,
             github.context.repo.owner,
@@ -96,7 +92,7 @@ export async function run(): Promise<void> {
             audit.strippedStdout()
           )
         }
-        if (failOnVulnerabilities === 'true') {
+        if (failOnVulnerabilities) {
           core.setFailed('This repo has some vulnerabilities')
           return
         }
@@ -105,13 +101,10 @@ export async function run(): Promise<void> {
       }
 
       core.debug('open an issue')
-      const createIssues = core.getInput('create_issues')
-      if (!['true', 'false'].includes(createIssues)) {
-        throw new Error('Invalid input: create_issues')
-      }
+      const createIssues = core.getBooleanInput('create_issues')
 
-      if (createIssues === 'false') {
-        if (failOnVulnerabilities === 'true') {
+      if (!createIssues) {
+        if (failOnVulnerabilities) {
           core.setFailed('This repo has some vulnerabilities')
           return
         }
@@ -121,15 +114,16 @@ export async function run(): Promise<void> {
 
       // remove control characters and create a code block
       const issueBody = audit.strippedStdout()
-      const option: IssueOption = issue.getIssueOption(issueBody)
+      const issueTitle = core.getInput('issue_title', { trimWhitespace: true })
+      const option: IssueOption = issue.getIssueOption(issueBody, issueTitle)
 
-      const existingIssueNumber =
-        core.getInput('dedupe_issues') === 'true'
-          ? await issue.getExistingIssueNumber(
-              octokit.issues.listForRepo,
-              github.context.repo
-            )
-          : null
+      const existingIssueNumber = core.getBooleanInput('dedupe_issues')
+        ? await issue.getExistingIssueNumber(
+            octokit.issues.listForRepo,
+            github.context.repo,
+            issueTitle
+          )
+        : null
 
       if (existingIssueNumber !== null) {
         const { data: createdComment } = await octokit.issues.createComment({
@@ -145,7 +139,7 @@ export async function run(): Promise<void> {
         })
         core.debug(`#${createdIssue.number}`)
       }
-      if (failOnVulnerabilities === 'true') {
+      if (failOnVulnerabilities) {
         core.setFailed('This repo has some vulnerabilities')
         return
       }

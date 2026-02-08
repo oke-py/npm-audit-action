@@ -1,22 +1,37 @@
 import * as core from '@actions/core'
 import type { IssueOption } from './interface.js'
 
-export function getIssueOption(body: string): IssueOption {
+export function getIssueOption(body: string, issueTitle?: string): IssueOption {
   let assignees: string[] | undefined
   let labels: string[] | undefined
 
-  if (core.getInput('issue_assignees')) {
-    assignees = core.getInput('issue_assignees').replace(/\s+/g, '').split(',')
+  const issueAssigneesInput = core.getInput('issue_assignees', {
+    trimWhitespace: true
+  })
+  if (issueAssigneesInput) {
+    const parsed = issueAssigneesInput
+      .split(',')
+      .map((assignee) => assignee.trim())
+      .filter(Boolean)
+    if (parsed.length > 0) {
+      assignees = parsed
+    }
   }
-  if (core.getInput('issue_labels')) {
-    labels = core
-      .getInput('issue_labels')
+  const issueLabelsInput = core.getInput('issue_labels', {
+    trimWhitespace: true
+  })
+  if (issueLabelsInput) {
+    const parsed = issueLabelsInput
       .split(',')
       .map((label) => label.trim())
+      .filter(Boolean)
+    if (parsed.length > 0) {
+      labels = parsed
+    }
   }
 
   return {
-    title: core.getInput('issue_title'),
+    title: issueTitle ?? core.getInput('issue_title', { trimWhitespace: true }),
     body,
     assignees,
     labels
@@ -35,7 +50,8 @@ export async function getExistingIssueNumber(
   repo: {
     owner: string
     repo: string
-  }
+  },
+  issueTitle?: string
 ): Promise<number | null> {
   const { data: issues } = await getIssues({
     ...repo,
@@ -43,7 +59,11 @@ export async function getExistingIssueNumber(
   })
 
   const iss = issues
-    .filter((i) => i.title === core.getInput('issue_title'))
+    .filter(
+      (i) =>
+        i.title ===
+        (issueTitle ?? core.getInput('issue_title', { trimWhitespace: true }))
+    )
     .shift()
 
   return iss?.number ?? null
