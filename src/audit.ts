@@ -1,4 +1,4 @@
-import { spawnSync, type SpawnSyncReturns } from 'node:child_process'
+import { type SpawnSyncReturns, spawnSync } from 'node:child_process'
 import { stripVTControlCharacters } from 'node:util'
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760 // 10MiB
