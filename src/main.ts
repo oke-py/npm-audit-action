@@ -5,7 +5,7 @@ import { Audit } from './audit.js'
 import { getInputs } from './inputs.js'
 import type { IssueOption } from './interface.js'
 import * as issue from './issue.js'
-import * as pr from './pr.js'
+import { handlePullRequest } from './pr-flow.js'
 import * as workdir from './workdir.js'
 
 export async function run(): Promise<void> {
@@ -47,20 +47,15 @@ export async function run(): Promise<void> {
       })
 
       if (inputs.githubContext.event_name === 'pull_request') {
-        if (inputs.createPRComments) {
-          await pr.createComment(
-            octokit,
-            github.context.repo.owner,
-            github.context.repo.repo,
-            inputs.githubContext.event.number,
-            audit.strippedStdout()
-          )
-        }
-        if (inputs.failOnVulnerabilities) {
-          core.setFailed('This repo has some vulnerabilities')
-          return
-        }
-        core.info('This repo has some vulnerabilities')
+        await handlePullRequest(
+          octokit,
+          inputs.githubContext.event.number,
+          audit.strippedStdout(),
+          {
+            createPRComments: inputs.createPRComments,
+            failOnVulnerabilities: inputs.failOnVulnerabilities
+          }
+        )
         return
       }
 
