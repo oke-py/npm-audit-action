@@ -32906,6 +32906,17 @@ async function createComment(octokit, owner, repo, prNumber, body) {
     });
 }
 
+async function handlePullRequest(octokit, prNumber, auditOutput, options) {
+    if (options.createPRComments) {
+        await createComment(octokit, context.repo.owner, context.repo.repo, prNumber, auditOutput);
+    }
+    if (options.failOnVulnerabilities) {
+        setFailed('This repo has some vulnerabilities');
+        return;
+    }
+    info('This repo has some vulnerabilities');
+}
+
 function isValid(dir) {
     return !dir.startsWith('/') && !dir.startsWith('..');
 }
@@ -32956,14 +32967,10 @@ async function run() {
                 auth: inputs.token
             });
             if (inputs.githubContext.event_name === 'pull_request') {
-                if (inputs.createPRComments) {
-                    await createComment(octokit, context.repo.owner, context.repo.repo, inputs.githubContext.event.number, audit.strippedStdout());
-                }
-                if (inputs.failOnVulnerabilities) {
-                    setFailed('This repo has some vulnerabilities');
-                    return;
-                }
-                info('This repo has some vulnerabilities');
+                await handlePullRequest(octokit, inputs.githubContext.event.number, audit.strippedStdout(), {
+                    createPRComments: inputs.createPRComments,
+                    failOnVulnerabilities: inputs.failOnVulnerabilities
+                });
                 return;
             }
             debug('open an issue');
