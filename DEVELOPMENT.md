@@ -55,22 +55,14 @@ npm run bundle
 
 ## Release Process
 
-### Major Releases
+### Releases
 
-1. Create a feature branch for the major bump.
-2. Update `package.json` and `package-lock.json` to the new major version.
-3. Update usage references to the new major tag (README and workflows).
+1. Open a PR with changes.
+2. Update `package.json` and `package-lock.json` to the target version.
+3. For major releases, update usage references to the new major tag (README and workflows).
 4. Merge to `main` and wait for the `update-dist` workflow to update `dist/index.js`.
 5. Create a GitHub Release from the commit that includes the updated `dist/index.js`.
 6. The `git-tag` workflow updates the major tag (e.g. `v4`).
-
-### Minor and Patch Releases
-
-1. Open a PR with changes.
-2. Apply the label `release minor` or `release patch`.
-3. The `package-version` workflow updates the version on the PR branch.
-4. Merge, then wait for `update-dist` to update `dist/index.js`.
-5. Create a GitHub Release from the updated `dist/index.js` commit.
 
 ## Git Workflow
 
