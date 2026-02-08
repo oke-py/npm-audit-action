@@ -32878,29 +32878,35 @@ async function createComment(octokit, owner, repo, prNumber, body) {
 function isValid(dir) {
     return !dir.startsWith('/') && !dir.startsWith('..');
 }
+function getNormalizedWorkingDirectory(getInput) {
+    const workingDirectory = getInput('working_directory', {
+        trimWhitespace: true
+    });
+    if (!workingDirectory) {
+        return null;
+    }
+    const normalizedWorkingDirectory = workingDirectory.endsWith('/')
+        ? workingDirectory.slice(0, -1)
+        : workingDirectory;
+    if (!isValid(normalizedWorkingDirectory)) {
+        throw new Error('Invalid input: working_directory');
+    }
+    return normalizedWorkingDirectory;
+}
 
 async function run() {
     try {
         // move to working directory
-        const workingDirectory = getInput('working_directory', {
-            trimWhitespace: true
-        });
+        const workingDirectory = getNormalizedWorkingDirectory(getInput);
         if (workingDirectory) {
-            // Remove trailing slash if present
-            const normalizedWorkingDirectory = workingDirectory.endsWith('/')
-                ? workingDirectory.slice(0, -1)
-                : workingDirectory;
-            if (!isValid(normalizedWorkingDirectory)) {
-                throw new Error('Invalid input: working_directory');
-            }
             try {
                 // Try to change directory
-                process.chdir(normalizedWorkingDirectory);
-                info(`Successfully changed directory to: ${normalizedWorkingDirectory}`);
+                process.chdir(workingDirectory);
+                info(`Successfully changed directory to: ${workingDirectory}`);
             }
             catch (error) {
                 // If changing directory fails, log the error but continue
-                warning(`Failed to change directory to: ${normalizedWorkingDirectory}`);
+                warning(`Failed to change directory to: ${workingDirectory}`);
                 warning(`Error: ${error instanceof Error ? error.message : String(error)}`);
                 warning('Continuing with current directory');
             }
