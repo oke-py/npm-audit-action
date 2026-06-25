@@ -13,7 +13,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
@@ -35,7 +35,7 @@ jobs:
         node: [24]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
@@ -55,7 +55,7 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
@@ -87,7 +87,7 @@ jobs:
   #     env:
   #       GITHUB_CONTEXT: ${{ toJson(github) }}
   #     run: echo "$GITHUB_CONTEXT"
-  #   - uses: actions/checkout@v6
+  #   - uses: actions/checkout@v7
   #   - uses: actions/setup-node@v6
   #     with:
   #       node-version: ${{ matrix.node }}
