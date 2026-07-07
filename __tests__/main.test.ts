@@ -35,6 +35,7 @@ describe('run: pr', () => {
     // initialize mock
     vi.mocked(Audit).mockClear()
     vi.mocked(pr).createComment.mockClear()
+    core.setFailed.mockClear()
 
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
@@ -121,6 +122,61 @@ describe('run: pr', () => {
     })
 
     await run()
+    expect(pr.createComment).not.toHaveBeenCalled()
+  })
+
+  test('fails if GITHUB_EVENT_PATH is not set', async () => {
+    delete process.env.GITHUB_EVENT_PATH
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return path.join(__dirname, 'testdata/audit/error.txt')
+        }
+      }
+    })
+
+    await run()
+    expect(core.setFailed).toHaveBeenCalledWith('GITHUB_EVENT_PATH is not set')
+    expect(pr.createComment).not.toHaveBeenCalled()
+  })
+
+  test('fails if the event payload has no pull request number', async () => {
+    process.env.GITHUB_EVENT_PATH = path.join(
+      __dirname,
+      'testdata/event/no_number.json'
+    )
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return path.join(__dirname, 'testdata/audit/error.txt')
+        }
+      }
+    })
+
+    await run()
+    expect(core.setFailed).toHaveBeenCalledWith(
+      'Failed to read the pull request number from the event'
+    )
     expect(pr.createComment).not.toHaveBeenCalled()
   })
 })
