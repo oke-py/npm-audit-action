@@ -1,0 +1,46 @@
+# Automates releases with release-please. Conventional Commit messages
+# merged to `main` accumulate into a release PR that bumps package.json,
+# package-lock.json, and CHANGELOG.md. Merging the release PR creates the
+# version tag and the GitHub Release.
+#
+# The floating major tag (e.g. `v4`) is updated here as well: releases
+# created with GITHUB_TOKEN do not trigger other workflows, so the
+# `git tag major version` workflow does not run for them. That workflow
+# remains in place for manually published releases.
+
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+
+      - name: Checkout
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Update major tag
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "v${MAJOR}" "${RELEASE_SHA}"
+          git push -f origin "v${MAJOR}"
+        env:
+          MAJOR: ${{ steps.release.outputs.major }}
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}

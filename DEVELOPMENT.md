@@ -55,14 +55,28 @@ npm run bundle
 
 ## Release Process
 
-### Releases
+Releases are automated with
+[release-please](https://github.com/googleapis/release-please).
+The same flow covers major, minor, and patch releases.
 
-1. Open a PR with changes.
-2. Update `package.json` and `package-lock.json` to the target version.
-3. For major releases, update usage references to the new major tag (README and workflows).
-4. Merge to `main` and wait for the `update-dist` workflow to update `dist/index.js`.
-5. Create a GitHub Release from the commit that includes the updated `dist/index.js`.
-6. The `git-tag` workflow updates the major tag (e.g. `v4`).
+1. Merge PRs to `main` with Conventional Commit messages.
+   `fix:` produces a patch release, `feat:` a minor release, and
+   `feat!:` or a `BREAKING CHANGE:` footer a major release.
+1. The `release-please` workflow maintains a release PR that updates
+   `package.json`, `package-lock.json`, and `CHANGELOG.md`.
+1. For major releases, update usage references to the new major tag
+   (README and workflows) before merging the release PR.
+1. Confirm the `update-dist` workflow has finished so that
+   `dist/index.js` on `main` is up to date.
+1. Merge the release PR. This creates the version tag and the GitHub
+   Release, and moves the major tag (e.g. `v4`).
+
+Notes:
+
+- CI may not start automatically on the release PR because it is
+  created with `GITHUB_TOKEN`. Close and reopen the PR to trigger CI.
+- The `git-tag` workflow still moves the major tag for manually
+  published releases.
 
 ## Git Workflow
 
@@ -80,6 +94,17 @@ npm run bundle
 
 - PRs must pass formatting, linting, tests, and packaging checks.
 - PRs may or may not update `dist/`, depending on the workflow policy.
+- The `Licensed` workflow (licensee/licensed-ci) updates and verifies
+  cached dependency license metadata on PRs and pushes to `main`.
+
+## Supply Chain Security
+
+- `.npmrc` sets `min-release-age=7`, so `npm install` and `npm update`
+  only resolve versions published at least 7 days ago. `npm ci` is not
+  affected because it installs from `package-lock.json`.
+- Dependabot applies a matching 7-day `cooldown` to dependency updates.
+- GitHub Actions in workflows are pinned to full commit SHAs.
+  Dependabot keeps the pinned SHAs up to date.
 
 ## References
 
