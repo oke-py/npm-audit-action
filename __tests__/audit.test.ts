@@ -169,3 +169,31 @@ describe('run', () => {
     expect(() => audit.run('low', 'false', 'false')).toThrowError(e)
   })
 })
+
+describe('strippedStdout', () => {
+  test('wraps the output in a code block', () => {
+    const a = new Audit()
+    a.stdout = 'found 1 vulnerability'
+    expect(a.strippedStdout()).toBe('```\nfound 1 vulnerability\n```')
+  })
+
+  test('truncates output exceeding the GitHub body length limit', () => {
+    const a = new Audit()
+    a.stdout = 'a'.repeat(100000)
+    const body = a.strippedStdout()
+    expect(body.length).toBe(65536)
+    expect(body).toContain('... (truncated)\n```')
+    expect(body).toContain(
+      'truncated because it exceeds the maximum body length'
+    )
+  })
+
+  test('does not truncate output at exactly the limit', () => {
+    const a = new Audit()
+    // '```\n' + stdout + '\n```' is exactly 65536 characters
+    a.stdout = 'a'.repeat(65536 - 8)
+    const body = a.strippedStdout()
+    expect(body.length).toBe(65536)
+    expect(body).not.toContain('truncated')
+  })
+})

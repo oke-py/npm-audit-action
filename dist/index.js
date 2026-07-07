@@ -32124,6 +32124,10 @@ const Octokit = Octokit$1.plugin(requestLog, legacyRestEndpointMethods, paginate
 );
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MiB
+// GitHub rejects issue and comment bodies longer than 65536 characters
+// with "422 Validation Failed: body is too long"
+const MAX_BODY_LENGTH = 65536;
+const TRUNCATION_NOTICE = '\n... (truncated)\n```\n\n**Note:** the `npm audit` output was truncated because it exceeds the maximum body length GitHub accepts.';
 class Audit {
     stdout = '';
     status = null;
@@ -32161,7 +32165,14 @@ class Audit {
         return this.status === 1;
     }
     strippedStdout() {
-        return `\`\`\`\n${stripVTControlCharacters(this.stdout)}\n\`\`\``;
+        const stripped = stripVTControlCharacters(this.stdout);
+        const body = `\`\`\`\n${stripped}\n\`\`\``;
+        if (body.length <= MAX_BODY_LENGTH) {
+            return body;
+        }
+        const prefix = '```\n';
+        const availableLength = MAX_BODY_LENGTH - prefix.length - TRUNCATION_NOTICE.length;
+        return `${prefix}${stripped.slice(0, availableLength)}${TRUNCATION_NOTICE}`;
     }
 }
 
