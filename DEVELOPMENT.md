@@ -50,8 +50,11 @@ npm run bundle
 - Bundling is done via Rollup
 - `npm run package` builds `dist/index.js`
 - The action runs from `dist/index.js`
-- After merging to `main`, the `update-dist` workflow updates `dist/index.js`
-- Create releases from the commit that includes the updated `dist/index.js`
+- The `update dist/index.js` workflow rebuilds `dist/` on pull requests
+  and commits changes back to the PR branch, so `dist/` stays in sync on
+  every commit on `main`
+- For PRs from forks the workflow cannot push; run `npm run bundle` and
+  commit the result instead
 
 ## Release Process
 
@@ -66,8 +69,6 @@ The same flow covers major, minor, and patch releases.
    `package.json`, `package-lock.json`, and `CHANGELOG.md`.
 1. For major releases, update usage references to the new major tag
    (README and workflows) before merging the release PR.
-1. Confirm the `update-dist` workflow has finished so that
-   `dist/index.js` on `main` is up to date.
 1. Merge the release PR. This creates the version tag and the GitHub
    Release, and moves the major tag (e.g. `v4`).
 
@@ -93,7 +94,10 @@ Notes:
 ## CI Expectations
 
 - PRs must pass formatting, linting, tests, and packaging checks.
-- PRs may or may not update `dist/`, depending on the workflow policy.
+- The `update dist/index.js` workflow keeps `dist/` in sync on the PR
+  branch. Commits it pushes do not trigger new workflow runs
+  (a `GITHUB_TOKEN` limitation); re-run the PR checks manually if they
+  need to cover the dist commit.
 - The `Licensed` workflow (licensee/licensed-ci) updates and verifies
   cached dependency license metadata on PRs and pushes to `main`.
 

@@ -1,17 +1,27 @@
 # In TypeScript actions, `dist/` is a special directory. When you reference
-# an action with the `uses:` property, `dist/index.js` is the code that will be
-# run. For this project, the `dist/index.js` file is transpiled from other
+# an action with the `uses:` property, `dist/index.js` is the code that will
+# be run. For this project, the `dist/index.js` file is transpiled from other
 # source files. This workflow ensures the `dist/` directory contains the
 # expected transpiled code.
 #
-# On pushes to `main`, it rebuilds `dist/` and auto-commits updates when needed.
+# It runs on pull requests: it rebuilds `dist/` and, when the result
+# differs, commits it back to the PR branch. This keeps every commit on
+# `main` releasable without a post-merge fixup commit.
+#
+# Notes:
+# - Commits pushed with GITHUB_TOKEN do not trigger new workflow runs.
+#   Re-run the PR checks manually if they need to cover the dist commit.
+# - For PRs from forks this workflow cannot push; the final check fails
+#   instead, and the author should run `npm run bundle` and commit the
+#   result.
 name: "update dist/index.js"
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
 
+# `contents: write` is required to push dist updates to the PR branch.
+# Setting it explicitly also grants write access on Dependabot-triggered
+# runs, which default to a read-only token.
 permissions:
   contents: write
 
@@ -24,6 +34,9 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Setup Node.js
         id: setup-node
@@ -40,30 +53,19 @@ jobs:
         id: build
         run: npm run package
 
-      - name: Detect dist/ changes
-        id: dist-changes
-        run: |
-          if [ ! -d dist/ ]; then
-            echo "Expected dist/ directory does not exist."
-            exit 1
-          fi
-          if git diff --ignore-space-at-eol --text --quiet -- dist/; then
-            echo "changes=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changes=true" >> "$GITHUB_OUTPUT"
-          fi
-
+      # Signal to Dependabot that its PRs are still safe to operate on
+      # after this workflow pushes a dist update commit.
       - name: Commit dist/ (if changed)
-        if: >-
-          ${{
-            steps.dist-changes.outputs.changes == 'true' &&
-            !contains(github.event.head_commit.message, '[skip ci]') &&
-            !contains(github.event.head_commit.message, '[ci skip]') &&
-            !contains(github.event.head_commit.message, '[no ci]') &&
-            !contains(github.event.head_commit.message, '[skip actions]') &&
-            !contains(github.event.head_commit.message, '[actions skip]')
-          }}
+        id: commit-dist
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
-          commit_message: "chore: update dist [skip ci]"
+          commit_message: >-
+            ${{ github.event.pull_request.user.login == 'dependabot[bot]'
+                && 'chore: update dist [dependabot skip]'
+                || 'chore: update dist' }}
           file_pattern: dist/**
+
+      - name: Check dist/ is up to date
+        id: check-dist
+        run: git diff --ignore-space-at-eol --text --exit-code -- dist/
