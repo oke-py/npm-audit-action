@@ -31,28 +31,21 @@ jobs:
           dedupe_issues: true
           production_flag: true
 
-  # scan-on-windows job disabled due to npm.cmd EINVAL error on Windows
-  # scan-on-windows:
-  #   name: npm audit
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-  #     # Set PowerShell execution policy for this process
-  #     - name: Set PowerShell execution policy
-  #       shell: powershell
-  #       run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-  #     # https://stackoverflow.com/questions/72401421/message-npm-warn-config-global-global-local-are-deprecated-use-loc
-  #     - name: Upgrade npm
-  #       shell: powershell
-  #       run: |
-  #         npm install npm-windows-upgrade --location=global
-  #         npm-windows-upgrade --npm-version latest --no-prompt
-  #     - name: install dependencies
-  #       run: npm ci
-  #     - uses: oke-py/npm-audit-action@v5
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
-  #         issue_assignees: oke-py
-  #         issue_labels: vulnerability
-  #         dedupe_issues: true
-  #         production_flag: true
+  scan-on-windows:
+    name: npm audit (windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: install dependencies
+        run: npm ci
+      # Intentionally unpinned: dogfoods the latest released major tag of
+      # this repository's own action.
+      - uses: oke-py/npm-audit-action@v5 # zizmor: ignore[unpinned-uses]
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_assignees: oke-py
+          issue_labels: vulnerability
+          dedupe_issues: true
+          production_flag: true

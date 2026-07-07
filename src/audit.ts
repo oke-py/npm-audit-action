@@ -25,9 +25,12 @@ export class Audit {
       auditOptions.push('--json')
     }
 
+    // Node.js (CVE-2024-27980 fix) refuses to spawn .cmd files on Windows
+    // without a shell, failing with EINVAL
     const result: SpawnSyncReturns<string> = spawnSync(cmd, auditOptions, {
       encoding: 'utf-8',
-      maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
+      maxBuffer: SPAWN_PROCESS_BUFFER_SIZE,
+      shell: isWindowsEnvironment
     })
 
     if (result.error) {
