@@ -31,7 +31,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # Credential persistence is required: git-auto-commit-action pushes
+      # the dist update using the checkout credentials.
+      - name: Checkout # zizmor: ignore[artipacked]
         id: checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:

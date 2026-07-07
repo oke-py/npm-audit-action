@@ -32,6 +32,9 @@ jobs:
       - name: Checkout
         if: ${{ steps.release.outputs.release_created }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # The push below authenticates via the tokenized remote URL.
+          persist-credentials: false
 
       - name: Update major tag
         if: ${{ steps.release.outputs.release_created }}
@@ -39,8 +42,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email \
             "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
           git tag -f "v${MAJOR}" "${RELEASE_SHA}"
           git push -f origin "v${MAJOR}"
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAJOR: ${{ steps.release.outputs.major }}
           RELEASE_SHA: ${{ steps.release.outputs.sha }}

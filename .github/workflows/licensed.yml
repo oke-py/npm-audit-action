@@ -34,13 +34,19 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # licensed-ci pushes through its own tokenized remote, so the
+          # checkout credentials are not needed.
+          persist-credentials: false
 
-      - name: Setup Node.js
+      # npm caching is intentionally not enabled here: this workflow pushes
+      # commits, so a poisoned cache could end up in the repository. The
+      # zizmor ignore is for a false positive (caching is already off).
+      - name: Setup Node.js # zizmor: ignore[cache-poisoning]
         id: setup-node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
-          cache: npm
 
       - name: Install Dependencies
         id: npm-ci
