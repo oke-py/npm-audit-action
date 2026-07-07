@@ -4,12 +4,15 @@ on:
     types:
       - published
 
+permissions:
+  contents: write
+
 jobs:
   tag-major-version:
     runs-on: ubuntu-latest
     steps:
       - name: check out repository code
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: git config
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
@@ -18,7 +21,7 @@ jobs:
         run: |
           git remote set-url origin https://github-actions:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
           # Extract major version from release tag (e.g., v4.0.0 -> v4)
-          MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*")
+          MAJOR_VERSION=$(echo "${RELEASE_TAG}" | grep -o "^v[0-9]*")
           echo "Tagging with major version: ${MAJOR_VERSION}"
 
           # Delete the major version tag if it exists
@@ -29,3 +32,4 @@ jobs:
           git push origin ${MAJOR_VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
