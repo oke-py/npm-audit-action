@@ -4,6 +4,8 @@ changelog:
       - ignore-for-release
       - release minor
       - release patch
+      - 'autorelease: pending'
+      - 'autorelease: tagged'
     authors:
       - github-actions[bot]
   categories:
