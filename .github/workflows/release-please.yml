@@ -3,10 +3,12 @@
 # package-lock.json, and CHANGELOG.md. Merging the release PR creates the
 # version tag and the GitHub Release.
 #
-# The floating major tag (e.g. `v4`) is updated here as well: releases
-# created with GITHUB_TOKEN do not trigger other workflows, so the
-# `git tag major version` workflow does not run for them. That workflow
-# remains in place for manually published releases.
+# Authentication uses the RELEASE_PLEASE_TOKEN fine-grained PAT (Contents
+# and Pull requests read/write) instead of GITHUB_TOKEN, so that CI runs
+# on the release PR and the published release triggers the
+# `git tag major version` workflow, which moves the floating major tag
+# (e.g. `v4`). If this workflow fails with an authentication error, the
+# PAT has likely expired and needs to be reissued.
 
 name: release-please
 
@@ -20,33 +22,10 @@ permissions: {}
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
 
     steps:
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
-
-      - name: Checkout
-        if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          # The push below authenticates via the tokenized remote URL.
-          persist-credentials: false
-
-      - name: Update major tag
-        if: ${{ steps.release.outputs.release_created }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin \
-            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-          git tag -f "v${MAJOR}" "${RELEASE_SHA}"
-          git push -f origin "v${MAJOR}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MAJOR: ${{ steps.release.outputs.major }}
-          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
