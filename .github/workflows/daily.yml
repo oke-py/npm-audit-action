@@ -4,13 +4,14 @@ on:
   schedule:
     - cron: '0 20 * * *'
 
-permissions:
-  contents: read
-  issues: write
+permissions: {}
 
 jobs:
   scan:
     name: npm audit
+    permissions:
+      contents: read
+      issues: write
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -33,6 +34,9 @@ jobs:
 
   scan-on-windows:
     name: npm audit (windows)
+    permissions:
+      contents: read
+      issues: write
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
