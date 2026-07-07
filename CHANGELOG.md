@@ -5,7 +5,7 @@
 
 ### ⚠ BREAKING CHANGES
 
-* the github_context input has been removed. The action now reads event information from the runner environment. Remove
+* the github_context input has been removed. The action now reads event information from the runner environment. Remove `github_context: ${{ toJson(github) }}` from your workflow if present.
 
 ### Bug Fixes
 

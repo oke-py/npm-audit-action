@@ -23,7 +23,7 @@ jobs:
         run: npm ci
       # Intentionally unpinned: dogfoods the latest released major tag of
       # this repository's own action.
-      - uses: oke-py/npm-audit-action@v4 # zizmor: ignore[unpinned-uses]
+      - uses: oke-py/npm-audit-action@v5 # zizmor: ignore[unpinned-uses]
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_assignees: oke-py
@@ -49,7 +49,7 @@ jobs:
   #         npm-windows-upgrade --npm-version latest --no-prompt
   #     - name: install dependencies
   #       run: npm ci
-  #     - uses: oke-py/npm-audit-action@v4
+  #     - uses: oke-py/npm-audit-action@v5
   #       with:
   #         github_token: ${{ secrets.GITHUB_TOKEN }}
   #         issue_assignees: oke-py
