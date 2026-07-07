@@ -1,21 +1,27 @@
-# This workflow checks the statuses of cached dependencies used in this action
-# with the help of the Licensed tool. If any licenses are invalid or missing,
-# this workflow will fail. See: https://github.com/licensee/licensed
+# This workflow checks the statuses of cached dependencies used in this
+# action with the help of the Licensed tool. It runs licensee/licensed-ci,
+# which updates the cached license metadata (`licensed cache`), pushes any
+# changes back to the triggering branch, and verifies the result
+# (`licensed status`). See: https://github.com/licensee/licensed-ci
 
 name: Licensed
 
 on:
-  # Uncomment the below lines to run this workflow on pull requests and pushes
-  # to the default branch. This is useful for checking licenses before merging
-  # changes into the default branch.
-  # pull_request:
-  #   branches:
-  #     - main
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - '**'
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
 
+# `contents: write` is required so licensed-ci can push license cache
+# updates. Setting it explicitly also grants write access on
+# Dependabot-triggered runs, which default to a read-only token.
 permissions:
   contents: write
 
@@ -27,11 +33,11 @@ jobs:
     steps:
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup Node.js
         id: setup-node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
           cache: npm
@@ -42,33 +48,20 @@ jobs:
 
       - name: Setup Ruby
         id: setup-ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: ruby
 
-      - uses: licensee/setup-licensed@v1.3.2
+      - uses: licensee/setup-licensed@0d52e575b3258417672be0dff2f115d7db8771d8 # v1.3.2
         with:
           version: 4.x
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      # If this is a workflow_dispatch event, update the cached licenses.
-      - if: ${{ github.event_name == 'workflow_dispatch' }}
-        name: Update Licenses
-        id: update-licenses
-        run: licensed cache
-
-      # Then, commit the updated licenses to the repository.
-      - if: ${{ github.event_name == 'workflow_dispatch' }}
-        name: Commit Licenses
-        id: commit-licenses
-        run: |
-          git config --local user.email "licensed-ci@users.noreply.github.com"
-          git config --local user.name "licensed-ci"
-          git add .
-          git commit -m "Auto-update license files"
-          git push
-
-      # Last, check the status of the cached licenses.
-      - name: Check Licenses
-        id: check-licenses
-        run: licensed status
+      - name: Run licensed-ci
+        id: licensed-ci
+        uses: licensee/licensed-ci@f1f6507544a9db25b0f4730230bfdf67a9c1bc90 # v1.12.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Signal to Dependabot that its PRs are still safe to operate on
+          # after licensed-ci pushes a license update commit.
+          dependabot_skip: 'true'
