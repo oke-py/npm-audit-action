@@ -18,7 +18,6 @@ export type Inputs = {
   createIssues: boolean
   dedupeIssues: boolean
   issueTitle: string
-  githubContext: any
   token: string
 }
 
@@ -27,10 +26,6 @@ export function getInputs(): Inputs {
   if (!auditLevels.has(auditLevel)) {
     throw new Error('Invalid input: audit_level')
   }
-
-  const githubContext = JSON.parse(
-    core.getInput('github_context', { trimWhitespace: true })
-  ) as Inputs['githubContext']
 
   return {
     auditLevel,
@@ -41,7 +36,6 @@ export function getInputs(): Inputs {
     createIssues: core.getBooleanInput('create_issues'),
     dedupeIssues: core.getBooleanInput('dedupe_issues'),
     issueTitle: core.getInput('issue_title', { trimWhitespace: true }),
-    githubContext,
     token: core.getInput('github_token', {
       required: true,
       trimWhitespace: true

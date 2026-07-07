@@ -39,8 +39,11 @@ describe('run: pr', () => {
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
     process.env.INPUT_JSON_FLAG = 'false'
-    process.env.INPUT_GITHUB_CONTEXT =
-      '{ "event_name": "pull_request", "event": { "number": 100} }'
+    process.env.GITHUB_EVENT_NAME = 'pull_request'
+    process.env.GITHUB_EVENT_PATH = path.join(
+      __dirname,
+      'testdata/event/pull_request.json'
+    )
     process.env.INPUT_GITHUB_TOKEN = '***'
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
@@ -131,7 +134,8 @@ describe('run: issue', () => {
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
     process.env.INPUT_JSON_FLAG = 'false'
-    process.env.INPUT_GITHUB_CONTEXT = '{ "event_name": "push" }'
+    process.env.GITHUB_EVENT_NAME = 'push'
+    delete process.env.GITHUB_EVENT_PATH
     process.env.INPUT_GITHUB_TOKEN = '***'
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_ISSUES = 'true'

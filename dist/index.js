@@ -1,3 +1,4 @@
+import * as fs$1 from 'node:fs';
 import * as os from 'os';
 import os__default, { EOL } from 'os';
 import * as crypto from 'crypto';
@@ -32174,7 +32175,6 @@ function getInputs() {
     if (!auditLevels.has(auditLevel)) {
         throw new Error('Invalid input: audit_level');
     }
-    const githubContext = JSON.parse(getInput('github_context', { trimWhitespace: true }));
     return {
         auditLevel,
         productionFlag: getBooleanInput('production_flag'),
@@ -32184,7 +32184,6 @@ function getInputs() {
         createIssues: getBooleanInput('create_issues'),
         dedupeIssues: getBooleanInput('dedupe_issues'),
         issueTitle: getInput('issue_title', { trimWhitespace: true }),
-        githubContext,
         token: getInput('github_token', {
             required: true,
             trimWhitespace: true
@@ -33255,6 +33254,18 @@ function getNormalizedWorkingDirectory(getInput) {
     return normalizedWorkingDirectory;
 }
 
+function getPullRequestNumber() {
+    const eventPath = process.env.GITHUB_EVENT_PATH;
+    if (!eventPath) {
+        throw new Error('GITHUB_EVENT_PATH is not set');
+    }
+    const payload = JSON.parse(fs$1.readFileSync(eventPath, 'utf8'));
+    const number = payload?.pull_request?.number ?? payload?.number;
+    if (typeof number !== 'number') {
+        throw new Error('Failed to read the pull request number from the event');
+    }
+    return number;
+}
 async function run() {
     try {
         // move to working directory
@@ -33285,8 +33296,8 @@ async function run() {
             const octokit = new Octokit({
                 auth: inputs.token
             });
-            if (inputs.githubContext.event_name === 'pull_request') {
-                await handlePullRequest(octokit, inputs.githubContext.event.number, audit.strippedStdout(), {
+            if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+                await handlePullRequest(octokit, getPullRequestNumber(), audit.strippedStdout(), {
                     createPRComments: inputs.createPRComments,
                     failOnVulnerabilities: inputs.failOnVulnerabilities
                 });

@@ -22,10 +22,6 @@ inputs:
     description: 'Flag to de-dupe against open issues'
     default: 'false'
     required: false
-  github_context:
-    description: 'The `github` context'
-    default: ${{ toJson(github) }}
-    required: false
   github_token:
     description: 'GitHub Access Token.'
     required: true
