@@ -1,11 +1,24 @@
+import * as fs from 'node:fs'
 import * as core from '@actions/core'
-import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
 import { Audit } from './audit.js'
 import { getInputs } from './inputs.js'
 import { handleIssueFlow } from './issue-flow.js'
 import { handlePullRequest } from './pr-flow.js'
 import * as workdir from './workdir.js'
+
+function getPullRequestNumber(): number {
+  const eventPath = process.env.GITHUB_EVENT_PATH
+  if (!eventPath) {
+    throw new Error('GITHUB_EVENT_PATH is not set')
+  }
+  const payload = JSON.parse(fs.readFileSync(eventPath, 'utf8'))
+  const number = payload?.pull_request?.number ?? payload?.number
+  if (typeof number !== 'number') {
+    throw new Error('Failed to read the pull request number from the event')
+  }
+  return number
+}
 
 export async function run(): Promise<void> {
   try {
@@ -45,10 +58,10 @@ export async function run(): Promise<void> {
         auth: inputs.token
       })
 
-      if (inputs.githubContext.event_name === 'pull_request') {
+      if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
         await handlePullRequest(
           octokit,
-          inputs.githubContext.event.number,
+          getPullRequestNumber(),
           audit.strippedStdout(),
           {
             createPRComments: inputs.createPRComments,
