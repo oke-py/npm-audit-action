@@ -74,10 +74,14 @@ The same flow covers major, minor, and patch releases.
 
 Notes:
 
-- CI may not start automatically on the release PR because it is
-  created with `GITHUB_TOKEN`. Close and reopen the PR to trigger CI.
-- The `git-tag` workflow still moves the major tag for manually
-  published releases.
+- The `release-please` workflow authenticates with the
+  `RELEASE_PLEASE_TOKEN` repository secret, a fine-grained PAT with
+  Contents and Pull requests read/write access to this repository.
+  This lets CI run on the release PR and lets the published release
+  trigger the `git-tag` workflow, which moves the major tag (e.g.
+  `v4`) for both automated and manual releases.
+- If the `release-please` workflow fails with an authentication
+  error, the PAT has expired; reissue it and update the secret.
 
 ## Git Workflow
 
