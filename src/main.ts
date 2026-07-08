@@ -46,7 +46,12 @@ export async function run(): Promise<void> {
 
     // run `npm audit`
     const audit = new Audit()
-    audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag)
+    audit.run(
+      inputs.auditLevel,
+      inputs.productionFlag,
+      inputs.jsonFlag,
+      inputs.registry
+    )
     core.info(audit.stdout)
     core.setOutput('npm_audit', audit.stdout)
 

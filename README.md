@@ -40,6 +40,7 @@ permissions:
 | `issue_type` | false | N/A | Issue type (e.g. `Bug`, `Task`). Requires [issue types](https://docs.github.com/en/issues/tracking-your-work-with-issues/configuring-issues/managing-issue-types-in-an-organization) to be enabled on the organization |
 | `json_flag` | false | `false` | Run `npm audit` with `--json` |
 | `production_flag` | false | `false` | Run `npm audit` with `--omit=dev` |
+| `registry` | false | N/A | Registry URL passed to `npm audit` via the `--registry` flag (e.g. `https://registry.npmjs.org`) |
 | `working_directory` | false | N/A | Directory containing `package.json` |
 
 ### Outputs

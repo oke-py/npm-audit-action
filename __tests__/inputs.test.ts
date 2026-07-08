@@ -14,6 +14,7 @@ describe('getInputs', () => {
     process.env.INPUT_DEDUPE_ISSUES = 'false'
     process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
     process.env.INPUT_GITHUB_TOKEN = 'token'
+    delete process.env.INPUT_REGISTRY
   })
 
   test('returns normalized inputs', () => {
@@ -34,5 +35,34 @@ describe('getInputs', () => {
   test('throws when github_token is missing', () => {
     process.env.INPUT_GITHUB_TOKEN = ''
     expect(() => getInputs()).toThrow('Input required and not supplied')
+  })
+
+  test('returns empty registry when not set', () => {
+    expect(getInputs().registry).toBe('')
+  })
+
+  test('returns registry when it is a valid URL', () => {
+    process.env.INPUT_REGISTRY = 'https://registry.npmjs.org'
+    expect(getInputs().registry).toBe('https://registry.npmjs.org')
+  })
+
+  test('accepts a registry URL with port and path', () => {
+    process.env.INPUT_REGISTRY = 'http://localhost:4873/npm'
+    expect(getInputs().registry).toBe('http://localhost:4873/npm')
+  })
+
+  test('throws on registry that is not a URL', () => {
+    process.env.INPUT_REGISTRY = 'not a url'
+    expect(() => getInputs()).toThrow('Invalid input: registry')
+  })
+
+  test('throws on registry with a non-http protocol', () => {
+    process.env.INPUT_REGISTRY = 'ftp://registry.npmjs.org'
+    expect(() => getInputs()).toThrow('Invalid input: registry')
+  })
+
+  test('throws on registry containing shell metacharacters', () => {
+    process.env.INPUT_REGISTRY = 'https://registry.npmjs.org/&whoami'
+    expect(() => getInputs()).toThrow('Invalid input: registry')
   })
 })
