@@ -86,6 +86,49 @@ describe('run', () => {
     expect(audit.foundVulnerability()).toBeTruthy()
   })
 
+  test('passes --registry to npm audit when registry is provided', () => {
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        return {
+          pid: 100,
+          output: [null, 'found 0 vulnerabilities', ''],
+          stdout: 'found 0 vulnerabilities',
+          stderr: '',
+          status: 0,
+          signal: null,
+          error: undefined
+        }
+      }
+    )
+
+    audit.run('low', false, false, 'https://registry.npmjs.org')
+    expect(child_process.spawnSync).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining(['--registry=https://registry.npmjs.org']),
+      expect.any(Object)
+    )
+  })
+
+  test('does not pass --registry when registry is not provided', () => {
+    vi.mocked(child_process).spawnSync.mockImplementation(
+      (): child_process.SpawnSyncReturns<string> => {
+        return {
+          pid: 100,
+          output: [null, 'found 0 vulnerabilities', ''],
+          stdout: 'found 0 vulnerabilities',
+          stderr: '',
+          status: 0,
+          signal: null,
+          error: undefined
+        }
+      }
+    )
+
+    audit.run('low', false, false)
+    const args = vi.mocked(child_process).spawnSync.mock.calls[0][1] as string[]
+    expect(args.some((a) => a.startsWith('--registry'))).toBe(false)
+  })
+
   test('does not find vulnerabilities', () => {
     vi.mocked(child_process).spawnSync.mockImplementation(
       (): child_process.SpawnSyncReturns<string> => {

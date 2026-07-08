@@ -16,7 +16,8 @@ export class Audit {
   public run(
     auditLevel: string,
     productionFlag: boolean,
-    jsonFlag: boolean
+    jsonFlag: boolean,
+    registry?: string
   ): void {
     const auditOptions: string[] = ['audit', '--audit-level', auditLevel]
 
@@ -29,6 +30,10 @@ export class Audit {
 
     if (jsonFlag) {
       auditOptions.push('--json')
+    }
+
+    if (registry) {
+      auditOptions.push(`--registry=${registry}`)
     }
 
     // Node.js (CVE-2024-27980 fix) refuses to spawn .cmd files on Windows

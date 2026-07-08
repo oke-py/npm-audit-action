@@ -32131,7 +32131,7 @@ const TRUNCATION_NOTICE = '\n... (truncated)\n```\n\n**Note:** the `npm audit` o
 class Audit {
     stdout = '';
     status = null;
-    run(auditLevel, productionFlag, jsonFlag) {
+    run(auditLevel, productionFlag, jsonFlag, registry) {
         const auditOptions = ['audit', '--audit-level', auditLevel];
         const isWindowsEnvironment = process.platform === 'win32';
         const cmd = isWindowsEnvironment ? 'npm.cmd' : 'npm';
@@ -32140,6 +32140,9 @@ class Audit {
         }
         if (jsonFlag) {
             auditOptions.push('--json');
+        }
+        if (registry) {
+            auditOptions.push(`--registry=${registry}`);
         }
         // Node.js (CVE-2024-27980 fix) refuses to spawn .cmd files on Windows
         // without a shell, failing with EINVAL
@@ -32184,13 +32187,34 @@ const auditLevels = new Set([
     'info',
     'none'
 ]);
+// The registry value is passed to a shell on Windows, so on top of being a
+// valid http(s) URL it must not contain cmd.exe metacharacters
+const registryPattern = /^[A-Za-z0-9._~:/@+-]+$/;
+function isValidRegistryUrl(value) {
+    if (!registryPattern.test(value)) {
+        return false;
+    }
+    let url;
+    try {
+        url = new URL(value);
+    }
+    catch {
+        return false;
+    }
+    return url.protocol === 'http:' || url.protocol === 'https:';
+}
 function getInputs() {
     const auditLevel = getInput('audit_level', { trimWhitespace: true });
     if (!auditLevels.has(auditLevel)) {
         throw new Error('Invalid input: audit_level');
     }
+    const registry = getInput('registry', { trimWhitespace: true });
+    if (registry && !isValidRegistryUrl(registry)) {
+        throw new Error('Invalid input: registry must be a valid http(s) URL');
+    }
     return {
         auditLevel,
+        registry,
         productionFlag: getBooleanInput('production_flag'),
         jsonFlag: getBooleanInput('json_flag'),
         failOnVulnerabilities: getBooleanInput('fail_on_vulnerabilities'),
@@ -33305,7 +33329,7 @@ async function run() {
         const inputs = getInputs();
         // run `npm audit`
         const audit = new Audit();
-        audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag);
+        audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag, inputs.registry);
         info(audit.stdout);
         setOutput('npm_audit', audit.stdout);
         if (audit.foundVulnerability()) {
