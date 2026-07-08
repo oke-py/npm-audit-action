@@ -30,11 +30,16 @@ export function getIssueOption(body: string, issueTitle?: string): IssueOption {
     }
   }
 
+  const issueTypeInput = core.getInput('issue_type', {
+    trimWhitespace: true
+  })
+
   return {
     title: issueTitle ?? core.getInput('issue_title', { trimWhitespace: true }),
     body,
     assignees,
-    labels
+    labels,
+    type: issueTypeInput || undefined
   }
 }
 

@@ -35,6 +35,9 @@ inputs:
     description: 'Issue title'
     default: 'npm audit found vulnerabilities'
     required: false
+  issue_type:
+    description: 'Issue type (e.g. Bug, Task). Requires issue types to be enabled on the organization'
+    required: false
   json_flag:
     description: 'Run `npm audit` with `--json`'
     default: 'false'
