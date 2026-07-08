@@ -67,13 +67,15 @@ on:
 jobs:
   scan:
     name: npm audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       contents: read
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: install dependencies
         run: npm ci
       - uses: oke-py/npm-audit-action@v5
