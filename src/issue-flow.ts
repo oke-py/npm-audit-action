@@ -9,6 +9,9 @@ type IssueFlowOptions = {
   dedupeIssues: boolean
   failOnVulnerabilities: boolean
   issueTitle: string
+  issueAssignees?: string[]
+  issueLabels?: string[]
+  issueType?: string
 }
 
 export async function handleIssueFlow(
@@ -25,11 +28,13 @@ export async function handleIssueFlow(
     return
   }
 
-  // remove control characters and create a code block
-  const option: IssueOption = issue.getIssueOption(
-    auditOutput,
-    options.issueTitle
-  )
+  const option: IssueOption = {
+    title: options.issueTitle,
+    body: auditOutput,
+    assignees: options.issueAssignees,
+    labels: options.issueLabels,
+    type: options.issueType
+  }
 
   const existingIssueNumber = options.dedupeIssues
     ? await issue.getExistingIssueNumber(

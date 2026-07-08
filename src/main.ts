@@ -5,7 +5,6 @@ import { Audit } from './audit.js'
 import { getInputs } from './inputs.js'
 import { handleIssueFlow } from './issue-flow.js'
 import { handlePullRequest } from './pr-flow.js'
-import * as workdir from './workdir.js'
 
 function getPullRequestNumber(): number {
   const eventPath = process.env.GITHUB_EVENT_PATH
@@ -22,18 +21,21 @@ function getPullRequestNumber(): number {
 
 export async function run(): Promise<void> {
   try {
+    const inputs = getInputs()
+
     // move to working directory
-    const workingDirectory = workdir.getNormalizedWorkingDirectory(
-      core.getInput
-    )
-    if (workingDirectory) {
+    if (inputs.workingDirectory) {
       try {
         // Try to change directory
-        process.chdir(workingDirectory)
-        core.info(`Successfully changed directory to: ${workingDirectory}`)
+        process.chdir(inputs.workingDirectory)
+        core.info(
+          `Successfully changed directory to: ${inputs.workingDirectory}`
+        )
       } catch (error) {
         // If changing directory fails, log the error but continue
-        core.warning(`Failed to change directory to: ${workingDirectory}`)
+        core.warning(
+          `Failed to change directory to: ${inputs.workingDirectory}`
+        )
         core.warning(
           `Error: ${error instanceof Error ? error.message : String(error)}`
         )
@@ -41,8 +43,6 @@ export async function run(): Promise<void> {
       }
     }
     core.info(`Current working directory: ${process.cwd()}`)
-
-    const inputs = getInputs()
 
     // run `npm audit`
     const audit = new Audit()
@@ -81,7 +81,10 @@ export async function run(): Promise<void> {
         createIssues: inputs.createIssues,
         dedupeIssues: inputs.dedupeIssues,
         failOnVulnerabilities: inputs.failOnVulnerabilities,
-        issueTitle: inputs.issueTitle
+        issueTitle: inputs.issueTitle,
+        issueAssignees: inputs.issueAssignees,
+        issueLabels: inputs.issueLabels,
+        issueType: inputs.issueType
       })
     }
   } catch (e: unknown) {

@@ -3,11 +3,8 @@ export function isValid(dir: string): boolean {
 }
 
 export function getNormalizedWorkingDirectory(
-  getInput: (name: string, options?: { trimWhitespace?: boolean }) => string
+  workingDirectory: string
 ): string | null {
-  const workingDirectory = getInput('working_directory', {
-    trimWhitespace: true
-  })
   if (!workingDirectory) {
     return null
   }

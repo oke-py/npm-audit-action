@@ -27,7 +27,7 @@ describe('handleIssueFlow', () => {
       issueTitle: 'title'
     })
 
-    expect(issue.getIssueOption).not.toHaveBeenCalled()
+    expect(issue.getExistingIssueNumber).not.toHaveBeenCalled()
     expect(octokit.issues.create).not.toHaveBeenCalled()
     expect(octokit.issues.createComment).not.toHaveBeenCalled()
     expect(core.info).toHaveBeenCalledWith('This repo has some vulnerabilities')
@@ -42,29 +42,31 @@ describe('handleIssueFlow', () => {
       }
     }
 
-    vi.mocked(issue.getIssueOption).mockReturnValue({
-      title: 'title',
-      body: 'body',
-      assignees: undefined,
-      labels: undefined
-    })
     vi.mocked(issue.getExistingIssueNumber).mockResolvedValue(null)
 
     await handleIssueFlow(octokit as never, 'audit body', {
       createIssues: true,
       dedupeIssues: true,
       failOnVulnerabilities: false,
-      issueTitle: 'title'
+      issueTitle: 'title',
+      issueAssignees: ['alice'],
+      issueLabels: ['security'],
+      issueType: 'Bug'
     })
 
-    expect(issue.getExistingIssueNumber).toHaveBeenCalled()
+    expect(issue.getExistingIssueNumber).toHaveBeenCalledWith(
+      octokit.issues.listForRepo,
+      { owner: 'alice', repo: 'example' },
+      'title'
+    )
     expect(octokit.issues.create).toHaveBeenCalledWith({
       owner: 'alice',
       repo: 'example',
       title: 'title',
-      body: 'body',
-      assignees: undefined,
-      labels: undefined
+      body: 'audit body',
+      assignees: ['alice'],
+      labels: ['security'],
+      type: 'Bug'
     })
   })
 
@@ -77,12 +79,6 @@ describe('handleIssueFlow', () => {
       }
     }
 
-    vi.mocked(issue.getIssueOption).mockReturnValue({
-      title: 'title',
-      body: 'body',
-      assignees: undefined,
-      labels: undefined
-    })
     vi.mocked(issue.getExistingIssueNumber).mockResolvedValue(99)
 
     await handleIssueFlow(octokit as never, 'audit body', {
@@ -96,8 +92,9 @@ describe('handleIssueFlow', () => {
       owner: 'alice',
       repo: 'example',
       issue_number: 99,
-      body: 'body'
+      body: 'audit body'
     })
+    expect(octokit.issues.create).not.toHaveBeenCalled()
   })
 
   test('fails when failOnVulnerabilities is true', async () => {
@@ -109,12 +106,6 @@ describe('handleIssueFlow', () => {
       }
     }
 
-    vi.mocked(issue.getIssueOption).mockReturnValue({
-      title: 'title',
-      body: 'body',
-      assignees: undefined,
-      labels: undefined
-    })
     vi.mocked(issue.getExistingIssueNumber).mockResolvedValue(null)
 
     await handleIssueFlow(octokit as never, 'audit body', {

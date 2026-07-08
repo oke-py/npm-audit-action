@@ -1,48 +1,3 @@
-import * as core from '@actions/core'
-import type { IssueOption } from './interface.js'
-
-export function getIssueOption(body: string, issueTitle?: string): IssueOption {
-  let assignees: string[] | undefined
-  let labels: string[] | undefined
-
-  const issueAssigneesInput = core.getInput('issue_assignees', {
-    trimWhitespace: true
-  })
-  if (issueAssigneesInput) {
-    const parsed = issueAssigneesInput
-      .split(',')
-      .map((assignee) => assignee.trim())
-      .filter(Boolean)
-    if (parsed.length > 0) {
-      assignees = parsed
-    }
-  }
-  const issueLabelsInput = core.getInput('issue_labels', {
-    trimWhitespace: true
-  })
-  if (issueLabelsInput) {
-    const parsed = issueLabelsInput
-      .split(',')
-      .map((label) => label.trim())
-      .filter(Boolean)
-    if (parsed.length > 0) {
-      labels = parsed
-    }
-  }
-
-  const issueTypeInput = core.getInput('issue_type', {
-    trimWhitespace: true
-  })
-
-  return {
-    title: issueTitle ?? core.getInput('issue_title', { trimWhitespace: true }),
-    body,
-    assignees,
-    labels,
-    type: issueTypeInput || undefined
-  }
-}
-
 export type GetIssuesFunc = (options: {
   owner: string
   repo: string
@@ -56,20 +11,14 @@ export async function getExistingIssueNumber(
     owner: string
     repo: string
   },
-  issueTitle?: string
+  issueTitle: string
 ): Promise<number | null> {
   const { data: issues } = await getIssues({
     ...repo,
     state: 'open'
   })
 
-  const iss = issues
-    .filter(
-      (i) =>
-        i.title ===
-        (issueTitle ?? core.getInput('issue_title', { trimWhitespace: true }))
-    )
-    .shift()
+  const iss = issues.filter((i) => i.title === issueTitle).shift()
 
   return iss?.number ?? null
 }
