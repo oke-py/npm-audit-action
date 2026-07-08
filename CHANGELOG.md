@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.1.0](https://github.com/oke-py/npm-audit-action/compare/v5.0.1...v5.1.0) (2026-07-08)
+
+
+### Features
+
+* add issue_type input to set the issue type ([b46d237](https://github.com/oke-py/npm-audit-action/commit/b46d237d580f1a1ac0503a0ce0e48e7fcbabd321))
+* add issue_type input to set the issue type ([4fef84c](https://github.com/oke-py/npm-audit-action/commit/4fef84c0752d4e789c8e3a13abc3fb824d28844c)), closes [#273](https://github.com/oke-py/npm-audit-action/issues/273)
+* add registry input to run npm audit against a specific registry ([f8c39f7](https://github.com/oke-py/npm-audit-action/commit/f8c39f7ae407495327e64fb3ac954c5b1b88aeee))
+* add registry input to run npm audit against a specific registry ([f661785](https://github.com/oke-py/npm-audit-action/commit/f66178566bac40f7b191c9c84fd8944c5752ff39)), closes [#169](https://github.com/oke-py/npm-audit-action/issues/169)
+
+
+### Bug Fixes
+
+* truncate audit report exceeding GitHub body length limit ([bfe1366](https://github.com/oke-py/npm-audit-action/commit/bfe13668808704d604597cf9812c9d906e6bf859)), closes [#170](https://github.com/oke-py/npm-audit-action/issues/170)
+
 ## [5.0.1](https://github.com/oke-py/npm-audit-action/compare/v5.0.0...v5.0.1) (2026-07-07)
 
 
