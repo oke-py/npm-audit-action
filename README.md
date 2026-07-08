@@ -37,6 +37,7 @@ permissions:
 | `issue_assignees` | false | N/A | Issue assignees (comma-separated) |
 | `issue_labels` | false | N/A | Issue labels (comma-separated) |
 | `issue_title` | false | `npm audit found vulnerabilities` | Issue title |
+| `issue_type` | false | N/A | Issue type (e.g. `Bug`, `Task`). Requires [issue types](https://docs.github.com/en/issues/tracking-your-work-with-issues/configuring-issues/managing-issue-types-in-an-organization) to be enabled on the organization |
 | `json_flag` | false | `false` | Run `npm audit` with `--json` |
 | `production_flag` | false | `false` | Run `npm audit` with `--omit=dev` |
 | `working_directory` | false | N/A | Directory containing `package.json` |

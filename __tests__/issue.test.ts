@@ -42,6 +42,24 @@ describe('getIssueOption', () => {
     expect(issue.getIssueOption('hi')).toEqual(expected)
   })
 
+  test('with issue type', () => {
+    process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
+    process.env.INPUT_ISSUE_TYPE = 'Bug'
+    delete process.env.INPUT_ISSUE_ASSIGNEES
+    delete process.env.INPUT_ISSUE_LABELS
+
+    const expected: IssueOption = {
+      title: 'npm audit found vulnerabilities',
+      body: 'hi',
+      assignees: undefined,
+      labels: undefined,
+      type: 'Bug'
+    }
+    expect(issue.getIssueOption('hi')).toEqual(expected)
+
+    delete process.env.INPUT_ISSUE_TYPE
+  })
+
   test('with label containing spaces', () => {
     process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
     process.env.INPUT_ISSUE_ASSIGNEES = 'alice'

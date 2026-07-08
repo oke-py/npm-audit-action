@@ -3,4 +3,5 @@ export interface IssueOption {
   body: string
   assignees?: string[]
   labels?: string[]
+  type?: string
 }

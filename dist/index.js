@@ -33174,11 +33174,15 @@ function getIssueOption(body, issueTitle) {
             labels = parsed;
         }
     }
+    const issueTypeInput = getInput('issue_type', {
+        trimWhitespace: true
+    });
     return {
         title: issueTitle ?? getInput('issue_title', { trimWhitespace: true }),
         body,
         assignees,
-        labels
+        labels,
+        type: issueTypeInput || undefined
     };
 }
 async function getExistingIssueNumber(getIssues, repo, issueTitle) {
