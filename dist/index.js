@@ -32179,6 +32179,22 @@ class Audit {
     }
 }
 
+function isValid(dir) {
+    return !dir.startsWith('/') && !dir.startsWith('..');
+}
+function getNormalizedWorkingDirectory(workingDirectory) {
+    if (!workingDirectory) {
+        return null;
+    }
+    const normalizedWorkingDirectory = workingDirectory.endsWith('/')
+        ? workingDirectory.slice(0, -1)
+        : workingDirectory;
+    if (!isValid(normalizedWorkingDirectory)) {
+        throw new Error('Invalid input: working_directory');
+    }
+    return normalizedWorkingDirectory;
+}
+
 const auditLevels = new Set([
     'critical',
     'high',
@@ -32203,6 +32219,13 @@ function isValidRegistryUrl(value) {
     }
     return url.protocol === 'http:' || url.protocol === 'https:';
 }
+function parseList(value) {
+    const parsed = value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    return parsed.length > 0 ? parsed : undefined;
+}
 function getInputs() {
     const auditLevel = getInput('audit_level', { trimWhitespace: true });
     if (!auditLevels.has(auditLevel)) {
@@ -32222,6 +32245,10 @@ function getInputs() {
         createIssues: getBooleanInput('create_issues'),
         dedupeIssues: getBooleanInput('dedupe_issues'),
         issueTitle: getInput('issue_title', { trimWhitespace: true }),
+        issueAssignees: parseList(getInput('issue_assignees', { trimWhitespace: true })),
+        issueLabels: parseList(getInput('issue_labels', { trimWhitespace: true })),
+        issueType: getInput('issue_type', { trimWhitespace: true }) || undefined,
+        workingDirectory: getNormalizedWorkingDirectory(getInput('working_directory', { trimWhitespace: true })),
         token: getInput('github_token', {
             required: true,
             trimWhitespace: true
@@ -33171,53 +33198,12 @@ Octokit$1.plugin(restEndpointMethods, paginateRest).defaults(defaults);
 
 const context = new Context();
 
-function getIssueOption(body, issueTitle) {
-    let assignees;
-    let labels;
-    const issueAssigneesInput = getInput('issue_assignees', {
-        trimWhitespace: true
-    });
-    if (issueAssigneesInput) {
-        const parsed = issueAssigneesInput
-            .split(',')
-            .map((assignee) => assignee.trim())
-            .filter(Boolean);
-        if (parsed.length > 0) {
-            assignees = parsed;
-        }
-    }
-    const issueLabelsInput = getInput('issue_labels', {
-        trimWhitespace: true
-    });
-    if (issueLabelsInput) {
-        const parsed = issueLabelsInput
-            .split(',')
-            .map((label) => label.trim())
-            .filter(Boolean);
-        if (parsed.length > 0) {
-            labels = parsed;
-        }
-    }
-    const issueTypeInput = getInput('issue_type', {
-        trimWhitespace: true
-    });
-    return {
-        title: issueTitle ?? getInput('issue_title', { trimWhitespace: true }),
-        body,
-        assignees,
-        labels,
-        type: issueTypeInput || undefined
-    };
-}
 async function getExistingIssueNumber(getIssues, repo, issueTitle) {
     const { data: issues } = await getIssues({
         ...repo,
         state: 'open'
     });
-    const iss = issues
-        .filter((i) => i.title ===
-        (issueTitle ?? getInput('issue_title', { trimWhitespace: true })))
-        .shift();
+    const iss = issues.filter((i) => i.title === issueTitle).shift();
     return iss?.number ?? null;
 }
 
@@ -33230,8 +33216,13 @@ async function handleIssueFlow(octokit, auditOutput, options) {
         info('This repo has some vulnerabilities');
         return;
     }
-    // remove control characters and create a code block
-    const option = getIssueOption(auditOutput, options.issueTitle);
+    const option = {
+        title: options.issueTitle,
+        body: auditOutput,
+        assignees: options.issueAssignees,
+        labels: options.issueLabels,
+        type: options.issueType
+    };
     const existingIssueNumber = options.dedupeIssues
         ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo, options.issueTitle)
         : null;
@@ -33277,25 +33268,6 @@ async function handlePullRequest(octokit, prNumber, auditOutput, options) {
     info('This repo has some vulnerabilities');
 }
 
-function isValid(dir) {
-    return !dir.startsWith('/') && !dir.startsWith('..');
-}
-function getNormalizedWorkingDirectory(getInput) {
-    const workingDirectory = getInput('working_directory', {
-        trimWhitespace: true
-    });
-    if (!workingDirectory) {
-        return null;
-    }
-    const normalizedWorkingDirectory = workingDirectory.endsWith('/')
-        ? workingDirectory.slice(0, -1)
-        : workingDirectory;
-    if (!isValid(normalizedWorkingDirectory)) {
-        throw new Error('Invalid input: working_directory');
-    }
-    return normalizedWorkingDirectory;
-}
-
 function getPullRequestNumber() {
     const eventPath = process.env.GITHUB_EVENT_PATH;
     if (!eventPath) {
@@ -33310,23 +33282,22 @@ function getPullRequestNumber() {
 }
 async function run() {
     try {
+        const inputs = getInputs();
         // move to working directory
-        const workingDirectory = getNormalizedWorkingDirectory(getInput);
-        if (workingDirectory) {
+        if (inputs.workingDirectory) {
             try {
                 // Try to change directory
-                process.chdir(workingDirectory);
-                info(`Successfully changed directory to: ${workingDirectory}`);
+                process.chdir(inputs.workingDirectory);
+                info(`Successfully changed directory to: ${inputs.workingDirectory}`);
             }
             catch (error) {
                 // If changing directory fails, log the error but continue
-                warning(`Failed to change directory to: ${workingDirectory}`);
+                warning(`Failed to change directory to: ${inputs.workingDirectory}`);
                 warning(`Error: ${error instanceof Error ? error.message : String(error)}`);
                 warning('Continuing with current directory');
             }
         }
         info(`Current working directory: ${process.cwd()}`);
-        const inputs = getInputs();
         // run `npm audit`
         const audit = new Audit();
         audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag, inputs.registry);
@@ -33350,7 +33321,10 @@ async function run() {
                 createIssues: inputs.createIssues,
                 dedupeIssues: inputs.dedupeIssues,
                 failOnVulnerabilities: inputs.failOnVulnerabilities,
-                issueTitle: inputs.issueTitle
+                issueTitle: inputs.issueTitle,
+                issueAssignees: inputs.issueAssignees,
+                issueLabels: inputs.issueLabels,
+                issueType: inputs.issueType
             });
         }
     }

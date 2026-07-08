@@ -15,26 +15,16 @@ describe('isValid', () => {
 })
 
 describe('getNormalizedWorkingDirectory', () => {
-  const makeGetInput = (value: string) => {
-    return vi.fn().mockReturnValue(value)
-  }
-
   test('returns null when input is empty', () => {
-    const getInput = makeGetInput('')
-    expect(workdir.getNormalizedWorkingDirectory(getInput)).toBeNull()
-    expect(getInput).toHaveBeenCalledWith('working_directory', {
-      trimWhitespace: true
-    })
+    expect(workdir.getNormalizedWorkingDirectory('')).toBeNull()
   })
 
   test('trims trailing slash', () => {
-    const getInput = makeGetInput('foo/bar/')
-    expect(workdir.getNormalizedWorkingDirectory(getInput)).toBe('foo/bar')
+    expect(workdir.getNormalizedWorkingDirectory('foo/bar/')).toBe('foo/bar')
   })
 
   test('throws on invalid directory', () => {
-    const getInput = makeGetInput('../secret')
-    expect(() => workdir.getNormalizedWorkingDirectory(getInput)).toThrow(
+    expect(() => workdir.getNormalizedWorkingDirectory('../secret')).toThrow(
       'Invalid input: working_directory'
     )
   })

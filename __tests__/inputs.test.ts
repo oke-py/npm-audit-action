@@ -15,6 +15,10 @@ describe('getInputs', () => {
     process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
     process.env.INPUT_GITHUB_TOKEN = 'token'
     delete process.env.INPUT_REGISTRY
+    delete process.env.INPUT_ISSUE_ASSIGNEES
+    delete process.env.INPUT_ISSUE_LABELS
+    delete process.env.INPUT_ISSUE_TYPE
+    delete process.env.INPUT_WORKING_DIRECTORY
   })
 
   test('returns normalized inputs', () => {
@@ -64,5 +68,61 @@ describe('getInputs', () => {
   test('throws on registry containing shell metacharacters', () => {
     process.env.INPUT_REGISTRY = 'https://registry.npmjs.org/&whoami'
     expect(() => getInputs()).toThrow('Invalid input: registry')
+  })
+
+  test('returns undefined assignees, labels, and type when not set', () => {
+    const inputs = getInputs()
+
+    expect(inputs.issueAssignees).toBeUndefined()
+    expect(inputs.issueLabels).toBeUndefined()
+    expect(inputs.issueType).toBeUndefined()
+  })
+
+  test('parses a single assignee and label', () => {
+    process.env.INPUT_ISSUE_ASSIGNEES = 'alice'
+    process.env.INPUT_ISSUE_LABELS = 'foo'
+
+    const inputs = getInputs()
+
+    expect(inputs.issueAssignees).toEqual(['alice'])
+    expect(inputs.issueLabels).toEqual(['foo'])
+  })
+
+  test('parses comma-separated assignees and labels', () => {
+    process.env.INPUT_ISSUE_ASSIGNEES = 'alice,bob'
+    process.env.INPUT_ISSUE_LABELS = 'foo,bar'
+
+    const inputs = getInputs()
+
+    expect(inputs.issueAssignees).toEqual(['alice', 'bob'])
+    expect(inputs.issueLabels).toEqual(['foo', 'bar'])
+  })
+
+  test('keeps spaces inside labels while trimming around commas', () => {
+    process.env.INPUT_ISSUE_LABELS = 'status: ready, work: frontend'
+
+    expect(getInputs().issueLabels).toEqual(['status: ready', 'work: frontend'])
+  })
+
+  test('returns issue type when set', () => {
+    process.env.INPUT_ISSUE_TYPE = 'Bug'
+
+    expect(getInputs().issueType).toBe('Bug')
+  })
+
+  test('returns null working directory when not set', () => {
+    expect(getInputs().workingDirectory).toBeNull()
+  })
+
+  test('normalizes the working directory', () => {
+    process.env.INPUT_WORKING_DIRECTORY = 'packages/app/'
+
+    expect(getInputs().workingDirectory).toBe('packages/app')
+  })
+
+  test('throws on invalid working directory', () => {
+    process.env.INPUT_WORKING_DIRECTORY = '../secret'
+
+    expect(() => getInputs()).toThrow('Invalid input: working_directory')
   })
 })

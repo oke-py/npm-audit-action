@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import { getNormalizedWorkingDirectory } from './workdir.js'
 
 const auditLevels = new Set([
   'critical',
@@ -26,6 +27,14 @@ function isValidRegistryUrl(value: string): boolean {
   return url.protocol === 'http:' || url.protocol === 'https:'
 }
 
+function parseList(value: string): string[] | undefined {
+  const parsed = value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+  return parsed.length > 0 ? parsed : undefined
+}
+
 export type Inputs = {
   auditLevel: string
   registry: string
@@ -36,6 +45,10 @@ export type Inputs = {
   createIssues: boolean
   dedupeIssues: boolean
   issueTitle: string
+  issueAssignees?: string[]
+  issueLabels?: string[]
+  issueType?: string
+  workingDirectory: string | null
   token: string
 }
 
@@ -60,6 +73,17 @@ export function getInputs(): Inputs {
     createIssues: core.getBooleanInput('create_issues'),
     dedupeIssues: core.getBooleanInput('dedupe_issues'),
     issueTitle: core.getInput('issue_title', { trimWhitespace: true }),
+    issueAssignees: parseList(
+      core.getInput('issue_assignees', { trimWhitespace: true })
+    ),
+    issueLabels: parseList(
+      core.getInput('issue_labels', { trimWhitespace: true })
+    ),
+    issueType:
+      core.getInput('issue_type', { trimWhitespace: true }) || undefined,
+    workingDirectory: getNormalizedWorkingDirectory(
+      core.getInput('working_directory', { trimWhitespace: true })
+    ),
     token: core.getInput('github_token', {
       required: true,
       trimWhitespace: true
