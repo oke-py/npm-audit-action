@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         node: [24]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-slim, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -29,7 +29,7 @@ jobs:
           npm run lint
           npm run test:coverage
       - name: Upload coverage to Coveralls
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-slim'
         uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         node: [24]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-slim, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
