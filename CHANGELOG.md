@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.2.0](https://github.com/oke-py/npm-audit-action/compare/v5.1.0...v5.2.0) (2026-07-09)
+
+
+### Features
+
+* add dedupe_comments input to skip unchanged report comments ([db1b5b2](https://github.com/oke-py/npm-audit-action/commit/db1b5b2e98e8b126b8fd53bd21a2d53f2f721498))
+* add dedupe_comments input to skip unchanged report comments ([f6a1764](https://github.com/oke-py/npm-audit-action/commit/f6a176462dc248a43eb61b0ca8cbe3617ed24f9f)), closes [#107](https://github.com/oke-py/npm-audit-action/issues/107)
+* add resolve_pr_comments input to mark report comments resolved ([d71e5df](https://github.com/oke-py/npm-audit-action/commit/d71e5df5a420aab4d7da0d9e267c5909a3eb3420))
+* add resolve_pr_comments input to mark report comments resolved ([32066d2](https://github.com/oke-py/npm-audit-action/commit/32066d2e7f83eac196a63a0cef2338063e0a673d)), closes [#27](https://github.com/oke-py/npm-audit-action/issues/27)
+
+
+### Bug Fixes
+
+* reserve room for the report marker when truncating the audit output ([4491757](https://github.com/oke-py/npm-audit-action/commit/4491757066c451d3b08673ced7ad03283bc5af38))
+
 ## [5.1.0](https://github.com/oke-py/npm-audit-action/compare/v5.0.1...v5.1.0) (2026-07-08)
 
 
