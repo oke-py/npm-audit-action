@@ -42,6 +42,7 @@ export type Inputs = {
   jsonFlag: boolean
   failOnVulnerabilities: boolean
   createPRComments: boolean
+  resolvePRComments: boolean
   createIssues: boolean
   dedupeIssues: boolean
   dedupeComments: boolean
@@ -71,6 +72,7 @@ export function getInputs(): Inputs {
     jsonFlag: core.getBooleanInput('json_flag'),
     failOnVulnerabilities: core.getBooleanInput('fail_on_vulnerabilities'),
     createPRComments: core.getBooleanInput('create_pr_comments'),
+    resolvePRComments: core.getBooleanInput('resolve_pr_comments'),
     createIssues: core.getBooleanInput('create_issues'),
     dedupeIssues: core.getBooleanInput('dedupe_issues'),
     dedupeComments: core.getBooleanInput('dedupe_comments'),

@@ -35,6 +35,7 @@ describe('run: pr', () => {
     // initialize mock
     vi.mocked(Audit).mockClear()
     vi.mocked(pr).createComment.mockClear()
+    vi.mocked(pr).resolveComments.mockClear()
     core.setFailed.mockClear()
 
     process.env.INPUT_AUDIT_LEVEL = 'low'
@@ -48,6 +49,7 @@ describe('run: pr', () => {
     process.env.INPUT_GITHUB_TOKEN = '***'
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
+    process.env.INPUT_RESOLVE_PR_COMMENTS = 'false'
     process.env.INPUT_CREATE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_ISSUES = 'false'
     process.env.INPUT_DEDUPE_COMMENTS = 'false'
@@ -124,6 +126,61 @@ describe('run: pr', () => {
 
     await run()
     expect(pr.createComment).not.toHaveBeenCalled()
+  })
+
+  test('resolves previous comments when vulnerabilities are gone and resolve_pr_comments is enabled', async () => {
+    process.env.INPUT_RESOLVE_PR_COMMENTS = 'true'
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/success.txt'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return false
+        },
+        strippedStdout: (): string => {
+          return path.join(__dirname, 'testdata/audit/success.txt')
+        }
+      }
+    })
+
+    vi.mocked(pr).resolveComments.mockResolvedValue(1)
+
+    await run()
+    expect(pr.createComment).not.toHaveBeenCalled()
+    expect(pr.resolveComments).toHaveBeenCalledWith(
+      expect.anything(),
+      'alice',
+      'example',
+      100,
+      '0123456789abcdef0123456789abcdef01234567'
+    )
+  })
+
+  test('does not resolve comments when resolve_pr_comments is disabled', async () => {
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/success.txt'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return false
+        },
+        strippedStdout: (): string => {
+          return path.join(__dirname, 'testdata/audit/success.txt')
+        }
+      }
+    })
+
+    await run()
+    expect(pr.resolveComments).not.toHaveBeenCalled()
   })
 
   test('fails if GITHUB_EVENT_PATH is not set', async () => {

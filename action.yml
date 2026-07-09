@@ -50,6 +50,10 @@ inputs:
     description: 'Run `npm audit` with `--omit=dev`'
     default: 'false'
     required: false
+  resolve_pr_comments:
+    description: 'Edit previous report comments on the pull request to mark them resolved when vulnerabilities are no longer found. Effective only with create_pr_comments'
+    default: 'false'
+    required: false
   registry:
     description: 'The registry URL passed to `npm audit` via the `--registry` flag (e.g. https://registry.npmjs.org)'
     required: false
