@@ -7,6 +7,7 @@ import * as issue from './issue.js'
 type IssueFlowOptions = {
   createIssues: boolean
   dedupeIssues: boolean
+  dedupeComments: boolean
   failOnVulnerabilities: boolean
   issueTitle: string
   issueAssignees?: string[]
@@ -28,29 +29,47 @@ export async function handleIssueFlow(
     return
   }
 
+  const body = options.dedupeComments
+    ? issue.appendReportMarker(auditOutput)
+    : auditOutput
+
   const option: IssueOption = {
     title: options.issueTitle,
-    body: auditOutput,
+    body,
     assignees: options.issueAssignees,
     labels: options.issueLabels,
     type: options.issueType
   }
 
-  const existingIssueNumber = options.dedupeIssues
-    ? await issue.getExistingIssueNumber(
+  const existingIssue = options.dedupeIssues
+    ? await issue.getExistingIssue(
         octokit.issues.listForRepo,
         github.context.repo,
         options.issueTitle
       )
     : null
 
-  if (existingIssueNumber !== null) {
-    const { data: createdComment } = await octokit.issues.createComment({
-      ...github.context.repo,
-      issue_number: existingIssueNumber,
-      body: option.body
-    })
-    core.debug(`comment ${createdComment.url}`)
+  if (existingIssue !== null) {
+    const unchanged =
+      options.dedupeComments &&
+      (await issue.isReportUnchanged(
+        octokit.issues.listComments,
+        github.context.repo,
+        existingIssue,
+        body
+      ))
+    if (unchanged) {
+      core.info(
+        `The report is unchanged. Skip commenting on issue #${existingIssue.number}`
+      )
+    } else {
+      const { data: createdComment } = await octokit.issues.createComment({
+        ...github.context.repo,
+        issue_number: existingIssue.number,
+        body
+      })
+      core.debug(`comment ${createdComment.url}`)
+    }
   } else {
     const { data: createdIssue } = await octokit.issues.create({
       ...github.context.repo,

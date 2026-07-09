@@ -18,6 +18,10 @@ inputs:
     description: 'Fail the action when vulnerabilities are found'
     default: 'true'
     required: false
+  dedupe_comments:
+    description: 'Skip commenting on the existing issue when the report is unchanged from the last one posted by this action. Effective only with dedupe_issues'
+    default: 'false'
+    required: false
   dedupe_issues:
     description: 'Flag to de-dupe against open issues'
     default: 'false'

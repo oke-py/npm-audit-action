@@ -3,6 +3,7 @@ import * as core from '@actions/core'
 import { Octokit } from '@octokit/rest'
 import { Audit } from './audit.js'
 import { getInputs } from './inputs.js'
+import { REPORT_MARKER_LENGTH } from './issue.js'
 import { handleIssueFlow } from './issue-flow.js'
 import { handlePullRequest } from './pr-flow.js'
 
@@ -77,9 +78,13 @@ export async function run(): Promise<void> {
       }
 
       core.debug('open an issue')
-      await handleIssueFlow(octokit, audit.strippedStdout(), {
+      const auditOutput = audit.strippedStdout(
+        inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0
+      )
+      await handleIssueFlow(octokit, auditOutput, {
         createIssues: inputs.createIssues,
         dedupeIssues: inputs.dedupeIssues,
+        dedupeComments: inputs.dedupeComments,
         failOnVulnerabilities: inputs.failOnVulnerabilities,
         issueTitle: inputs.issueTitle,
         issueAssignees: inputs.issueAssignees,

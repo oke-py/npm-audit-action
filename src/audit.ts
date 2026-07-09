@@ -63,16 +63,18 @@ export class Audit {
     return this.status === 1
   }
 
-  public strippedStdout(): string {
+  // reservedLength leaves room for content the caller appends to the body,
+  // such as the dedupe_comments report marker
+  public strippedStdout(reservedLength = 0): string {
+    const maxLength = MAX_BODY_LENGTH - reservedLength
     const stripped = stripVTControlCharacters(this.stdout)
     const body = `\`\`\`\n${stripped}\n\`\`\``
-    if (body.length <= MAX_BODY_LENGTH) {
+    if (body.length <= maxLength) {
       return body
     }
 
     const prefix = '```\n'
-    const availableLength =
-      MAX_BODY_LENGTH - prefix.length - TRUNCATION_NOTICE.length
+    const availableLength = maxLength - prefix.length - TRUNCATION_NOTICE.length
     return `${prefix}${stripped.slice(0, availableLength)}${TRUNCATION_NOTICE}`
   }
 }

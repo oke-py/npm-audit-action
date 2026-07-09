@@ -12,6 +12,7 @@ describe('getInputs', () => {
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
     process.env.INPUT_CREATE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_ISSUES = 'false'
+    process.env.INPUT_DEDUPE_COMMENTS = 'false'
     process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
     process.env.INPUT_GITHUB_TOKEN = 'token'
     delete process.env.INPUT_REGISTRY
@@ -29,6 +30,12 @@ describe('getInputs', () => {
 
     expect(inputs.auditLevel).toBe('low')
     expect(inputs.issueTitle).toBe('title')
+  })
+
+  test('parses dedupe_comments', () => {
+    process.env.INPUT_DEDUPE_COMMENTS = 'true'
+
+    expect(getInputs().dedupeComments).toBe(true)
   })
 
   test('throws on invalid audit_level', () => {

@@ -4,6 +4,7 @@ import * as path from 'node:path'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Audit } from '../src/audit'
+import * as issue from '../src/issue'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -238,5 +239,32 @@ describe('strippedStdout', () => {
     const body = a.strippedStdout()
     expect(body.length).toBe(65536)
     expect(body).not.toContain('truncated')
+  })
+
+  test('reserves room for content appended by the caller', () => {
+    const a = new Audit()
+    a.stdout = 'a'.repeat(100000)
+    const body = a.strippedStdout(27)
+    expect(body.length).toBe(65536 - 27)
+    expect(body).toContain('... (truncated)\n```')
+  })
+
+  test('truncates output that only exceeds the reserved limit', () => {
+    const a = new Audit()
+    // fits within 65536 on its own, but not with 27 characters reserved
+    a.stdout = 'a'.repeat(65536 - 8)
+    const body = a.strippedStdout(27)
+    expect(body.length).toBe(65536 - 27)
+    expect(body).toContain('truncated')
+  })
+
+  test('keeps the body with the report marker within the GitHub limit', () => {
+    const a = new Audit()
+    a.stdout = 'a'.repeat(100000)
+    const body = issue.appendReportMarker(
+      a.strippedStdout(issue.REPORT_MARKER_LENGTH)
+    )
+    expect(body.length).toBe(65536)
+    expect(body.endsWith(issue.REPORT_MARKER)).toBe(true)
   })
 })
