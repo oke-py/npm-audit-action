@@ -32167,14 +32167,17 @@ class Audit {
         // `npm audit` return 1 when it found vulnerabilities
         return this.status === 1;
     }
-    strippedStdout() {
+    // reservedLength leaves room for content the caller appends to the body,
+    // such as the dedupe_comments report marker
+    strippedStdout(reservedLength = 0) {
+        const maxLength = MAX_BODY_LENGTH - reservedLength;
         const stripped = stripVTControlCharacters(this.stdout);
         const body = `\`\`\`\n${stripped}\n\`\`\``;
-        if (body.length <= MAX_BODY_LENGTH) {
+        if (body.length <= maxLength) {
             return body;
         }
         const prefix = '```\n';
-        const availableLength = MAX_BODY_LENGTH - prefix.length - TRUNCATION_NOTICE.length;
+        const availableLength = maxLength - prefix.length - TRUNCATION_NOTICE.length;
         return `${prefix}${stripped.slice(0, availableLength)}${TRUNCATION_NOTICE}`;
     }
 }
@@ -32255,6 +32258,51 @@ function getInputs() {
             trimWhitespace: true
         })
     };
+}
+
+async function getExistingIssue(getIssues, repo, issueTitle) {
+    const { data: issues } = await getIssues({
+        ...repo,
+        state: 'open'
+    });
+    const iss = issues.filter((i) => i.title === issueTitle).shift();
+    return iss ? { number: iss.number, body: iss.body } : null;
+}
+// Hidden marker embedded in bodies posted by this action so that the previous
+// report can be identified when dedupe_comments is enabled
+const REPORT_MARKER = '<!-- npm-audit-action -->';
+function appendReportMarker(body) {
+    return `${body}\n\n${REPORT_MARKER}`;
+}
+// Length appendReportMarker adds to a body; reserved when truncating the
+// audit output so the final body stays within the GitHub limit
+const REPORT_MARKER_LENGTH = appendReportMarker('').length;
+// GitHub may return bodies with CRLF line endings
+function normalizeBody(body) {
+    return body.replace(/\r\n/g, '\n').trim();
+}
+async function isReportUnchanged(listComments, repo, existingIssue, newBody) {
+    let lastReport = existingIssue.body?.includes(REPORT_MARKER) === true
+        ? existingIssue.body
+        : null;
+    const perPage = 100;
+    for (let page = 1;; page++) {
+        const { data: comments } = await listComments({
+            ...repo,
+            issue_number: existingIssue.number,
+            per_page: perPage,
+            page
+        });
+        for (const comment of comments) {
+            if (comment.body?.includes(REPORT_MARKER)) {
+                lastReport = comment.body;
+            }
+        }
+        if (comments.length < perPage) {
+            break;
+        }
+    }
+    return (lastReport !== null && normalizeBody(lastReport) === normalizeBody(newBody));
 }
 
 class Context {
@@ -33199,48 +33247,6 @@ Octokit$1.plugin(restEndpointMethods, paginateRest).defaults(defaults);
 
 const context = new Context();
 
-async function getExistingIssue(getIssues, repo, issueTitle) {
-    const { data: issues } = await getIssues({
-        ...repo,
-        state: 'open'
-    });
-    const iss = issues.filter((i) => i.title === issueTitle).shift();
-    return iss ? { number: iss.number, body: iss.body } : null;
-}
-// Hidden marker embedded in bodies posted by this action so that the previous
-// report can be identified when dedupe_comments is enabled
-const REPORT_MARKER = '<!-- npm-audit-action -->';
-function appendReportMarker(body) {
-    return `${body}\n\n${REPORT_MARKER}`;
-}
-// GitHub may return bodies with CRLF line endings
-function normalizeBody(body) {
-    return body.replace(/\r\n/g, '\n').trim();
-}
-async function isReportUnchanged(listComments, repo, existingIssue, newBody) {
-    let lastReport = existingIssue.body?.includes(REPORT_MARKER) === true
-        ? existingIssue.body
-        : null;
-    const perPage = 100;
-    for (let page = 1;; page++) {
-        const { data: comments } = await listComments({
-            ...repo,
-            issue_number: existingIssue.number,
-            per_page: perPage,
-            page
-        });
-        for (const comment of comments) {
-            if (comment.body?.includes(REPORT_MARKER)) {
-                lastReport = comment.body;
-            }
-        }
-        if (comments.length < perPage) {
-            break;
-        }
-    }
-    return (lastReport !== null && normalizeBody(lastReport) === normalizeBody(newBody));
-}
-
 async function handleIssueFlow(octokit, auditOutput, options) {
     if (!options.createIssues) {
         if (options.failOnVulnerabilities) {
@@ -33361,7 +33367,8 @@ async function run() {
                 return;
             }
             debug('open an issue');
-            await handleIssueFlow(octokit, audit.strippedStdout(), {
+            const auditOutput = audit.strippedStdout(inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0);
+            await handleIssueFlow(octokit, auditOutput, {
                 createIssues: inputs.createIssues,
                 dedupeIssues: inputs.dedupeIssues,
                 dedupeComments: inputs.dedupeComments,

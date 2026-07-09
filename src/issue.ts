@@ -38,6 +38,10 @@ export function appendReportMarker(body: string): string {
   return `${body}\n\n${REPORT_MARKER}`
 }
 
+// Length appendReportMarker adds to a body; reserved when truncating the
+// audit output so the final body stays within the GitHub limit
+export const REPORT_MARKER_LENGTH = appendReportMarker('').length
+
 export type ListCommentsFunc = (options: {
   owner: string
   repo: string
