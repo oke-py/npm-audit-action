@@ -50,6 +50,7 @@ describe('run: pr', () => {
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
     process.env.INPUT_CREATE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_ISSUES = 'false'
+    process.env.INPUT_DEDUPE_COMMENTS = 'false'
     process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
   })
 
@@ -185,7 +186,7 @@ describe('run: issue', () => {
   beforeEach(() => {
     // initialize mock
     vi.mocked(Audit).mockClear()
-    vi.mocked(issue).getExistingIssueNumber.mockClear()
+    vi.mocked(issue).getExistingIssue.mockClear()
 
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
@@ -196,6 +197,7 @@ describe('run: issue', () => {
     process.env.GITHUB_REPOSITORY = 'alice/example'
     process.env.INPUT_CREATE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_ISSUES = 'true'
+    process.env.INPUT_DEDUPE_COMMENTS = 'false'
     process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
   })
 
@@ -219,9 +221,9 @@ describe('run: issue', () => {
       }
     })
 
-    vi.mocked(issue).getExistingIssueNumber.mockResolvedValue(null)
+    vi.mocked(issue).getExistingIssue.mockResolvedValue(null)
 
     await run()
-    expect(issue.getExistingIssueNumber).not.toHaveBeenCalled()
+    expect(issue.getExistingIssue).not.toHaveBeenCalled()
   })
 })

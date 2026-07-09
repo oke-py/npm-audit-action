@@ -32244,6 +32244,7 @@ function getInputs() {
         createPRComments: getBooleanInput('create_pr_comments'),
         createIssues: getBooleanInput('create_issues'),
         dedupeIssues: getBooleanInput('dedupe_issues'),
+        dedupeComments: getBooleanInput('dedupe_comments'),
         issueTitle: getInput('issue_title', { trimWhitespace: true }),
         issueAssignees: parseList(getInput('issue_assignees', { trimWhitespace: true })),
         issueLabels: parseList(getInput('issue_labels', { trimWhitespace: true })),
@@ -33198,13 +33199,46 @@ Octokit$1.plugin(restEndpointMethods, paginateRest).defaults(defaults);
 
 const context = new Context();
 
-async function getExistingIssueNumber(getIssues, repo, issueTitle) {
+async function getExistingIssue(getIssues, repo, issueTitle) {
     const { data: issues } = await getIssues({
         ...repo,
         state: 'open'
     });
     const iss = issues.filter((i) => i.title === issueTitle).shift();
-    return iss?.number ?? null;
+    return iss ? { number: iss.number, body: iss.body } : null;
+}
+// Hidden marker embedded in bodies posted by this action so that the previous
+// report can be identified when dedupe_comments is enabled
+const REPORT_MARKER = '<!-- npm-audit-action -->';
+function appendReportMarker(body) {
+    return `${body}\n\n${REPORT_MARKER}`;
+}
+// GitHub may return bodies with CRLF line endings
+function normalizeBody(body) {
+    return body.replace(/\r\n/g, '\n').trim();
+}
+async function isReportUnchanged(listComments, repo, existingIssue, newBody) {
+    let lastReport = existingIssue.body?.includes(REPORT_MARKER) === true
+        ? existingIssue.body
+        : null;
+    const perPage = 100;
+    for (let page = 1;; page++) {
+        const { data: comments } = await listComments({
+            ...repo,
+            issue_number: existingIssue.number,
+            per_page: perPage,
+            page
+        });
+        for (const comment of comments) {
+            if (comment.body?.includes(REPORT_MARKER)) {
+                lastReport = comment.body;
+            }
+        }
+        if (comments.length < perPage) {
+            break;
+        }
+    }
+    return (lastReport !== null && normalizeBody(lastReport) === normalizeBody(newBody));
 }
 
 async function handleIssueFlow(octokit, auditOutput, options) {
@@ -33216,23 +33250,33 @@ async function handleIssueFlow(octokit, auditOutput, options) {
         info('This repo has some vulnerabilities');
         return;
     }
+    const body = options.dedupeComments
+        ? appendReportMarker(auditOutput)
+        : auditOutput;
     const option = {
         title: options.issueTitle,
-        body: auditOutput,
+        body,
         assignees: options.issueAssignees,
         labels: options.issueLabels,
         type: options.issueType
     };
-    const existingIssueNumber = options.dedupeIssues
-        ? await getExistingIssueNumber(octokit.issues.listForRepo, context.repo, options.issueTitle)
+    const existingIssue = options.dedupeIssues
+        ? await getExistingIssue(octokit.issues.listForRepo, context.repo, options.issueTitle)
         : null;
-    if (existingIssueNumber !== null) {
-        const { data: createdComment } = await octokit.issues.createComment({
-            ...context.repo,
-            issue_number: existingIssueNumber,
-            body: option.body
-        });
-        debug(`comment ${createdComment.url}`);
+    if (existingIssue !== null) {
+        const unchanged = options.dedupeComments &&
+            (await isReportUnchanged(octokit.issues.listComments, context.repo, existingIssue, body));
+        if (unchanged) {
+            info(`The report is unchanged. Skip commenting on issue #${existingIssue.number}`);
+        }
+        else {
+            const { data: createdComment } = await octokit.issues.createComment({
+                ...context.repo,
+                issue_number: existingIssue.number,
+                body
+            });
+            debug(`comment ${createdComment.url}`);
+        }
     }
     else {
         const { data: createdIssue } = await octokit.issues.create({
@@ -33320,6 +33364,7 @@ async function run() {
             await handleIssueFlow(octokit, audit.strippedStdout(), {
                 createIssues: inputs.createIssues,
                 dedupeIssues: inputs.dedupeIssues,
+                dedupeComments: inputs.dedupeComments,
                 failOnVulnerabilities: inputs.failOnVulnerabilities,
                 issueTitle: inputs.issueTitle,
                 issueAssignees: inputs.issueAssignees,

@@ -44,6 +44,7 @@ export type Inputs = {
   createPRComments: boolean
   createIssues: boolean
   dedupeIssues: boolean
+  dedupeComments: boolean
   issueTitle: string
   issueAssignees?: string[]
   issueLabels?: string[]
@@ -72,6 +73,7 @@ export function getInputs(): Inputs {
     createPRComments: core.getBooleanInput('create_pr_comments'),
     createIssues: core.getBooleanInput('create_issues'),
     dedupeIssues: core.getBooleanInput('dedupe_issues'),
+    dedupeComments: core.getBooleanInput('dedupe_comments'),
     issueTitle: core.getInput('issue_title', { trimWhitespace: true }),
     issueAssignees: parseList(
       core.getInput('issue_assignees', { trimWhitespace: true })

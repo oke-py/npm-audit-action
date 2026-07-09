@@ -80,6 +80,7 @@ export async function run(): Promise<void> {
       await handleIssueFlow(octokit, audit.strippedStdout(), {
         createIssues: inputs.createIssues,
         dedupeIssues: inputs.dedupeIssues,
+        dedupeComments: inputs.dedupeComments,
         failOnVulnerabilities: inputs.failOnVulnerabilities,
         issueTitle: inputs.issueTitle,
         issueAssignees: inputs.issueAssignees,

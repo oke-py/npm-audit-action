@@ -31,6 +31,7 @@ permissions:
 | `audit_level` | false | `low` | Value for `npm audit --audit-level` |
 | `create_issues` | false | `true` | Create issues when vulnerabilities are found |
 | `create_pr_comments` | false | `true` | Create pull request comments when vulnerabilities are found |
+| `dedupe_comments` | false | `false` | Skip commenting on the existing issue when the report is unchanged from the last one posted by this action. Effective only with `dedupe_issues: true` |
 | `dedupe_issues` | false | `false` | De-dupe against open issues |
 | `fail_on_vulnerabilities` | false | `true` | Fail the action when vulnerabilities are found |
 | `github_token` | true | N/A | GitHub Access Token. Use `${{ secrets.GITHUB_TOKEN }}` |
@@ -85,6 +86,7 @@ jobs:
           issue_assignees: oke-py
           issue_labels: vulnerability,test
           dedupe_issues: true
+          dedupe_comments: true
 ```
 
 ---
