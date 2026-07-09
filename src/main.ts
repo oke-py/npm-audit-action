@@ -5,19 +5,34 @@ import { Audit } from './audit.js'
 import { getInputs } from './inputs.js'
 import { REPORT_MARKER_LENGTH } from './issue.js'
 import { handleIssueFlow } from './issue-flow.js'
-import { handlePullRequest } from './pr-flow.js'
+import { RESOLVED_COMMENT_RESERVED_LENGTH } from './pr.js'
+import { handlePullRequest, resolvePullRequestComments } from './pr-flow.js'
 
-function getPullRequestNumber(): number {
+// biome-ignore lint/suspicious/noExplicitAny: the event payload is arbitrary JSON
+function readEventPayload(): any {
   const eventPath = process.env.GITHUB_EVENT_PATH
   if (!eventPath) {
     throw new Error('GITHUB_EVENT_PATH is not set')
   }
-  const payload = JSON.parse(fs.readFileSync(eventPath, 'utf8'))
+  return JSON.parse(fs.readFileSync(eventPath, 'utf8'))
+}
+
+function getPullRequestNumber(): number {
+  const payload = readEventPayload()
   const number = payload?.pull_request?.number ?? payload?.number
   if (typeof number !== 'number') {
     throw new Error('Failed to read the pull request number from the event')
   }
   return number
+}
+
+function getPullRequestHeadSha(): string {
+  const payload = readEventPayload()
+  const sha = payload?.pull_request?.head?.sha ?? process.env.GITHUB_SHA
+  if (typeof sha !== 'string' || sha === '') {
+    throw new Error('Failed to read the head SHA from the event')
+  }
+  return sha
 }
 
 export async function run(): Promise<void> {
@@ -56,6 +71,36 @@ export async function run(): Promise<void> {
     core.info(audit.stdout)
     core.setOutput('npm_audit', audit.stdout)
 
+    if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+      if (audit.foundVulnerability()) {
+        const octokit = new Octokit({
+          auth: inputs.token
+        })
+        await handlePullRequest(
+          octokit,
+          getPullRequestNumber(),
+          audit.strippedStdout(
+            inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0
+          ),
+          {
+            createPRComments: inputs.createPRComments,
+            resolvePRComments: inputs.resolvePRComments,
+            failOnVulnerabilities: inputs.failOnVulnerabilities
+          }
+        )
+      } else if (inputs.resolvePRComments) {
+        const octokit = new Octokit({
+          auth: inputs.token
+        })
+        await resolvePullRequestComments(
+          octokit,
+          getPullRequestNumber(),
+          getPullRequestHeadSha()
+        )
+      }
+      return
+    }
+
     if (audit.foundVulnerability()) {
       // vulnerabilities are found
 
@@ -63,19 +108,6 @@ export async function run(): Promise<void> {
       const octokit = new Octokit({
         auth: inputs.token
       })
-
-      if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
-        await handlePullRequest(
-          octokit,
-          getPullRequestNumber(),
-          audit.strippedStdout(),
-          {
-            createPRComments: inputs.createPRComments,
-            failOnVulnerabilities: inputs.failOnVulnerabilities
-          }
-        )
-        return
-      }
 
       core.debug('open an issue')
       const auditOutput = audit.strippedStdout(

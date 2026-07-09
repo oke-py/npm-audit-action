@@ -10,6 +10,7 @@ describe('getInputs', () => {
     process.env.INPUT_JSON_FLAG = 'false'
     process.env.INPUT_FAIL_ON_VULNERABILITIES = 'false'
     process.env.INPUT_CREATE_PR_COMMENTS = 'true'
+    process.env.INPUT_RESOLVE_PR_COMMENTS = 'false'
     process.env.INPUT_CREATE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_ISSUES = 'false'
     process.env.INPUT_DEDUPE_COMMENTS = 'false'
@@ -36,6 +37,12 @@ describe('getInputs', () => {
     process.env.INPUT_DEDUPE_COMMENTS = 'true'
 
     expect(getInputs().dedupeComments).toBe(true)
+  })
+
+  test('parses resolve_pr_comments', () => {
+    process.env.INPUT_RESOLVE_PR_COMMENTS = 'true'
+
+    expect(getInputs().resolvePRComments).toBe(true)
   })
 
   test('throws on invalid audit_level', () => {

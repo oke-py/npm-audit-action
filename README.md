@@ -42,6 +42,7 @@ permissions:
 | `json_flag` | false | `false` | Run `npm audit` with `--json` |
 | `production_flag` | false | `false` | Run `npm audit` with `--omit=dev` |
 | `registry` | false | N/A | Registry URL passed to `npm audit` via the `--registry` flag (e.g. `https://registry.npmjs.org`) |
+| `resolve_pr_comments` | false | `false` | Edit previous report comments on the pull request (collapse the report and note the resolution) when vulnerabilities are no longer found. Effective only with `create_pr_comments: true` |
 | `working_directory` | false | N/A | Directory containing `package.json` |
 
 ### Outputs

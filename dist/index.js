@@ -32245,6 +32245,7 @@ function getInputs() {
         jsonFlag: getBooleanInput('json_flag'),
         failOnVulnerabilities: getBooleanInput('fail_on_vulnerabilities'),
         createPRComments: getBooleanInput('create_pr_comments'),
+        resolvePRComments: getBooleanInput('resolve_pr_comments'),
         createIssues: getBooleanInput('create_issues'),
         dedupeIssues: getBooleanInput('dedupe_issues'),
         dedupeComments: getBooleanInput('dedupe_comments'),
@@ -33298,6 +33299,30 @@ async function handleIssueFlow(octokit, auditOutput, options) {
     info('This repo has some vulnerabilities');
 }
 
+// Hidden marker appended to comments already edited by resolveComments so
+// that they are not edited twice
+const RESOLVED_MARKER = '<!-- npm-audit-action:resolved -->';
+function commitUrl(owner, repo, sha) {
+    return `https://github.com/${owner}/${repo}/commit/${sha}`;
+}
+function buildResolvedBody(originalBody, owner, repo, headSha) {
+    return `✅ npm audit no longer reports vulnerabilities as of [\`${headSha.slice(0, 7)}\`](${commitUrl(owner, repo, headSha)}).
+
+<details><summary>Original report</summary>
+
+${originalBody}
+
+</details>
+
+${RESOLVED_MARKER}`;
+}
+// Length reserved when truncating the audit output so that the comment stays
+// within the GitHub body length limit after the report marker is appended on
+// posting and the resolved wrapper is added on a later edit. GitHub caps
+// owners at 39 and repositories at 100 characters, so reserving for the
+// longest possible commit URL is always enough.
+const RESOLVED_COMMENT_RESERVED_LENGTH = REPORT_MARKER_LENGTH +
+    buildResolvedBody('', 'o'.repeat(39), 'r'.repeat(100), '0'.repeat(40)).length;
 async function createComment(octokit, owner, repo, prNumber, body) {
     await octokit.issues.createComment({
         owner,
@@ -33306,10 +33331,44 @@ async function createComment(octokit, owner, repo, prNumber, body) {
         body
     });
 }
+async function resolveComments(octokit, owner, repo, prNumber, headSha) {
+    const unresolved = [];
+    const perPage = 100;
+    for (let page = 1;; page++) {
+        const { data: comments } = await octokit.issues.listComments({
+            owner,
+            repo,
+            issue_number: prNumber,
+            per_page: perPage,
+            page
+        });
+        for (const comment of comments) {
+            if (comment.body?.includes(REPORT_MARKER) &&
+                !comment.body.includes(RESOLVED_MARKER)) {
+                unresolved.push({ id: comment.id, body: comment.body });
+            }
+        }
+        if (comments.length < perPage) {
+            break;
+        }
+    }
+    for (const comment of unresolved) {
+        await octokit.issues.updateComment({
+            owner,
+            repo,
+            comment_id: comment.id,
+            body: buildResolvedBody(comment.body, owner, repo, headSha)
+        });
+    }
+    return unresolved.length;
+}
 
 async function handlePullRequest(octokit, prNumber, auditOutput, options) {
     if (options.createPRComments) {
-        await createComment(octokit, context.repo.owner, context.repo.repo, prNumber, auditOutput);
+        const body = options.resolvePRComments
+            ? appendReportMarker(auditOutput)
+            : auditOutput;
+        await createComment(octokit, context.repo.owner, context.repo.repo, prNumber, body);
     }
     if (options.failOnVulnerabilities) {
         setFailed('This repo has some vulnerabilities');
@@ -33317,18 +33376,36 @@ async function handlePullRequest(octokit, prNumber, auditOutput, options) {
     }
     info('This repo has some vulnerabilities');
 }
+async function resolvePullRequestComments(octokit, prNumber, headSha) {
+    const resolved = await resolveComments(octokit, context.repo.owner, context.repo.repo, prNumber, headSha);
+    if (resolved > 0) {
+        info(`Marked ${resolved} report comment(s) on PR #${prNumber} as resolved`);
+    }
+}
 
-function getPullRequestNumber() {
+// biome-ignore lint/suspicious/noExplicitAny: the event payload is arbitrary JSON
+function readEventPayload() {
     const eventPath = process.env.GITHUB_EVENT_PATH;
     if (!eventPath) {
         throw new Error('GITHUB_EVENT_PATH is not set');
     }
-    const payload = JSON.parse(fs$1.readFileSync(eventPath, 'utf8'));
+    return JSON.parse(fs$1.readFileSync(eventPath, 'utf8'));
+}
+function getPullRequestNumber() {
+    const payload = readEventPayload();
     const number = payload?.pull_request?.number ?? payload?.number;
     if (typeof number !== 'number') {
         throw new Error('Failed to read the pull request number from the event');
     }
     return number;
+}
+function getPullRequestHeadSha() {
+    const payload = readEventPayload();
+    const sha = payload?.pull_request?.head?.sha ?? process.env.GITHUB_SHA;
+    if (typeof sha !== 'string' || sha === '') {
+        throw new Error('Failed to read the head SHA from the event');
+    }
+    return sha;
 }
 async function run() {
     try {
@@ -33353,19 +33430,31 @@ async function run() {
         audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag, inputs.registry);
         info(audit.stdout);
         setOutput('npm_audit', audit.stdout);
+        if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+            if (audit.foundVulnerability()) {
+                const octokit = new Octokit({
+                    auth: inputs.token
+                });
+                await handlePullRequest(octokit, getPullRequestNumber(), audit.strippedStdout(inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0), {
+                    createPRComments: inputs.createPRComments,
+                    resolvePRComments: inputs.resolvePRComments,
+                    failOnVulnerabilities: inputs.failOnVulnerabilities
+                });
+            }
+            else if (inputs.resolvePRComments) {
+                const octokit = new Octokit({
+                    auth: inputs.token
+                });
+                await resolvePullRequestComments(octokit, getPullRequestNumber(), getPullRequestHeadSha());
+            }
+            return;
+        }
         if (audit.foundVulnerability()) {
             // vulnerabilities are found
             // get GitHub information
             const octokit = new Octokit({
                 auth: inputs.token
             });
-            if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
-                await handlePullRequest(octokit, getPullRequestNumber(), audit.strippedStdout(), {
-                    createPRComments: inputs.createPRComments,
-                    failOnVulnerabilities: inputs.failOnVulnerabilities
-                });
-                return;
-            }
             debug('open an issue');
             const auditOutput = audit.strippedStdout(inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0);
             await handleIssueFlow(octokit, auditOutput, {
