@@ -150,6 +150,70 @@ describe('buildMarkdownReport', () => {
     expect(body).toContain('omitted')
   })
 
+  test('renders empty cells and no fix for missing fields', () => {
+    const report = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        broken: { severity: 'unknown' },
+        unrated: { name: 'unrated', fixAvailable: null }
+      }
+    })
+
+    const body = buildMarkdownReport(report) as string
+
+    expect(body).toContain('|  | unknown |  |  | no |')
+    expect(body).toContain('| unrated |  |  |  | no |')
+  })
+
+  test('skips via entries that are not advisories or package names', () => {
+    const report = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        odd: {
+          name: 'odd',
+          severity: 'low',
+          via: [
+            123,
+            null,
+            {},
+            { title: 'No link advisory' },
+            { url: 'https://example.com/untitled' }
+          ],
+          range: '*',
+          fixAvailable: true
+        }
+      }
+    })
+
+    const body = buildMarkdownReport(report) as string
+
+    expect(body).toContain(
+      '| odd | low | * | No link advisory<br>[](https://example.com/untitled) | yes |'
+    )
+  })
+
+  test('fills in missing metadata counts and total', () => {
+    const report = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        one: { name: 'one', severity: 'high', range: '*', fixAvailable: true }
+      },
+      metadata: { vulnerabilities: { high: 1 } }
+    })
+
+    const body = buildMarkdownReport(report) as string
+
+    expect(body).toContain(
+      '**1 vulnerability** (critical: 0, high: 1, moderate: 0, low: 0, info: 0)'
+    )
+  })
+
+  test('returns null when nothing fits within the reserved length', () => {
+    expect(
+      buildMarkdownReport(reportWithVulnerabilities(5), MAX_BODY_LENGTH)
+    ).toBeNull()
+  })
+
   test('returns null for non-JSON output', () => {
     expect(buildMarkdownReport('found 3 vulnerabilities')).toBeNull()
   })
