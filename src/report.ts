@@ -33,8 +33,25 @@ const TABLE_HEADER = `| Package | Severity | Vulnerable versions | Advisory | Fi
 |---|---|---|---|---|
 `
 
+// Backslash-escape markdown syntax so cell content renders literally, and
+// replace newlines, which would end the table row
 function escapeCell(value: string): string {
-  return value.replace(/\r?\n/g, ' ').replace(/\|/g, '\\|')
+  return value.replace(/\r?\n/g, ' ').replace(/[[\]`<>|]/g, '\\$&')
+}
+
+// Only http(s) URLs free of characters that would break out of the markdown
+// link destination are rendered as links
+function isRenderableUrl(value: string): boolean {
+  if (/[\s()<>]/.test(value)) {
+    return false
+  }
+  let url: URL
+  try {
+    url = new URL(value)
+  } catch {
+    return false
+  }
+  return url.protocol === 'http:' || url.protocol === 'https:'
 }
 
 function advisoryCell(via: Vulnerability['via']): string {
@@ -51,7 +68,7 @@ function advisoryCell(via: Vulnerability['via']): string {
       continue
     }
     const title = escapeCell(entry.title ?? '')
-    if (typeof entry.url === 'string' && entry.url !== '') {
+    if (typeof entry.url === 'string' && isRenderableUrl(entry.url)) {
       parts.push(`[${title}](${entry.url})`)
     } else if (title !== '') {
       parts.push(title)

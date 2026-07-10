@@ -33393,8 +33393,25 @@ const SEVERITIES = ['critical', 'high', 'moderate', 'low', 'info'];
 const TABLE_HEADER = `| Package | Severity | Vulnerable versions | Advisory | Fix available |
 |---|---|---|---|---|
 `;
+// Backslash-escape markdown syntax so cell content renders literally, and
+// replace newlines, which would end the table row
 function escapeCell(value) {
-    return value.replace(/\r?\n/g, ' ').replace(/\|/g, '\\|');
+    return value.replace(/\r?\n/g, ' ').replace(/[[\]`<>|]/g, '\\$&');
+}
+// Only http(s) URLs free of characters that would break out of the markdown
+// link destination are rendered as links
+function isRenderableUrl(value) {
+    if (/[\s()<>]/.test(value)) {
+        return false;
+    }
+    let url;
+    try {
+        url = new URL(value);
+    }
+    catch {
+        return false;
+    }
+    return url.protocol === 'http:' || url.protocol === 'https:';
 }
 function advisoryCell(via) {
     if (!Array.isArray(via)) {
@@ -33410,7 +33427,7 @@ function advisoryCell(via) {
             continue;
         }
         const title = escapeCell(entry.title ?? '');
-        if (typeof entry.url === 'string' && entry.url !== '') {
+        if (typeof entry.url === 'string' && isRenderableUrl(entry.url)) {
             parts.push(`[${title}](${entry.url})`);
         }
         else if (title !== '') {

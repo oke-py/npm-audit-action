@@ -46,10 +46,10 @@ describe('buildMarkdownReport', () => {
       '| Package | Severity | Vulnerable versions | Advisory | Fix available |'
     )
     expect(body).toContain(
-      '| lodash | high | <4.17.21 | [Command Injection in lodash](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) | lodash@4.17.21 |'
+      '| lodash | high | \\<4.17.21 | [Command Injection in lodash](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) | lodash@4.17.21 |'
     )
     expect(body).toContain(
-      '| minimist | critical | <0.2.4 | [Prototype Pollution in minimist](https://github.com/advisories/GHSA-xvch-5gv4-984h) | yes |'
+      '| minimist | critical | \\<0.2.4 | [Prototype Pollution in minimist](https://github.com/advisories/GHSA-xvch-5gv4-984h) | yes |'
     )
     expect(body).toContain(
       '| mkdirp | critical | 0.4.1 - 0.5.1 | via minimist | no |'
@@ -68,14 +68,14 @@ describe('buildMarkdownReport', () => {
     expect(mkdirp).toBeLessThan(lodash)
   })
 
-  test('escapes pipes and newlines in cells', () => {
+  test('escapes markdown syntax and newlines in cells', () => {
     const report = JSON.stringify({
       auditReportVersion: 2,
       vulnerabilities: {
         evil: {
           name: 'evil',
           severity: 'low',
-          via: [{ title: 'a | b\nc' }],
+          via: [{ title: 'a | b\nc [link](x) `code` <img>' }],
           range: '<1.0.0 || >2.0.0',
           fixAvailable: false
         }
@@ -85,7 +85,34 @@ describe('buildMarkdownReport', () => {
     const body = buildMarkdownReport(report) as string
 
     expect(body).toContain(
-      '| evil | low | <1.0.0 \\|\\| >2.0.0 | a \\| b c | no |'
+      '| evil | low | \\<1.0.0 \\|\\| \\>2.0.0 | a \\| b c \\[link\\](x) \\`code\\` \\<img\\> | no |'
+    )
+  })
+
+  test('renders only http(s) urls without breakout characters as links', () => {
+    const report = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        odd: {
+          name: 'odd',
+          severity: 'low',
+          via: [
+            { title: 'Scheme', url: 'javascript:alert(1)' },
+            { title: 'Paren', url: 'https://example.com/a)b' },
+            { title: 'Space', url: 'https://example.com/a b' },
+            { title: 'Empty', url: '' },
+            { title: 'Fine', url: 'https://example.com/ok' }
+          ],
+          range: '*',
+          fixAvailable: false
+        }
+      }
+    })
+
+    const body = buildMarkdownReport(report) as string
+
+    expect(body).toContain(
+      '| odd | low | * | Scheme<br>Paren<br>Space<br>Empty<br>[Fine](https://example.com/ok) | no |'
     )
   })
 
@@ -131,7 +158,7 @@ describe('buildMarkdownReport', () => {
     expect(rows.length).toBeLessThan(total)
     for (const row of rows) {
       expect(row).toMatch(
-        /^\| package-\d{4} \| high \| <1\.0\.0 \| \[.+\) \| yes \|$/
+        /^\| package-\d{4} \| high \| \\<1\.0\.0 \| \[.+\) \| yes \|$/
       )
     }
     expect(body).toContain(
