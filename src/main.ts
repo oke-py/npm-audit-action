@@ -3,11 +3,11 @@ import * as core from '@actions/core'
 import { Octokit } from '@octokit/rest'
 import { Audit } from './audit.js'
 import { getInputs, type ReportFormat } from './inputs.js'
-import { buildMarkdownReport } from './report.js'
 import { REPORT_MARKER_LENGTH } from './issue.js'
 import { handleIssueFlow } from './issue-flow.js'
 import { RESOLVED_COMMENT_RESERVED_LENGTH } from './pr.js'
 import { handlePullRequest, resolvePullRequestComments } from './pr-flow.js'
+import { buildMarkdownReport } from './report.js'
 
 // biome-ignore lint/suspicious/noExplicitAny: the event payload is arbitrary JSON
 function readEventPayload(): any {
