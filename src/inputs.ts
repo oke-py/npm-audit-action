@@ -35,11 +35,16 @@ function parseList(value: string): string[] | undefined {
   return parsed.length > 0 ? parsed : undefined
 }
 
+const reportFormats = new Set(['text', 'markdown'])
+
+export type ReportFormat = 'text' | 'markdown'
+
 export type Inputs = {
   auditLevel: string
   registry: string
   productionFlag: boolean
   jsonFlag: boolean
+  reportFormat: ReportFormat
   failOnVulnerabilities: boolean
   createPRComments: boolean
   resolvePRComments: boolean
@@ -65,11 +70,18 @@ export function getInputs(): Inputs {
     throw new Error('Invalid input: registry must be a valid http(s) URL')
   }
 
+  const reportFormat =
+    core.getInput('report_format', { trimWhitespace: true }) || 'text'
+  if (!reportFormats.has(reportFormat)) {
+    throw new Error('Invalid input: report_format')
+  }
+
   return {
     auditLevel,
     registry,
     productionFlag: core.getBooleanInput('production_flag'),
     jsonFlag: core.getBooleanInput('json_flag'),
+    reportFormat: reportFormat as ReportFormat,
     failOnVulnerabilities: core.getBooleanInput('fail_on_vulnerabilities'),
     createPRComments: core.getBooleanInput('create_pr_comments'),
     resolvePRComments: core.getBooleanInput('resolve_pr_comments'),

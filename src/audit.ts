@@ -5,7 +5,7 @@ const SPAWN_PROCESS_BUFFER_SIZE = 10485760 // 10MiB
 
 // GitHub rejects issue and comment bodies longer than 65536 characters
 // with "422 Validation Failed: body is too long"
-const MAX_BODY_LENGTH = 65536
+export const MAX_BODY_LENGTH = 65536
 const TRUNCATION_NOTICE =
   '\n... (truncated)\n```\n\n**Note:** the `npm audit` output was truncated because it exceeds the maximum body length GitHub accepts.'
 
