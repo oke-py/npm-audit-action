@@ -68,14 +68,14 @@ describe('buildMarkdownReport', () => {
     expect(mkdirp).toBeLessThan(lodash)
   })
 
-  test('escapes markdown syntax and newlines in cells', () => {
+  test('escapes markdown syntax and line breaks in cells', () => {
     const report = JSON.stringify({
       auditReportVersion: 2,
       vulnerabilities: {
         evil: {
           name: 'evil',
           severity: 'low',
-          via: [{ title: 'a | b\nc [link](x) `code` <img>' }],
+          via: [{ title: 'a | b\nc\rd [link](x) `code` <img> *em*' }],
           range: '<1.0.0 || >2.0.0',
           fixAvailable: false
         }
@@ -85,8 +85,27 @@ describe('buildMarkdownReport', () => {
     const body = buildMarkdownReport(report) as string
 
     expect(body).toContain(
-      '| evil | low | \\<1.0.0 \\|\\| \\>2.0.0 | a \\| b c \\[link\\](x) \\`code\\` \\<img\\> | no |'
+      '| evil | low | \\<1.0.0 \\|\\| \\>2.0.0 | a \\| b c d \\[link\\](x) \\`code\\` \\<img\\> \\*em\\* | no |'
     )
+  })
+
+  test('strips terminal escape sequences from cells', () => {
+    const report = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        ansi: {
+          name: 'ansi',
+          severity: 'low',
+          via: [{ title: '\u001b[31mCritical\u001b[0m bug' }],
+          range: '1.0.0',
+          fixAvailable: false
+        }
+      }
+    })
+
+    const body = buildMarkdownReport(report) as string
+
+    expect(body).toContain('| ansi | low | 1.0.0 | Critical bug | no |')
   })
 
   test('renders only http(s) urls without breakout characters as links', () => {
@@ -100,6 +119,7 @@ describe('buildMarkdownReport', () => {
             { title: 'Scheme', url: 'javascript:alert(1)' },
             { title: 'Paren', url: 'https://example.com/a)b' },
             { title: 'Space', url: 'https://example.com/a b' },
+            { title: 'Pipe', url: 'https://example.com/a|b' },
             { title: 'Empty', url: '' },
             { title: 'Fine', url: 'https://example.com/ok' }
           ],
@@ -112,7 +132,7 @@ describe('buildMarkdownReport', () => {
     const body = buildMarkdownReport(report) as string
 
     expect(body).toContain(
-      '| odd | low | * | Scheme<br>Paren<br>Space<br>Empty<br>[Fine](https://example.com/ok) | no |'
+      '| odd | low | \\* | Scheme<br>Paren<br>Space<br>Pipe<br>Empty<br>[Fine](https://example.com/ok) | no |'
     )
   })
 
@@ -215,7 +235,7 @@ describe('buildMarkdownReport', () => {
     const body = buildMarkdownReport(report) as string
 
     expect(body).toContain(
-      '| odd | low | * | No link advisory<br>[](https://example.com/untitled) | yes |'
+      '| odd | low | \\* | No link advisory<br>[](https://example.com/untitled) | yes |'
     )
   })
 
@@ -256,6 +276,22 @@ describe('buildMarkdownReport', () => {
   test('returns null for JSON without vulnerabilities', () => {
     expect(buildMarkdownReport('{"auditReportVersion":2}')).toBeNull()
     expect(buildMarkdownReport('null')).toBeNull()
+  })
+
+  test('counts unrecognized severities as other in the summary', () => {
+    const report = JSON.stringify({
+      auditReportVersion: 2,
+      vulnerabilities: {
+        strange: { name: 'strange', severity: 'unknown' },
+        unrated: { name: 'unrated' }
+      }
+    })
+
+    const body = buildMarkdownReport(report) as string
+
+    expect(body).toContain(
+      '**2 vulnerabilities** (critical: 0, high: 0, moderate: 0, low: 0, info: 0, other: 2)'
+    )
   })
 
   test('computes the summary from vulnerabilities when metadata is missing', () => {

@@ -47,7 +47,7 @@ function buildReportBody(
       return markdown
     }
     core.warning(
-      'Failed to build the markdown report from the `npm audit --json` output; falling back to the text report'
+      'Failed to build the markdown report from the `npm audit --json` output; posting the raw audit output in a code block instead'
     )
   }
   return audit.strippedStdout(reservedLength)

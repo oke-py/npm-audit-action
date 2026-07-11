@@ -1,3 +1,4 @@
+import { stripVTControlCharacters } from 'node:util'
 import { MAX_BODY_LENGTH } from './audit.js'
 
 // npm v7+ (`auditReportVersion: 2`) JSON report shapes, limited to the
@@ -33,16 +34,19 @@ const TABLE_HEADER = `| Package | Severity | Vulnerable versions | Advisory | Fi
 |---|---|---|---|---|
 `
 
-// Backslash-escape markdown syntax so cell content renders literally, and
-// replace newlines, which would end the table row
+// Strip terminal escape sequences and backslash-escape markdown syntax so
+// cell content renders literally, replacing line breaks (including a lone
+// \r, which GFM also treats as one), which would end the table row
 function escapeCell(value: string): string {
-  return value.replace(/\r?\n/g, ' ').replace(/[[\]`<>|]/g, '\\$&')
+  return stripVTControlCharacters(value)
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/[[\]`<>|*]/g, '\\$&')
 }
 
 // Only http(s) URLs free of characters that would break out of the markdown
-// link destination are rendered as links
+// link destination or split the table cell are rendered as links
 function isRenderableUrl(value: string): boolean {
-  if (/[\s()<>]/.test(value)) {
+  if (/[\s()<>|]/.test(value)) {
     return false
   }
   let url: URL
@@ -98,30 +102,35 @@ function buildSummary(
   vulnerabilities: Vulnerability[]
 ): string {
   const counts: Record<string, number> = {}
-  let total = 0
+  for (const severity of SEVERITIES) {
+    counts[severity] = 0
+  }
+  let other = 0
+  let total = vulnerabilities.length
   if (metadata?.vulnerabilities) {
     for (const severity of SEVERITIES) {
       counts[severity] = metadata.vulnerabilities[severity] ?? 0
     }
-    total = metadata.vulnerabilities.total ?? vulnerabilities.length
+    total = metadata.vulnerabilities.total ?? total
   } else {
-    for (const severity of SEVERITIES) {
-      counts[severity] = 0
-    }
     for (const vulnerability of vulnerabilities) {
       const severity = vulnerability.severity ?? ''
       if (severity in counts) {
         counts[severity]++
+      } else {
+        other++
       }
     }
-    total = vulnerabilities.length
   }
 
   const breakdown = SEVERITIES.map(
     (severity) => `${severity}: ${counts[severity]}`
-  ).join(', ')
+  )
+  if (other > 0) {
+    breakdown.push(`other: ${other}`)
+  }
   const noun = total === 1 ? 'vulnerability' : 'vulnerabilities'
-  return `**${total} ${noun}** (${breakdown})`
+  return `**${total} ${noun}** (${breakdown.join(', ')})`
 }
 
 function buildRow(vulnerability: Vulnerability): string {

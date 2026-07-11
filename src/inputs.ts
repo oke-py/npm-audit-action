@@ -35,9 +35,13 @@ function parseList(value: string): string[] | undefined {
   return parsed.length > 0 ? parsed : undefined
 }
 
-const reportFormats = new Set(['text', 'markdown'])
+const reportFormats = ['text', 'markdown'] as const
 
-export type ReportFormat = 'text' | 'markdown'
+export type ReportFormat = (typeof reportFormats)[number]
+
+function isReportFormat(value: string): value is ReportFormat {
+  return (reportFormats as readonly string[]).includes(value)
+}
 
 export type Inputs = {
   auditLevel: string
@@ -72,7 +76,7 @@ export function getInputs(): Inputs {
 
   const reportFormat =
     core.getInput('report_format', { trimWhitespace: true }) || 'text'
-  if (!reportFormats.has(reportFormat)) {
+  if (!isReportFormat(reportFormat)) {
     throw new Error('Invalid input: report_format')
   }
 
@@ -81,7 +85,7 @@ export function getInputs(): Inputs {
     registry,
     productionFlag: core.getBooleanInput('production_flag'),
     jsonFlag: core.getBooleanInput('json_flag'),
-    reportFormat: reportFormat as ReportFormat,
+    reportFormat,
     failOnVulnerabilities: core.getBooleanInput('fail_on_vulnerabilities'),
     createPRComments: core.getBooleanInput('create_pr_comments'),
     resolvePRComments: core.getBooleanInput('resolve_pr_comments'),

@@ -32229,7 +32229,10 @@ function parseList(value) {
         .filter(Boolean);
     return parsed.length > 0 ? parsed : undefined;
 }
-const reportFormats = new Set(['text', 'markdown']);
+const reportFormats = ['text', 'markdown'];
+function isReportFormat(value) {
+    return reportFormats.includes(value);
+}
 function getInputs() {
     const auditLevel = getInput('audit_level', { trimWhitespace: true });
     if (!auditLevels.has(auditLevel)) {
@@ -32240,7 +32243,7 @@ function getInputs() {
         throw new Error('Invalid input: registry must be a valid http(s) URL');
     }
     const reportFormat = getInput('report_format', { trimWhitespace: true }) || 'text';
-    if (!reportFormats.has(reportFormat)) {
+    if (!isReportFormat(reportFormat)) {
         throw new Error('Invalid input: report_format');
     }
     return {
@@ -32248,7 +32251,7 @@ function getInputs() {
         registry,
         productionFlag: getBooleanInput('production_flag'),
         jsonFlag: getBooleanInput('json_flag'),
-        reportFormat: reportFormat,
+        reportFormat,
         failOnVulnerabilities: getBooleanInput('fail_on_vulnerabilities'),
         createPRComments: getBooleanInput('create_pr_comments'),
         resolvePRComments: getBooleanInput('resolve_pr_comments'),
@@ -33393,15 +33396,18 @@ const SEVERITIES = ['critical', 'high', 'moderate', 'low', 'info'];
 const TABLE_HEADER = `| Package | Severity | Vulnerable versions | Advisory | Fix available |
 |---|---|---|---|---|
 `;
-// Backslash-escape markdown syntax so cell content renders literally, and
-// replace newlines, which would end the table row
+// Strip terminal escape sequences and backslash-escape markdown syntax so
+// cell content renders literally, replacing line breaks (including a lone
+// \r, which GFM also treats as one), which would end the table row
 function escapeCell(value) {
-    return value.replace(/\r?\n/g, ' ').replace(/[[\]`<>|]/g, '\\$&');
+    return stripVTControlCharacters(value)
+        .replace(/[\r\n]+/g, ' ')
+        .replace(/[[\]`<>|*]/g, '\\$&');
 }
 // Only http(s) URLs free of characters that would break out of the markdown
-// link destination are rendered as links
+// link destination or split the table cell are rendered as links
 function isRenderableUrl(value) {
-    if (/[\s()<>]/.test(value)) {
+    if (/[\s()<>|]/.test(value)) {
         return false;
     }
     let url;
@@ -33452,28 +33458,34 @@ function severityRank(severity) {
 }
 function buildSummary(metadata, vulnerabilities) {
     const counts = {};
-    let total = 0;
+    for (const severity of SEVERITIES) {
+        counts[severity] = 0;
+    }
+    let other = 0;
+    let total = vulnerabilities.length;
     if (metadata?.vulnerabilities) {
         for (const severity of SEVERITIES) {
             counts[severity] = metadata.vulnerabilities[severity] ?? 0;
         }
-        total = metadata.vulnerabilities.total ?? vulnerabilities.length;
+        total = metadata.vulnerabilities.total ?? total;
     }
     else {
-        for (const severity of SEVERITIES) {
-            counts[severity] = 0;
-        }
         for (const vulnerability of vulnerabilities) {
             const severity = vulnerability.severity ?? '';
             if (severity in counts) {
                 counts[severity]++;
             }
+            else {
+                other++;
+            }
         }
-        total = vulnerabilities.length;
     }
-    const breakdown = SEVERITIES.map((severity) => `${severity}: ${counts[severity]}`).join(', ');
+    const breakdown = SEVERITIES.map((severity) => `${severity}: ${counts[severity]}`);
+    if (other > 0) {
+        breakdown.push(`other: ${other}`);
+    }
     const noun = total === 1 ? 'vulnerability' : 'vulnerabilities';
-    return `**${total} ${noun}** (${breakdown})`;
+    return `**${total} ${noun}** (${breakdown.join(', ')})`;
 }
 function buildRow(vulnerability) {
     const cells = [
@@ -33567,7 +33579,7 @@ function buildReportBody(audit, reportFormat, reservedLength) {
         if (markdown !== null) {
             return markdown;
         }
-        warning('Failed to build the markdown report from the `npm audit --json` output; falling back to the text report');
+        warning('Failed to build the markdown report from the `npm audit --json` output; posting the raw audit output in a code block instead');
     }
     return audit.strippedStdout(reservedLength);
 }

@@ -185,7 +185,7 @@ describe('run: pr', () => {
     const body = vi.mocked(pr).createComment.mock.calls[0][4]
     expect(body).toBe('text-report')
     expect(core.warning).toHaveBeenCalledWith(
-      expect.stringContaining('falling back to the text report')
+      expect.stringContaining('posting the raw audit output')
     )
   })
 
