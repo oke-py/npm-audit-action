@@ -17,6 +17,7 @@ describe('getInputs', () => {
     process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
     process.env.INPUT_GITHUB_TOKEN = 'token'
     delete process.env.INPUT_REGISTRY
+    delete process.env.INPUT_REPORT_FORMAT
     delete process.env.INPUT_ISSUE_ASSIGNEES
     delete process.env.INPUT_ISSUE_LABELS
     delete process.env.INPUT_ISSUE_TYPE
@@ -82,6 +83,20 @@ describe('getInputs', () => {
   test('throws on registry containing shell metacharacters', () => {
     process.env.INPUT_REGISTRY = 'https://registry.npmjs.org/&whoami'
     expect(() => getInputs()).toThrow('Invalid input: registry')
+  })
+
+  test('defaults report_format to text when not set', () => {
+    expect(getInputs().reportFormat).toBe('text')
+  })
+
+  test('parses report_format markdown', () => {
+    process.env.INPUT_REPORT_FORMAT = 'markdown'
+    expect(getInputs().reportFormat).toBe('markdown')
+  })
+
+  test('throws on invalid report_format', () => {
+    process.env.INPUT_REPORT_FORMAT = 'html'
+    expect(() => getInputs()).toThrow('Invalid input: report_format')
   })
 
   test('returns undefined assignees, labels, and type when not set', () => {

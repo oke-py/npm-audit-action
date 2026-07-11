@@ -2,11 +2,12 @@ import * as fs from 'node:fs'
 import * as core from '@actions/core'
 import { Octokit } from '@octokit/rest'
 import { Audit } from './audit.js'
-import { getInputs } from './inputs.js'
+import { getInputs, type ReportFormat } from './inputs.js'
 import { REPORT_MARKER_LENGTH } from './issue.js'
 import { handleIssueFlow } from './issue-flow.js'
 import { RESOLVED_COMMENT_RESERVED_LENGTH } from './pr.js'
 import { handlePullRequest, resolvePullRequestComments } from './pr-flow.js'
+import { buildMarkdownReport } from './report.js'
 
 // biome-ignore lint/suspicious/noExplicitAny: the event payload is arbitrary JSON
 function readEventPayload(): any {
@@ -35,6 +36,23 @@ function getPullRequestHeadSha(): string {
   return sha
 }
 
+function buildReportBody(
+  audit: Audit,
+  reportFormat: ReportFormat,
+  reservedLength: number
+): string {
+  if (reportFormat === 'markdown') {
+    const markdown = buildMarkdownReport(audit.stdout, reservedLength)
+    if (markdown !== null) {
+      return markdown
+    }
+    core.warning(
+      'Failed to build the markdown report from the `npm audit --json` output; posting the raw audit output in a code block instead'
+    )
+  }
+  return audit.strippedStdout(reservedLength)
+}
+
 export async function run(): Promise<void> {
   try {
     const inputs = getInputs()
@@ -61,11 +79,13 @@ export async function run(): Promise<void> {
     core.info(`Current working directory: ${process.cwd()}`)
 
     // run `npm audit`
+    // the markdown report is built from the `npm audit --json` output, so
+    // report_format=markdown forces the --json flag
     const audit = new Audit()
     audit.run(
       inputs.auditLevel,
       inputs.productionFlag,
-      inputs.jsonFlag,
+      inputs.jsonFlag || inputs.reportFormat === 'markdown',
       inputs.registry
     )
     core.info(audit.stdout)
@@ -79,7 +99,9 @@ export async function run(): Promise<void> {
         await handlePullRequest(
           octokit,
           getPullRequestNumber(),
-          audit.strippedStdout(
+          buildReportBody(
+            audit,
+            inputs.reportFormat,
             inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0
           ),
           {
@@ -110,7 +132,9 @@ export async function run(): Promise<void> {
       })
 
       core.debug('open an issue')
-      const auditOutput = audit.strippedStdout(
+      const auditOutput = buildReportBody(
+        audit,
+        inputs.reportFormat,
         inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0
       )
       await handleIssueFlow(octokit, auditOutput, {

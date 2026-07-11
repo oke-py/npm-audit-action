@@ -37,10 +37,12 @@ describe('run: pr', () => {
     vi.mocked(pr).createComment.mockClear()
     vi.mocked(pr).resolveComments.mockClear()
     core.setFailed.mockClear()
+    core.warning.mockClear()
 
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
     process.env.INPUT_JSON_FLAG = 'false'
+    delete process.env.INPUT_REPORT_FORMAT
     process.env.GITHUB_EVENT_NAME = 'pull_request'
     process.env.GITHUB_EVENT_PATH = path.join(
       __dirname,
@@ -126,6 +128,65 @@ describe('run: pr', () => {
 
     await run()
     expect(pr.createComment).not.toHaveBeenCalled()
+  })
+
+  test('forces --json and posts a markdown report when report_format is markdown', async () => {
+    process.env.INPUT_REPORT_FORMAT = 'markdown'
+
+    const runMock = vi.fn()
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error-v2.json'))
+          .toString(),
+        run: runMock,
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return 'text-report'
+        }
+      }
+    })
+
+    vi.mocked(pr).createComment.mockResolvedValue()
+
+    await run()
+    expect(runMock).toHaveBeenCalledWith('low', false, true, '')
+    const body = vi.mocked(pr).createComment.mock.calls[0][4]
+    expect(body).toContain('## npm audit report')
+    expect(body).toContain('| lodash | high |')
+    expect(core.warning).not.toHaveBeenCalled()
+  })
+
+  test('falls back to the text report when the markdown report cannot be built', async () => {
+    process.env.INPUT_REPORT_FORMAT = 'markdown'
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return 'text-report'
+        }
+      }
+    })
+
+    vi.mocked(pr).createComment.mockResolvedValue()
+
+    await run()
+    const body = vi.mocked(pr).createComment.mock.calls[0][4]
+    expect(body).toBe('text-report')
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('posting the raw audit output')
+    )
   })
 
   test('resolves previous comments when vulnerabilities are gone and resolve_pr_comments is enabled', async () => {
@@ -248,6 +309,7 @@ describe('run: issue', () => {
     process.env.INPUT_AUDIT_LEVEL = 'low'
     process.env.INPUT_PRODUCTION_FLAG = 'false'
     process.env.INPUT_JSON_FLAG = 'false'
+    delete process.env.INPUT_REPORT_FORMAT
     process.env.GITHUB_EVENT_NAME = 'push'
     delete process.env.GITHUB_EVENT_PATH
     process.env.INPUT_GITHUB_TOKEN = '***'

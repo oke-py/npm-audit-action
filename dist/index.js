@@ -32229,6 +32229,10 @@ function parseList(value) {
         .filter(Boolean);
     return parsed.length > 0 ? parsed : undefined;
 }
+const reportFormats = ['text', 'markdown'];
+function isReportFormat(value) {
+    return reportFormats.includes(value);
+}
 function getInputs() {
     const auditLevel = getInput('audit_level', { trimWhitespace: true });
     if (!auditLevels.has(auditLevel)) {
@@ -32238,11 +32242,16 @@ function getInputs() {
     if (registry && !isValidRegistryUrl(registry)) {
         throw new Error('Invalid input: registry must be a valid http(s) URL');
     }
+    const reportFormat = getInput('report_format', { trimWhitespace: true }) || 'text';
+    if (!isReportFormat(reportFormat)) {
+        throw new Error('Invalid input: report_format');
+    }
     return {
         auditLevel,
         registry,
         productionFlag: getBooleanInput('production_flag'),
         jsonFlag: getBooleanInput('json_flag'),
+        reportFormat,
         failOnVulnerabilities: getBooleanInput('fail_on_vulnerabilities'),
         createPRComments: getBooleanInput('create_pr_comments'),
         resolvePRComments: getBooleanInput('resolve_pr_comments'),
@@ -33383,6 +33392,163 @@ async function resolvePullRequestComments(octokit, prNumber, headSha) {
     }
 }
 
+const SEVERITIES = ['critical', 'high', 'moderate', 'low', 'info'];
+const TABLE_HEADER = `| Package | Severity | Vulnerable versions | Advisory | Fix available |
+|---|---|---|---|---|
+`;
+// Strip terminal escape sequences and backslash-escape markdown syntax so
+// cell content renders literally, replacing line breaks (including a lone
+// \r, which GFM also treats as one), which would end the table row
+function escapeCell(value) {
+    return stripVTControlCharacters(value)
+        .replace(/[\r\n]+/g, ' ')
+        .replace(/[[\]`<>|*]/g, '\\$&');
+}
+// Only http(s) URLs free of characters that would break out of the markdown
+// link destination or split the table cell are rendered as links
+function isRenderableUrl(value) {
+    if (/[\s()<>|]/.test(value)) {
+        return false;
+    }
+    let url;
+    try {
+        url = new URL(value);
+    }
+    catch {
+        return false;
+    }
+    return url.protocol === 'http:' || url.protocol === 'https:';
+}
+function advisoryCell(via) {
+    if (!Array.isArray(via)) {
+        return '';
+    }
+    const parts = [];
+    for (const entry of via) {
+        if (typeof entry === 'string') {
+            parts.push(`via ${escapeCell(entry)}`);
+            continue;
+        }
+        if (entry === null || typeof entry !== 'object') {
+            continue;
+        }
+        const title = escapeCell(entry.title ?? '');
+        if (typeof entry.url === 'string' && isRenderableUrl(entry.url)) {
+            parts.push(`[${title}](${entry.url})`);
+        }
+        else if (title !== '') {
+            parts.push(title);
+        }
+    }
+    return parts.join('<br>');
+}
+function fixAvailableCell(fixAvailable) {
+    if (fixAvailable === true) {
+        return 'yes';
+    }
+    if (fixAvailable !== null && typeof fixAvailable === 'object') {
+        const major = fixAvailable.isSemVerMajor ? ' (major)' : '';
+        return escapeCell(`${fixAvailable.name}@${fixAvailable.version}${major}`);
+    }
+    return 'no';
+}
+function severityRank(severity) {
+    const rank = SEVERITIES.indexOf(severity ?? '');
+    return rank === -1 ? SEVERITIES.length : rank;
+}
+function buildSummary(metadata, vulnerabilities) {
+    const counts = {};
+    for (const severity of SEVERITIES) {
+        counts[severity] = 0;
+    }
+    let other = 0;
+    let total = vulnerabilities.length;
+    if (metadata?.vulnerabilities) {
+        for (const severity of SEVERITIES) {
+            counts[severity] = metadata.vulnerabilities[severity] ?? 0;
+        }
+        total = metadata.vulnerabilities.total ?? total;
+    }
+    else {
+        for (const vulnerability of vulnerabilities) {
+            const severity = vulnerability.severity ?? '';
+            if (severity in counts) {
+                counts[severity]++;
+            }
+            else {
+                other++;
+            }
+        }
+    }
+    const breakdown = SEVERITIES.map((severity) => `${severity}: ${counts[severity]}`);
+    if (other > 0) {
+        breakdown.push(`other: ${other}`);
+    }
+    const noun = total === 1 ? 'vulnerability' : 'vulnerabilities';
+    return `**${total} ${noun}** (${breakdown.join(', ')})`;
+}
+function buildRow(vulnerability) {
+    const cells = [
+        escapeCell(vulnerability.name ?? ''),
+        escapeCell(vulnerability.severity ?? ''),
+        escapeCell(vulnerability.range ?? ''),
+        advisoryCell(vulnerability.via),
+        fixAvailableCell(vulnerability.fixAvailable)
+    ];
+    return `| ${cells.join(' | ')} |\n`;
+}
+function omissionNotice(omitted, total) {
+    return `\n**Note:** ${omitted} of ${total} vulnerabilities omitted because the report exceeds the maximum body length GitHub accepts.`;
+}
+// Builds a markdown report from `npm audit --json` output (npm v7+,
+// auditReportVersion 2). Returns null when the output cannot be rendered so
+// the caller can fall back to the plain-text report.
+//
+// The report is kept within the GitHub body length limit by dropping whole
+// table rows, never by slicing a row in the middle, so the table stays valid.
+// reservedLength leaves room for content the caller appends to the body.
+function buildMarkdownReport(stdout, reservedLength = 0) {
+    let parsed;
+    try {
+        parsed = JSON.parse(stdout);
+    }
+    catch {
+        return null;
+    }
+    if (parsed === null || typeof parsed !== 'object') {
+        return null;
+    }
+    const report = parsed;
+    if (report.auditReportVersion !== 2) {
+        return null;
+    }
+    if (report.vulnerabilities === null ||
+        typeof report.vulnerabilities !== 'object') {
+        return null;
+    }
+    const vulnerabilities = Object.values(report.vulnerabilities).sort((a, b) => severityRank(a.severity) - severityRank(b.severity) ||
+        (a.name ?? '').localeCompare(b.name ?? ''));
+    const summary = buildSummary(report.metadata, vulnerabilities);
+    const header = `## npm audit report\n\n${summary}\n\n${TABLE_HEADER}`;
+    const rows = vulnerabilities.map(buildRow);
+    const maxLength = MAX_BODY_LENGTH - reservedLength;
+    let length = header.length + rows.reduce((sum, row) => sum + row.length, 0);
+    if (length <= maxLength) {
+        return header + rows.join('');
+    }
+    // Drop rows from the end until the body, including the omission notice,
+    // fits. The notice is recomputed each step because its length depends on
+    // the omitted count.
+    for (let included = rows.length - 1; included >= 0; included--) {
+        length -= rows[included].length;
+        const notice = omissionNotice(rows.length - included, rows.length);
+        if (length + notice.length <= maxLength) {
+            return header + rows.slice(0, included).join('') + notice;
+        }
+    }
+    return null;
+}
+
 // biome-ignore lint/suspicious/noExplicitAny: the event payload is arbitrary JSON
 function readEventPayload() {
     const eventPath = process.env.GITHUB_EVENT_PATH;
@@ -33407,6 +33573,16 @@ function getPullRequestHeadSha() {
     }
     return sha;
 }
+function buildReportBody(audit, reportFormat, reservedLength) {
+    if (reportFormat === 'markdown') {
+        const markdown = buildMarkdownReport(audit.stdout, reservedLength);
+        if (markdown !== null) {
+            return markdown;
+        }
+        warning('Failed to build the markdown report from the `npm audit --json` output; posting the raw audit output in a code block instead');
+    }
+    return audit.strippedStdout(reservedLength);
+}
 async function run() {
     try {
         const inputs = getInputs();
@@ -33426,8 +33602,10 @@ async function run() {
         }
         info(`Current working directory: ${process.cwd()}`);
         // run `npm audit`
+        // the markdown report is built from the `npm audit --json` output, so
+        // report_format=markdown forces the --json flag
         const audit = new Audit();
-        audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag, inputs.registry);
+        audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag || inputs.reportFormat === 'markdown', inputs.registry);
         info(audit.stdout);
         setOutput('npm_audit', audit.stdout);
         if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
@@ -33435,7 +33613,7 @@ async function run() {
                 const octokit = new Octokit({
                     auth: inputs.token
                 });
-                await handlePullRequest(octokit, getPullRequestNumber(), audit.strippedStdout(inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0), {
+                await handlePullRequest(octokit, getPullRequestNumber(), buildReportBody(audit, inputs.reportFormat, inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0), {
                     createPRComments: inputs.createPRComments,
                     resolvePRComments: inputs.resolvePRComments,
                     failOnVulnerabilities: inputs.failOnVulnerabilities
@@ -33456,7 +33634,7 @@ async function run() {
                 auth: inputs.token
             });
             debug('open an issue');
-            const auditOutput = audit.strippedStdout(inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0);
+            const auditOutput = buildReportBody(audit, inputs.reportFormat, inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0);
             await handleIssueFlow(octokit, auditOutput, {
                 createIssues: inputs.createIssues,
                 dedupeIssues: inputs.dedupeIssues,
