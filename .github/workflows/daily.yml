@@ -13,6 +13,9 @@ jobs:
       contents: read
       issues: write
     strategy:
+      # Serialized so that concurrent jobs cannot race past the dedupe_issues
+      # check and file duplicate issues
+      max-parallel: 1
       matrix:
         os: [ubuntu-slim, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -30,11 +33,15 @@ jobs:
           issue_assignees: oke-py
           issue_labels: vulnerability
           dedupe_issues: true
+          dedupe_comments: true
           production_flag: true
           report_format: markdown
 
   scan-on-windows:
     name: npm audit (windows)
+    # Runs after the serialized scan job so that all three runs check the
+    # existing issue sequentially instead of racing to create it
+    needs: scan
     permissions:
       contents: read
       issues: write
@@ -53,5 +60,6 @@ jobs:
           issue_assignees: oke-py
           issue_labels: vulnerability
           dedupe_issues: true
+          dedupe_comments: true
           production_flag: true
           report_format: markdown
