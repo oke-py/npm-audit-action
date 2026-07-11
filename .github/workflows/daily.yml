@@ -31,6 +31,7 @@ jobs:
           issue_labels: vulnerability
           dedupe_issues: true
           production_flag: true
+          report_format: markdown
 
   scan-on-windows:
     name: npm audit (windows)
@@ -53,3 +54,4 @@ jobs:
           issue_labels: vulnerability
           dedupe_issues: true
           production_flag: true
+          report_format: markdown
