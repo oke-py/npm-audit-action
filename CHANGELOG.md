@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.3.0](https://github.com/oke-py/npm-audit-action/compare/v5.2.0...v5.3.0) (2026-07-11)
+
+
+### Features
+
+* add report_format input to post the report as markdown ([eb6ec9f](https://github.com/oke-py/npm-audit-action/commit/eb6ec9fe526d8b7a371aeca51eacac7f3651abd4))
+* add report_format input to post the report as markdown ([e4c6ac2](https://github.com/oke-py/npm-audit-action/commit/e4c6ac24853c880ac73b7e63d8c9b1224e3c63cb))
+
+
+### Bug Fixes
+
+* address code review findings in the markdown report ([76d9b83](https://github.com/oke-py/npm-audit-action/commit/76d9b83410268bb3ba45e1b611d46fcf1134e41b))
+* harden markdown cell escaping and advisory link rendering ([7ac7f27](https://github.com/oke-py/npm-audit-action/commit/7ac7f274e275e30b2a7ca1f6ebf6ec079d31748a))
+* sort imports in main.ts to satisfy biome organizeImports ([191f9a3](https://github.com/oke-py/npm-audit-action/commit/191f9a3353c6d99b53426e77ed3df4d78ddc1b5d))
+
 ## [5.2.0](https://github.com/oke-py/npm-audit-action/compare/v5.1.0...v5.2.0) (2026-07-09)
 
 
