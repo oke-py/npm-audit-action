@@ -56,6 +56,7 @@ describe('run: pr', () => {
     process.env.INPUT_DEDUPE_ISSUES = 'false'
     process.env.INPUT_DEDUPE_COMMENTS = 'false'
     process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
+    delete process.env.INPUT_IGNORE_GHSAS
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', async () => {
@@ -128,6 +129,146 @@ describe('run: pr', () => {
 
     await run()
     expect(pr.createComment).not.toHaveBeenCalled()
+  })
+
+  test('treats the result as clean when every advisory is ignored', async () => {
+    process.env.INPUT_JSON_FLAG = 'true'
+    process.env.INPUT_IGNORE_GHSAS = 'GHSA-35jh-r3h4-6jhm,GHSA-xvch-5gv4-984h'
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error-v2.json'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return 'text-report'
+        }
+      }
+    })
+
+    await run()
+    expect(pr.createComment).not.toHaveBeenCalled()
+    expect(core.setFailed).not.toHaveBeenCalled()
+  })
+
+  test('resolves previous comments when every advisory is ignored and resolve_pr_comments is enabled', async () => {
+    process.env.INPUT_JSON_FLAG = 'true'
+    process.env.INPUT_RESOLVE_PR_COMMENTS = 'true'
+    process.env.INPUT_IGNORE_GHSAS = 'GHSA-35jh-r3h4-6jhm,GHSA-xvch-5gv4-984h'
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error-v2.json'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return 'text-report'
+        }
+      }
+    })
+    vi.mocked(pr).resolveComments.mockResolvedValue()
+
+    await run()
+    expect(pr.createComment).not.toHaveBeenCalled()
+    expect(pr.resolveComments).toHaveBeenCalled()
+  })
+
+  test('notes the ignored advisories when other advisories remain', async () => {
+    process.env.INPUT_JSON_FLAG = 'true'
+    process.env.INPUT_IGNORE_GHSAS = 'GHSA-xvch-5gv4-984h'
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error-v2.json'))
+          .toString(),
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return 'text-report'
+        }
+      }
+    })
+    vi.mocked(pr).createComment.mockResolvedValue()
+
+    await run()
+    const body = vi.mocked(pr).createComment.mock.calls[0][4]
+    expect(body).toContain('text-report')
+    expect(body).toContain('GHSA-xvch-5gv4-984h (minimist)')
+    expect(core.setFailed).toHaveBeenCalledWith(
+      'This repo has some vulnerabilities'
+    )
+  })
+
+  test('runs npm audit a second time with --json when the ignore list needs it', async () => {
+    process.env.INPUT_IGNORE_GHSAS = 'GHSA-xvch-5gv4-984h'
+
+    const runMock = vi.fn()
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: fs
+          .readFileSync(path.join(__dirname, 'testdata/audit/error-v2.json'))
+          .toString(),
+        run: runMock,
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return 'text-report'
+        }
+      }
+    })
+    vi.mocked(pr).createComment.mockResolvedValue()
+
+    await run()
+    expect(runMock).toHaveBeenNthCalledWith(1, 'low', false, false, '')
+    expect(runMock).toHaveBeenNthCalledWith(2, 'low', false, true, '')
+  })
+
+  test('keeps the npm result when the ignore list cannot be evaluated', async () => {
+    process.env.INPUT_JSON_FLAG = 'true'
+    process.env.INPUT_IGNORE_GHSAS = 'GHSA-xvch-5gv4-984h'
+
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: 'not json',
+        run: (): Promise<void> => {
+          return Promise.resolve(void 0)
+        },
+        foundVulnerability: (): boolean => {
+          return true
+        },
+        strippedStdout: (): string => {
+          return 'text-report'
+        }
+      }
+    })
+    vi.mocked(pr).createComment.mockResolvedValue()
+
+    await run()
+    expect(core.warning).toHaveBeenCalledWith(
+      'Failed to interpret the `npm audit --json` report; ignore_ghsas was not applied'
+    )
+    expect(pr.createComment).toHaveBeenCalled()
+    expect(core.setFailed).toHaveBeenCalledWith(
+      'This repo has some vulnerabilities'
+    )
   })
 
   test('forces --json and posts a markdown report when report_format is markdown', async () => {
@@ -318,6 +459,7 @@ describe('run: issue', () => {
     process.env.INPUT_DEDUPE_ISSUES = 'true'
     process.env.INPUT_DEDUPE_COMMENTS = 'false'
     process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
+    delete process.env.INPUT_IGNORE_GHSAS
   })
 
   test('does not call octokit.rest.issues.create if create_issues is set to false', async () => {

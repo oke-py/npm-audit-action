@@ -35,6 +35,7 @@ permissions:
 | `dedupe_issues` | false | `false` | De-dupe against open issues |
 | `fail_on_vulnerabilities` | false | `true` | Fail the action when vulnerabilities are found |
 | `github_token` | true | N/A | GitHub Access Token. Use `${{ secrets.GITHUB_TOKEN }}` |
+| `ignore_ghsas` | false | N/A | GHSA advisory IDs to exclude from the pass/fail decision (comma, space, or newline separated). See [Ignoring advisories](#ignoring-advisories) |
 | `issue_assignees` | false | N/A | Issue assignees (comma-separated) |
 | `issue_labels` | false | N/A | Issue labels (comma-separated) |
 | `issue_title` | false | `npm audit found vulnerabilities` | Issue title |
@@ -90,6 +91,24 @@ jobs:
           dedupe_issues: true
           dedupe_comments: true
 ```
+
+### Ignoring advisories
+
+Some advisories have no fix, or do not apply to how you use the dependency. List their GHSA IDs in `ignore_ghsas` to exclude them from the pass/fail decision:
+
+```yaml
+      - uses: oke-py/npm-audit-action@v5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ignore_ghsas: |
+            GHSA-xxxx-xxxx-xxxx
+            GHSA-yyyy-yyyy-yyyy
+```
+
+- If every advisory found is ignored, the action reports no vulnerabilities: CI passes and no issue or comment is created.
+- If other advisories remain, the report is created as usual and notes which advisories were ignored, so suppressions stay visible.
+- Ignoring an advisory also covers packages that are only vulnerable through it (transitive chains).
+- The evaluation reads the `npm audit --json` report, so with `report_format: text` and `json_flag: false` the action runs `npm audit` a second time with `--json`.
 
 ---
 

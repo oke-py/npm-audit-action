@@ -17,6 +17,7 @@ describe('getInputs', () => {
     process.env.INPUT_ISSUE_TITLE = 'npm audit found vulnerabilities'
     process.env.INPUT_GITHUB_TOKEN = 'token'
     delete process.env.INPUT_REGISTRY
+    delete process.env.INPUT_IGNORE_GHSAS
     delete process.env.INPUT_REPORT_FORMAT
     delete process.env.INPUT_ISSUE_ASSIGNEES
     delete process.env.INPUT_ISSUE_LABELS
@@ -83,6 +84,33 @@ describe('getInputs', () => {
   test('throws on registry containing shell metacharacters', () => {
     process.env.INPUT_REGISTRY = 'https://registry.npmjs.org/&whoami'
     expect(() => getInputs()).toThrow('Invalid input: registry')
+  })
+
+  test('returns an empty ignore list when not set', () => {
+    expect(getInputs().ignoreGhsas).toEqual([])
+  })
+
+  test('parses comma-separated GHSA IDs', () => {
+    process.env.INPUT_IGNORE_GHSAS = 'GHSA-35jh-r3h4-6jhm, GHSA-xvch-5gv4-984h'
+    expect(getInputs().ignoreGhsas).toEqual([
+      'GHSA-35jh-r3h4-6jhm',
+      'GHSA-xvch-5gv4-984h'
+    ])
+  })
+
+  test('parses newline-separated GHSA IDs', () => {
+    process.env.INPUT_IGNORE_GHSAS = 'GHSA-35jh-r3h4-6jhm\nGHSA-xvch-5gv4-984h'
+    expect(getInputs().ignoreGhsas).toEqual([
+      'GHSA-35jh-r3h4-6jhm',
+      'GHSA-xvch-5gv4-984h'
+    ])
+  })
+
+  test('throws on an invalid GHSA ID', () => {
+    process.env.INPUT_IGNORE_GHSAS = 'CVE-2024-12345'
+    expect(() => getInputs()).toThrow(
+      'Invalid input: ignore_ghsas contains an invalid GHSA ID: CVE-2024-12345'
+    )
   })
 
   test('defaults report_format to text when not set', () => {

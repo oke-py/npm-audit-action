@@ -32123,6 +32123,95 @@ const Octokit = Octokit$1.plugin(requestLog, legacyRestEndpointMethods, paginate
   }
 );
 
+const GHSA_ID_PATTERN = /GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i;
+// npm severities, weakest first
+const SEVERITY_ORDER = ['info', 'low', 'moderate', 'high', 'critical'];
+// An advisory with a severity npm does not document is treated as meeting
+// the level, so a report format change fails loud instead of going green
+function meetsLevel(severity, auditLevel) {
+    if (auditLevel === 'none') {
+        return false;
+    }
+    const rank = SEVERITY_ORDER.indexOf(severity);
+    const threshold = SEVERITY_ORDER.indexOf(auditLevel);
+    if (rank === -1 || threshold === -1) {
+        return true;
+    }
+    return rank >= threshold;
+}
+// Extracts the advisories from `npm audit --json` output and decides whether
+// any non-ignored advisory at or above auditLevel remains. Transitive
+// vulnerabilities reference their root advisory, so ignoring the root GHSA
+// covers the whole chain. Returns null when the output cannot be interpreted
+// so the caller can keep npm's own exit-status-based decision.
+function evaluateIgnoredAdvisories(stdout, ignoreGhsas, auditLevel) {
+    let parsed;
+    try {
+        parsed = JSON.parse(stdout);
+    }
+    catch {
+        return null;
+    }
+    if (parsed === null || typeof parsed !== 'object') {
+        return null;
+    }
+    const report = parsed;
+    if (report.auditReportVersion !== 2) {
+        return null;
+    }
+    if (report.vulnerabilities === null ||
+        typeof report.vulnerabilities !== 'object') {
+        return null;
+    }
+    const advisories = new Map();
+    for (const [pkg, vulnerability] of Object.entries(report.vulnerabilities)) {
+        const via = Array.isArray(vulnerability?.via) ? vulnerability.via : [];
+        for (const entry of via) {
+            if (entry === null || typeof entry !== 'object') {
+                continue;
+            }
+            const url = typeof entry.url === 'string' ? entry.url : '';
+            const match = url.match(GHSA_ID_PATTERN);
+            if (!match) {
+                continue;
+            }
+            const key = match[0].toLowerCase();
+            const severity = typeof entry.severity === 'string' ? entry.severity : '';
+            const existing = advisories.get(key);
+            if (existing) {
+                if (!existing.packages.includes(pkg)) {
+                    existing.packages.push(pkg);
+                }
+            }
+            else {
+                advisories.set(key, { ghsaId: match[0], severity, packages: [pkg] });
+            }
+        }
+    }
+    // npm reported vulnerabilities but none carries a GHSA advisory; the
+    // report cannot be evaluated against the ignore list
+    if (advisories.size === 0) {
+        return null;
+    }
+    const ignoreSet = new Set(ignoreGhsas.map((ghsa) => ghsa.toLowerCase()));
+    let vulnerable = false;
+    const ignored = [];
+    for (const [key, advisory] of advisories) {
+        if (ignoreSet.has(key)) {
+            ignored.push(advisory);
+        }
+        else if (meetsLevel(advisory.severity, auditLevel)) {
+            vulnerable = true;
+        }
+    }
+    return { vulnerable, ignored };
+}
+// Appended to the report body so suppressions stay visible to reviewers
+function buildIgnoredNotice(ignored) {
+    const items = ignored.map((advisory) => `${advisory.ghsaId} (${advisory.packages.join(', ')})`);
+    return `\n\n**Note:** the following advisories were ignored via \`ignore_ghsas\` and did not affect the result: ${items.join(', ')}`;
+}
+
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MiB
 // GitHub rejects issue and comment bodies longer than 65536 characters
 // with "422 Validation Failed: body is too long"
@@ -32222,6 +32311,19 @@ function isValidRegistryUrl(value) {
     }
     return url.protocol === 'http:' || url.protocol === 'https:';
 }
+const ghsaIdPattern = /^GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i;
+function parseIgnoreGhsas(value) {
+    if (!value) {
+        return [];
+    }
+    const parsed = value.split(/[\s,]+/).filter(Boolean);
+    for (const id of parsed) {
+        if (!ghsaIdPattern.test(id)) {
+            throw new Error(`Invalid input: ignore_ghsas contains an invalid GHSA ID: ${id}`);
+        }
+    }
+    return parsed;
+}
 function parseList(value) {
     const parsed = value
         .split(',')
@@ -32249,6 +32351,7 @@ function getInputs() {
     return {
         auditLevel,
         registry,
+        ignoreGhsas: parseIgnoreGhsas(getInput('ignore_ghsas', { trimWhitespace: true })),
         productionFlag: getBooleanInput('production_flag'),
         jsonFlag: getBooleanInput('json_flag'),
         reportFormat,
@@ -33583,6 +33686,23 @@ function buildReportBody(audit, reportFormat, reservedLength) {
     }
     return audit.strippedStdout(reservedLength);
 }
+// Applies ignore_ghsas to the audit result. The evaluation needs the JSON
+// report, so a text-format run without json_flag triggers a second
+// `npm audit --json` run. Returns null when the report cannot be
+// interpreted; the caller then keeps npm's exit-status-based decision.
+function applyIgnoreList(audit, inputs, ranWithJson) {
+    let jsonOutput = audit.stdout;
+    if (!ranWithJson) {
+        const jsonAudit = new Audit();
+        jsonAudit.run(inputs.auditLevel, inputs.productionFlag, true, inputs.registry);
+        jsonOutput = jsonAudit.stdout;
+    }
+    const evaluation = evaluateIgnoredAdvisories(jsonOutput, inputs.ignoreGhsas, inputs.auditLevel);
+    if (evaluation === null) {
+        warning('Failed to interpret the `npm audit --json` report; ignore_ghsas was not applied');
+    }
+    return evaluation;
+}
 async function run() {
     try {
         const inputs = getInputs();
@@ -33604,16 +33724,35 @@ async function run() {
         // run `npm audit`
         // the markdown report is built from the `npm audit --json` output, so
         // report_format=markdown forces the --json flag
+        const ranWithJson = inputs.jsonFlag || inputs.reportFormat === 'markdown';
         const audit = new Audit();
-        audit.run(inputs.auditLevel, inputs.productionFlag, inputs.jsonFlag || inputs.reportFormat === 'markdown', inputs.registry);
+        audit.run(inputs.auditLevel, inputs.productionFlag, ranWithJson, inputs.registry);
         info(audit.stdout);
         setOutput('npm_audit', audit.stdout);
+        let foundVulnerability = audit.foundVulnerability();
+        let ignoredNotice = '';
+        if (foundVulnerability && inputs.ignoreGhsas.length > 0) {
+            const evaluation = applyIgnoreList(audit, inputs, ranWithJson);
+            if (evaluation !== null) {
+                if (evaluation.ignored.length > 0) {
+                    info(`Ignored advisories: ${evaluation.ignored
+                        .map((advisory) => advisory.ghsaId)
+                        .join(', ')}`);
+                    ignoredNotice = buildIgnoredNotice(evaluation.ignored);
+                }
+                if (!evaluation.vulnerable) {
+                    info('Every advisory found at or above the audit level is ignored via ignore_ghsas; treating the result as no vulnerabilities');
+                    foundVulnerability = false;
+                }
+            }
+        }
         if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
-            if (audit.foundVulnerability()) {
+            if (foundVulnerability) {
                 const octokit = new Octokit({
                     auth: inputs.token
                 });
-                await handlePullRequest(octokit, getPullRequestNumber(), buildReportBody(audit, inputs.reportFormat, inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0), {
+                await handlePullRequest(octokit, getPullRequestNumber(), buildReportBody(audit, inputs.reportFormat, (inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0) +
+                    ignoredNotice.length) + ignoredNotice, {
                     createPRComments: inputs.createPRComments,
                     resolvePRComments: inputs.resolvePRComments,
                     failOnVulnerabilities: inputs.failOnVulnerabilities
@@ -33627,14 +33766,15 @@ async function run() {
             }
             return;
         }
-        if (audit.foundVulnerability()) {
+        if (foundVulnerability) {
             // vulnerabilities are found
             // get GitHub information
             const octokit = new Octokit({
                 auth: inputs.token
             });
             debug('open an issue');
-            const auditOutput = buildReportBody(audit, inputs.reportFormat, inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0);
+            const auditOutput = buildReportBody(audit, inputs.reportFormat, (inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0) +
+                ignoredNotice.length) + ignoredNotice;
             await handleIssueFlow(octokit, auditOutput, {
                 createIssues: inputs.createIssues,
                 dedupeIssues: inputs.dedupeIssues,
