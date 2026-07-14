@@ -11,6 +11,19 @@ GitHub Action that runs `npm audit` and reports vulnerabilities.
 
 ![Issue example](https://github.com/oke-py/npm-audit-action/blob/main/issue.png)
 
+## Scope: when to use this action
+
+This action runs `npm audit` as a CI gate and reports the results. It is intentionally small:
+
+- **No external service or token required** — nothing leaves GitHub
+- **Blocks vulnerabilities at pull request time**, before they are merged
+- **Detection and reporting only**
+
+It does not aim to replace dedicated tools, and works well alongside them:
+
+- For automated remediation (dependency update PRs), use [Dependabot security updates](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/about-dependabot-security-updates) or `npm audit fix`
+- For deeper analysis such as reachability, license compliance, or container scanning, use a dedicated service like Snyk
+
 ## Usage
 
 ### Permissions
@@ -109,6 +122,38 @@ Some advisories have no fix, or do not apply to how you use the dependency. List
 - If other advisories remain, the report is created as usual and notes which advisories were ignored, so suppressions stay visible.
 - Ignoring an advisory also covers packages that are only vulnerable through it (transitive chains).
 - The evaluation reads the `npm audit --json` report, so with `report_format: text` and `json_flag: false` the action runs `npm audit` a second time with `--json`.
+
+### Monorepos
+
+`working_directory` accepts a single directory. To audit multiple packages, use a [matrix](https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs):
+
+```yaml
+jobs:
+  scan:
+    strategy:
+      matrix:
+        workdir: [packages/a, packages/b, tools/c]
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: install dependencies
+        run: npm ci
+        working-directory: ${{ matrix.workdir }}
+      - uses: oke-py/npm-audit-action@v5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          working_directory: ${{ matrix.workdir }}
+          issue_title: 'npm audit found vulnerabilities (${{ matrix.workdir }})'
+          dedupe_issues: true
+```
+
+Including the directory in `issue_title` keeps `dedupe_issues` working per package.
 
 ---
 
