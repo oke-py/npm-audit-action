@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.0](https://github.com/oke-py/npm-audit-action/compare/v5.3.0...v5.4.0) (2026-07-14)
+
+
+### Features
+
+* add ignore_ghsas input to exclude advisories from the result ([#379](https://github.com/oke-py/npm-audit-action/issues/379)) ([70d3d64](https://github.com/oke-py/npm-audit-action/commit/70d3d6417e6cf175b3a11e12617859ce0dda5d0d))
+
 ## [5.3.0](https://github.com/oke-py/npm-audit-action/compare/v5.2.0...v5.3.0) (2026-07-11)
 
 
