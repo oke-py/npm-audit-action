@@ -6,6 +6,21 @@ coverage:
   acceptable: 90%
   badge:
     path: docs/coverage.svg
+# Informational only (no acceptable threshold): lines of test code per
+# line of product code
+codeToTestRatio:
+  code:
+    - src/**/*.ts
+  test:
+    - __tests__/**/*.ts
+    - __fixtures__/**/*.ts
+    # the workdir fixture contains a committed node_modules
+    - '!__tests__/testdata/**'
+  badge:
+    path: docs/ratio.svg
+testExecutionTime:
+  badge:
+    path: docs/time.svg
 comment:
   if: is_pull_request
   updatePrevious: true
