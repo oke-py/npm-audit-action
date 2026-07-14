@@ -1,0 +1,23 @@
+coverage:
+  paths:
+    - coverage/lcov.info
+  # Fixed threshold: fail the build when coverage drops below 90%.
+  # Deliberately not diff-based; small fluctuations must not fail CI.
+  acceptable: 90%
+  badge:
+    path: docs/coverage.svg
+comment:
+  if: is_pull_request
+  updatePrevious: true
+summary:
+  if: true
+report:
+  if: is_default_branch
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
+diff:
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
+push:
+  if: is_default_branch
+  message: 'chore: update coverage badge by octocov [skip ci]'
