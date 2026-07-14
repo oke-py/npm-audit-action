@@ -1,6 +1,6 @@
 # npm audit action
 
-![Coverage](docs/coverage.svg)
+![Coverage](docs/coverage.svg) ![Code to Test Ratio](docs/ratio.svg) ![Test Execution Time](docs/time.svg)
 
 GitHub Action that runs `npm audit` and reports vulnerabilities.
 
