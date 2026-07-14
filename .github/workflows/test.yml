@@ -14,6 +14,10 @@ jobs:
       matrix:
         os: [ubuntu-slim, macos-latest]
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write # octocov pushes the coverage badge to the default branch
+      pull-requests: write # octocov posts the coverage report comment
+      actions: read # octocov reads previous reports from artifacts
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -28,13 +32,9 @@ jobs:
           npm run format:check
           npm run lint
           npm run test:coverage
-      - name: Upload coverage to Coveralls
+      - name: Report coverage with octocov
         if: matrix.os == 'ubuntu-slim'
-        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          # Coverage is informational; a Coveralls outage must not fail CI
-          fail-on-error: false
+        uses: k1LoW/octocov-action@1a4952bd39550c218d97941a2712a19e1e4e3731 # v1.5.1
 
   build-on-windows:
     runs-on: windows-latest
