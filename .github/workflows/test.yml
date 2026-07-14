@@ -34,7 +34,7 @@ jobs:
           npm run test:coverage
       - name: Report coverage with octocov
         if: matrix.os == 'ubuntu-slim'
-        uses: k1LoW/octocov-action@1a4952bd39550c218d97941a2712a19e1e4e3731 # v1.5.1
+        uses: k1LoW/octocov-action@b3b6ee60482a667950f87553abf1df63217235d9 # v1.5.1
 
   build-on-windows:
     runs-on: windows-latest
