@@ -1,6 +1,11 @@
 import * as fs from 'node:fs'
 import * as core from '@actions/core'
 import { Octokit } from '@octokit/rest'
+import {
+  buildIgnoredNotice,
+  evaluateIgnoredAdvisories,
+  type IgnoreEvaluation
+} from './advisories.js'
 import { Audit } from './audit.js'
 import { getInputs, type ReportFormat } from './inputs.js'
 import { REPORT_MARKER_LENGTH } from './issue.js'
@@ -53,6 +58,39 @@ function buildReportBody(
   return audit.strippedStdout(reservedLength)
 }
 
+// Applies ignore_ghsas to the audit result. The evaluation needs the JSON
+// report, so a text-format run without json_flag triggers a second
+// `npm audit --json` run. Returns null when the report cannot be
+// interpreted; the caller then keeps npm's exit-status-based decision.
+function applyIgnoreList(
+  audit: Audit,
+  inputs: ReturnType<typeof getInputs>,
+  ranWithJson: boolean
+): IgnoreEvaluation | null {
+  let jsonOutput = audit.stdout
+  if (!ranWithJson) {
+    const jsonAudit = new Audit()
+    jsonAudit.run(
+      inputs.auditLevel,
+      inputs.productionFlag,
+      true,
+      inputs.registry
+    )
+    jsonOutput = jsonAudit.stdout
+  }
+  const evaluation = evaluateIgnoredAdvisories(
+    jsonOutput,
+    inputs.ignoreGhsas,
+    inputs.auditLevel
+  )
+  if (evaluation === null) {
+    core.warning(
+      'Failed to interpret the `npm audit --json` report; ignore_ghsas was not applied'
+    )
+  }
+  return evaluation
+}
+
 export async function run(): Promise<void> {
   try {
     const inputs = getInputs()
@@ -81,18 +119,41 @@ export async function run(): Promise<void> {
     // run `npm audit`
     // the markdown report is built from the `npm audit --json` output, so
     // report_format=markdown forces the --json flag
+    const ranWithJson = inputs.jsonFlag || inputs.reportFormat === 'markdown'
     const audit = new Audit()
     audit.run(
       inputs.auditLevel,
       inputs.productionFlag,
-      inputs.jsonFlag || inputs.reportFormat === 'markdown',
+      ranWithJson,
       inputs.registry
     )
     core.info(audit.stdout)
     core.setOutput('npm_audit', audit.stdout)
 
+    let foundVulnerability = audit.foundVulnerability()
+    let ignoredNotice = ''
+    if (foundVulnerability && inputs.ignoreGhsas.length > 0) {
+      const evaluation = applyIgnoreList(audit, inputs, ranWithJson)
+      if (evaluation !== null) {
+        if (evaluation.ignored.length > 0) {
+          core.info(
+            `Ignored advisories: ${evaluation.ignored
+              .map((advisory) => advisory.ghsaId)
+              .join(', ')}`
+          )
+          ignoredNotice = buildIgnoredNotice(evaluation.ignored)
+        }
+        if (!evaluation.vulnerable) {
+          core.info(
+            'Every advisory found at or above the audit level is ignored via ignore_ghsas; treating the result as no vulnerabilities'
+          )
+          foundVulnerability = false
+        }
+      }
+    }
+
     if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
-      if (audit.foundVulnerability()) {
+      if (foundVulnerability) {
         const octokit = new Octokit({
           auth: inputs.token
         })
@@ -102,8 +163,9 @@ export async function run(): Promise<void> {
           buildReportBody(
             audit,
             inputs.reportFormat,
-            inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0
-          ),
+            (inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0) +
+              ignoredNotice.length
+          ) + ignoredNotice,
           {
             createPRComments: inputs.createPRComments,
             resolvePRComments: inputs.resolvePRComments,
@@ -123,7 +185,7 @@ export async function run(): Promise<void> {
       return
     }
 
-    if (audit.foundVulnerability()) {
+    if (foundVulnerability) {
       // vulnerabilities are found
 
       // get GitHub information
@@ -132,11 +194,13 @@ export async function run(): Promise<void> {
       })
 
       core.debug('open an issue')
-      const auditOutput = buildReportBody(
-        audit,
-        inputs.reportFormat,
-        inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0
-      )
+      const auditOutput =
+        buildReportBody(
+          audit,
+          inputs.reportFormat,
+          (inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0) +
+            ignoredNotice.length
+        ) + ignoredNotice
       await handleIssueFlow(octokit, auditOutput, {
         createIssues: inputs.createIssues,
         dedupeIssues: inputs.dedupeIssues,

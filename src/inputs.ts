@@ -27,6 +27,23 @@ function isValidRegistryUrl(value: string): boolean {
   return url.protocol === 'http:' || url.protocol === 'https:'
 }
 
+const ghsaIdPattern = /^GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/i
+
+function parseIgnoreGhsas(value: string): string[] {
+  if (!value) {
+    return []
+  }
+  const parsed = value.split(/[\s,]+/).filter(Boolean)
+  for (const id of parsed) {
+    if (!ghsaIdPattern.test(id)) {
+      throw new Error(
+        `Invalid input: ignore_ghsas contains an invalid GHSA ID: ${id}`
+      )
+    }
+  }
+  return parsed
+}
+
 function parseList(value: string): string[] | undefined {
   const parsed = value
     .split(',')
@@ -46,6 +63,7 @@ function isReportFormat(value: string): value is ReportFormat {
 export type Inputs = {
   auditLevel: string
   registry: string
+  ignoreGhsas: string[]
   productionFlag: boolean
   jsonFlag: boolean
   reportFormat: ReportFormat
@@ -83,6 +101,9 @@ export function getInputs(): Inputs {
   return {
     auditLevel,
     registry,
+    ignoreGhsas: parseIgnoreGhsas(
+      core.getInput('ignore_ghsas', { trimWhitespace: true })
+    ),
     productionFlag: core.getBooleanInput('production_flag'),
     jsonFlag: core.getBooleanInput('json_flag'),
     reportFormat,

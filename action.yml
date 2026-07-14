@@ -29,6 +29,9 @@ inputs:
   github_token:
     description: 'GitHub Access Token.'
     required: true
+  ignore_ghsas:
+    description: 'GHSA advisory IDs to exclude from the pass/fail decision (comma, space, or newline separated). If every advisory found is ignored, the action reports no vulnerabilities and creates no issue or comment'
+    required: false
   issue_assignees:
     description: 'Issue assignees (separated by commma)'
     required: false
