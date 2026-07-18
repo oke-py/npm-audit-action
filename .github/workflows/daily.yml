@@ -27,7 +27,7 @@ jobs:
         run: npm ci
       # Intentionally unpinned: dogfoods the latest released major tag of
       # this repository's own action.
-      - uses: oke-py/npm-audit-action@v5 # zizmor: ignore[unpinned-uses]
+      - uses: oke-py/npm-audit-action@v5.3.0 # zizmor: ignore[unpinned-uses]
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_assignees: oke-py
@@ -54,7 +54,7 @@ jobs:
         run: npm ci
       # Intentionally unpinned: dogfoods the latest released major tag of
       # this repository's own action.
-      - uses: oke-py/npm-audit-action@v5 # zizmor: ignore[unpinned-uses]
+      - uses: oke-py/npm-audit-action@v5.3.0 # zizmor: ignore[unpinned-uses]
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_assignees: oke-py
