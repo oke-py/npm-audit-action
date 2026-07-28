@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.4.1](https://github.com/oke-py/npm-audit-action/compare/v5.4.0...v5.4.1) (2026-07-28)
+
+
+### Documentation
+
+* document how to release build-only changes ([#392](https://github.com/oke-py/npm-audit-action/issues/392)) ([0e21f44](https://github.com/oke-py/npm-audit-action/commit/0e21f441bf268e62ba61b6aa31668b93f8db55e9))
+
+
+### Build System
+
+* **deps-dev:** bump the npm-development group with 2 updates ([#387](https://github.com/oke-py/npm-audit-action/issues/387)) ([4fad159](https://github.com/oke-py/npm-audit-action/commit/4fad159aa0c53eb8e69c669e0c53b12e57c82eac))
+* **deps-dev:** bump the npm-development group with 3 updates ([#385](https://github.com/oke-py/npm-audit-action/issues/385)) ([e2f85b1](https://github.com/oke-py/npm-audit-action/commit/e2f85b1491b796122234598bc933f58e80a3a74e))
+* **deps-dev:** bump typescript from 6.0.3 to 7.0.2 ([#386](https://github.com/oke-py/npm-audit-action/issues/386)) ([74dfaee](https://github.com/oke-py/npm-audit-action/commit/74dfaee964e003e4a00acb5e4a0fc1ab623e8c81))
+* **deps:** bump the actions-minor group across 1 directory with 3 updates ([#388](https://github.com/oke-py/npm-audit-action/issues/388)) ([eb8a8a9](https://github.com/oke-py/npm-audit-action/commit/eb8a8a90ff40cb258059997f9d76c26762033b52))
+* replace rollup with rolldown ([#391](https://github.com/oke-py/npm-audit-action/issues/391)) ([5a23967](https://github.com/oke-py/npm-audit-action/commit/5a239673fd3f25b4dfecf85cea446816c0d950c5))
+
 ## [5.4.0](https://github.com/oke-py/npm-audit-action/compare/v5.3.0...v5.4.0) (2026-07-14)
 
 
