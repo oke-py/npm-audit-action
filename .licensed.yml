@@ -14,5 +14,5 @@ allowed:
 
 ignored:
   npm:
-    # Used by Rollup.js when building in GitHub Actions
-    - '@rollup/rollup-linux-x64-gnu'
+    # Used by Rolldown when building in GitHub Actions
+    - '@rolldown/binding-linux-x64-gnu'
