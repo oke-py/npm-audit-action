@@ -47,7 +47,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
     "rolldown": "^1.2.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vite": "^8.1.5",
     "vitest": "^4.0.18"
   },
