@@ -51,7 +51,9 @@ npm run bundle
 
 ## Packaging
 
-- Bundling is done via Rollup
+- Bundling is done via Rolldown, configured in `rolldown.config.ts`
+- Rolldown transpiles TypeScript itself and does not type check. Type errors
+  are caught by `npm run typecheck`, not by the bundler
 - `npm run package` builds `dist/index.js`
 - The action runs from `dist/index.js`
 - The `update dist/index.js` workflow rebuilds `dist/` on pull requests
