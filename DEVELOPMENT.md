@@ -80,6 +80,21 @@ The same flow covers major, minor, and patch releases.
 
 Notes:
 
+- Only `fix:`, `feat:`, and breaking changes bump the version. Commits
+  typed `build:`, `ci:`, `chore:`, or `docs:` land on `main` without
+  producing a release PR, so the rebuilt `dist/` sits unreleased until the
+  next `fix:` or `feat:`.
+- To release such changes on their own, add a `Release-As:` footer to the
+  commit that lands on `main`, which makes release-please cut that exact
+  version:
+
+  ```
+  Release-As: 5.4.1
+  ```
+
+  This is worth doing when `dist/` changed materially — for example after a
+  bundler swap — so that any regression is attributable to a single release
+  rather than shipping alongside a feature.
 - The `release-please` workflow authenticates with the
   `RELEASE_PLEASE_TOKEN` repository secret, a fine-grained PAT with
   Contents and Pull requests read/write access to this repository.
