@@ -20,6 +20,7 @@ npm ci
 npm run format:write
 npm run format:check
 npm run lint
+npm run typecheck
 npm run test
 npm run test:coverage
 npm run package
@@ -32,6 +33,9 @@ npm run bundle
 - Strict type checking is enabled in `tsconfig.base.json`
 - Module settings use `NodeNext`
 - Target runtime is `ES2022`
+- `npm run typecheck` runs `tsc --noEmit` over `src/`. Keep it independent of
+  the bundler so type errors are caught even if the bundler stops type
+  checking
 
 ## Formatting and Linting
 

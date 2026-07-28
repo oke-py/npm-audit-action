@@ -31,6 +31,7 @@ jobs:
           npm ci
           npm run format:check
           npm run lint
+          npm run typecheck
           npm run test:coverage
       - name: Report coverage with octocov
         if: matrix.os == 'ubuntu-slim'
