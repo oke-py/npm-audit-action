@@ -16,11 +16,12 @@
     "format:write": "npx biome format --write .",
     "format:check": "npx biome check --formatter-enabled=true --linter-enabled=false .",
     "lint": "npx biome lint .",
+    "typecheck": "npx tsc --noEmit",
     "package": "npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "prepare": "husky",
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage",
-    "all": "npm run format:write && npm run lint && npm run test:coverage && npm run package"
+    "all": "npm run format:write && npm run lint && npm run typecheck && npm run test:coverage && npm run package"
   },
   "repository": {
     "type": "git",

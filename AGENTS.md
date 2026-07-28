@@ -18,6 +18,7 @@ This repository is a GitHub Action that runs `npm audit` and reports findings by
 npm ci
 npm run format:write
 npm run lint
+npm run typecheck
 npm run test
 npm run test:coverage
 npm run package
