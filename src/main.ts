@@ -14,6 +14,17 @@ import { RESOLVED_COMMENT_RESERVED_LENGTH } from './pr.js'
 import { handlePullRequest, resolvePullRequestComments } from './pr-flow.js'
 import { buildMarkdownReport } from './report.js'
 
+// `@octokit/rest` always defaults to https://api.github.com and, unlike
+// `@actions/github`, does not read GITHUB_API_URL. Honouring it makes the
+// action work on GitHub Enterprise Server, where the runner sets
+// GITHUB_API_URL to https://<host>/api/v3.
+function createOctokit(token: string): Octokit {
+  return new Octokit({
+    auth: token,
+    baseUrl: process.env.GITHUB_API_URL || 'https://api.github.com'
+  })
+}
+
 // biome-ignore lint/suspicious/noExplicitAny: the event payload is arbitrary JSON
 function readEventPayload(): any {
   const eventPath = process.env.GITHUB_EVENT_PATH
@@ -154,9 +165,7 @@ export async function run(): Promise<void> {
 
     if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
       if (foundVulnerability) {
-        const octokit = new Octokit({
-          auth: inputs.token
-        })
+        const octokit = createOctokit(inputs.token)
         await handlePullRequest(
           octokit,
           getPullRequestNumber(),
@@ -173,9 +182,7 @@ export async function run(): Promise<void> {
           }
         )
       } else if (inputs.resolvePRComments) {
-        const octokit = new Octokit({
-          auth: inputs.token
-        })
+        const octokit = createOctokit(inputs.token)
         await resolvePullRequestComments(
           octokit,
           getPullRequestNumber(),
@@ -189,9 +196,7 @@ export async function run(): Promise<void> {
       // vulnerabilities are found
 
       // get GitHub information
-      const octokit = new Octokit({
-        auth: inputs.token
-      })
+      const octokit = createOctokit(inputs.token)
 
       core.debug('open an issue')
       const auditOutput =
