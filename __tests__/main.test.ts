@@ -2,6 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { Octokit } from '@octokit/rest'
 import * as core from '../__fixtures__/core'
 import { Audit } from '../src/audit'
 import * as issue from '../src/issue'
@@ -30,6 +31,25 @@ vi.mock('@octokit/rest', () => {
   }
 })
 
+function mockAuditWithVulnerability(): void {
+  vi.mocked(Audit).mockImplementation(function (): unknown {
+    return {
+      stdout: fs
+        .readFileSync(path.join(__dirname, 'testdata/audit/error.txt'))
+        .toString(),
+      run: (): Promise<void> => {
+        return Promise.resolve(void 0)
+      },
+      foundVulnerability: (): boolean => {
+        return true
+      },
+      strippedStdout: (): string => {
+        return path.join(__dirname, 'testdata/audit/error.txt')
+      }
+    }
+  })
+}
+
 describe('run: pr', () => {
   beforeEach(() => {
     // initialize mock
@@ -57,6 +77,8 @@ describe('run: pr', () => {
     process.env.INPUT_DEDUPE_COMMENTS = 'false'
     process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
     delete process.env.INPUT_IGNORE_GHSAS
+    delete process.env.GITHUB_API_URL
+    vi.mocked(Octokit).mockClear()
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', async () => {
@@ -105,6 +127,30 @@ describe('run: pr', () => {
 
     await run()
     expect(pr.createComment).toHaveBeenCalled()
+  })
+
+  test('builds the Octokit client with the default base URL', async () => {
+    mockAuditWithVulnerability()
+    vi.mocked(pr).createComment.mockResolvedValue()
+
+    await run()
+    expect(Octokit).toHaveBeenCalledWith({
+      auth: '***',
+      baseUrl: 'https://api.github.com'
+    })
+  })
+
+  // GITHUB_API_URL points at /api/v3 on GitHub Enterprise Server
+  test('builds the Octokit client with GITHUB_API_URL', async () => {
+    process.env.GITHUB_API_URL = 'https://ghes.example.com/api/v3'
+    mockAuditWithVulnerability()
+    vi.mocked(pr).createComment.mockResolvedValue()
+
+    await run()
+    expect(Octokit).toHaveBeenCalledWith({
+      auth: '***',
+      baseUrl: 'https://ghes.example.com/api/v3'
+    })
   })
 
   test('does not call pr.createComment if create_pr_comments is set to false', async () => {
