@@ -10,7 +10,8 @@ This repository is a GitHub Action that runs `npm audit` and reports findings by
 - `src/main.ts`: Entry point
 - `src/issue.ts`, `src/pr.ts`: Issue and PR comment logic
 - `dist/index.js`: Bundled output used by GitHub Actions
-- `__tests__/`: Vitest tests
+- `__tests__/`: Vitest tests; `__tests__/e2e/` runs the built bundle against a
+  mock GitHub API (`npm run test:e2e`, needs `npm run package` first)
 
 ## Local Commands
 
@@ -22,6 +23,7 @@ npm run typecheck
 npm run test
 npm run test:coverage
 npm run package
+npm run test:e2e
 ```
 
 ## Guardrails

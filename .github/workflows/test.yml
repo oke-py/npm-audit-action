@@ -33,6 +33,10 @@ jobs:
           npm run lint
           npm run typecheck
           npm run test:coverage
+      - name: Run end-to-end tests against a freshly built bundle
+        run: |
+          npm run package
+          npm run test:e2e
       - name: Report coverage with octocov
         if: matrix.os == 'ubuntu-slim'
         uses: k1LoW/octocov-action@a167dc0dee441b7ffc45e1b862ab55ec0d87f278 # v1.5.2

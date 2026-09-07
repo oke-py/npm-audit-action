@@ -10,7 +10,7 @@
 - `action.yml`: Action metadata and inputs/outputs
 - `src/`: TypeScript source code
 - `dist/`: Bundled action output (committed)
-- `__tests__/`: Vitest tests
+- `__tests__/`: Vitest tests (`__tests__/e2e/`: end-to-end tests of `dist/`)
 - `__fixtures__/`: test fixtures
 
 ## Common Commands
@@ -23,6 +23,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run test:coverage
+npm run test:e2e
 npm run package
 npm run all
 npm run bundle
@@ -46,8 +47,14 @@ npm run bundle
 ## Testing
 
 - Uses Vitest
-- `npm run test` runs the test suite
+- `npm run test` runs the unit test suite
 - `npm run test:coverage` generates coverage in `coverage/`
+- `npm run test:e2e` runs the end-to-end tests in `__tests__/e2e/`, which
+  spawn the built `dist/index.js` against a local mock of the GitHub REST API
+  and a stub `npm`. Run `npm run package` first: they test the bundle, not
+  `src/`, and are the only tests that cover the `@octokit/rest` code paths
+  after bundling. They are excluded from `npm run test` and from coverage,
+  and are skipped on Windows (the `npm` stub is a POSIX shell script)
 
 ## Packaging
 

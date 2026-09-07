@@ -20,8 +20,9 @@
     "package": "npx rolldown --config rolldown.config.ts",
     "prepare": "husky",
     "test": "vitest --run",
+    "test:e2e": "vitest --run --config vitest.e2e.config.ts",
     "test:coverage": "vitest --run --coverage",
-    "all": "npm run format:write && npm run lint && npm run typecheck && npm run test:coverage && npm run package"
+    "all": "npm run format:write && npm run lint && npm run typecheck && npm run test:coverage && npm run package && npm run test:e2e"
   },
   "repository": {
     "type": "git",
