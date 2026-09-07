@@ -19829,6 +19829,12 @@ function buildMarkdownReport(stdout, reservedLength = 0) {
 }
 //#endregion
 //#region src/main.ts
+function createOctokit(token) {
+	return new Octokit({
+		auth: token,
+		baseUrl: process.env.GITHUB_API_URL || "https://api.github.com"
+	});
+}
 function readEventPayload() {
 	const eventPath = process.env.GITHUB_EVENT_PATH;
 	if (!eventPath) throw new Error("GITHUB_EVENT_PATH is not set");
@@ -19897,16 +19903,16 @@ async function run() {
 			}
 		}
 		if (process.env.GITHUB_EVENT_NAME === "pull_request") {
-			if (foundVulnerability) await handlePullRequest(new Octokit({ auth: inputs.token }), getPullRequestNumber(), buildReportBody(audit, inputs.reportFormat, (inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0) + ignoredNotice.length) + ignoredNotice, {
+			if (foundVulnerability) await handlePullRequest(createOctokit(inputs.token), getPullRequestNumber(), buildReportBody(audit, inputs.reportFormat, (inputs.resolvePRComments ? RESOLVED_COMMENT_RESERVED_LENGTH : 0) + ignoredNotice.length) + ignoredNotice, {
 				createPRComments: inputs.createPRComments,
 				resolvePRComments: inputs.resolvePRComments,
 				failOnVulnerabilities: inputs.failOnVulnerabilities
 			});
-			else if (inputs.resolvePRComments) await resolvePullRequestComments(new Octokit({ auth: inputs.token }), getPullRequestNumber(), getPullRequestHeadSha());
+			else if (inputs.resolvePRComments) await resolvePullRequestComments(createOctokit(inputs.token), getPullRequestNumber(), getPullRequestHeadSha());
 			return;
 		}
 		if (foundVulnerability) {
-			const octokit = new Octokit({ auth: inputs.token });
+			const octokit = createOctokit(inputs.token);
 			debug("open an issue");
 			await handleIssueFlow(octokit, buildReportBody(audit, inputs.reportFormat, (inputs.dedupeComments ? REPORT_MARKER_LENGTH : 0) + ignoredNotice.length) + ignoredNotice, {
 				createIssues: inputs.createIssues,
