@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.4.2](https://github.com/oke-py/npm-audit-action/compare/v5.4.1...v5.4.2) (2026-09-07)
+
+
+### Bug Fixes
+
+* **deps:** bump undici to 6.28.0 ([#402](https://github.com/oke-py/npm-audit-action/issues/402)) ([99e6174](https://github.com/oke-py/npm-audit-action/commit/99e6174b9ccfccfdc06f73aa115c78b74c21b944))
+* honour GITHUB_API_URL when constructing the Octokit client ([#407](https://github.com/oke-py/npm-audit-action/issues/407)) ([6deefde](https://github.com/oke-py/npm-audit-action/commit/6deefde1516b06f146bd93c50742a707ca63db11))
+
+
+### Build System
+
+* **deps-dev:** bump the npm-development group across 1 directory with 6 updates ([#410](https://github.com/oke-py/npm-audit-action/issues/410)) ([fe68137](https://github.com/oke-py/npm-audit-action/commit/fe68137d0825611dd4bce09262541d0f3cbcc76a))
+* **deps-dev:** bump the npm-development group with 2 updates ([#397](https://github.com/oke-py/npm-audit-action/issues/397)) ([d97af5c](https://github.com/oke-py/npm-audit-action/commit/d97af5c8cc07b4494b758672861d23d09912b04f))
+* **deps-dev:** bump the npm-development group with 4 updates ([#405](https://github.com/oke-py/npm-audit-action/issues/405)) ([7b1ebed](https://github.com/oke-py/npm-audit-action/commit/7b1ebed4af95c982609e6de4ebeac2ebeb9a3625))
+* **deps:** bump actions/setup-node from 6.4.0 to 7.0.0 ([#398](https://github.com/oke-py/npm-audit-action/issues/398)) ([24c84ed](https://github.com/oke-py/npm-audit-action/commit/24c84ed9fc3defb3518e3ead5159f258f169f9dc))
+* **deps:** bump the actions-minor group across 1 directory with 3 updates ([#404](https://github.com/oke-py/npm-audit-action/issues/404)) ([e7823a0](https://github.com/oke-py/npm-audit-action/commit/e7823a0462a75da42f8c932e132e84eb11ebc181))
+
 ## [5.4.1](https://github.com/oke-py/npm-audit-action/compare/v5.4.0...v5.4.1) (2026-07-28)
 
 
