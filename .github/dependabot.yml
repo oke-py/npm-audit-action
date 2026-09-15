@@ -23,6 +23,12 @@ updates:
         update-types:
           - 'version-update:semver-major'
     groups:
+      vitest-major:
+        patterns:
+          - vitest
+          - '@vitest/coverage-v8'
+        update-types:
+          - major
       npm-development:
         dependency-type: development
         update-types:
