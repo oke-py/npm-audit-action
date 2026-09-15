@@ -44,13 +44,13 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.12",
     "@types/node": "^24.13.3",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.0",
     "rolldown": "^1.2.7",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
-    "vitest": "^4.0.18"
+    "vitest": "^5.0.0"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}": [
