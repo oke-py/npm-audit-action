@@ -22,8 +22,53 @@ permissions: {}
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # GitHub-generated release notes include only PRs with changes-dist.
+      # Reclassify the complete unreleased range before release-please runs,
+      # including PRs merged before this workflow was introduced.
+      - name: Classify dist changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          gh api --method POST "repos/${REPOSITORY}/labels" \
+            -f name=changes-dist \
+            -f color=0e8a16 \
+            -f description='Changes the bundled action' \
+            --silent 2>/dev/null || true
+
+          previous_tag=$(git describe --tags --abbrev=0)
+          mapfile -t pull_requests < <(
+            for commit in $(git rev-list "${previous_tag}..HEAD"); do
+              gh api "repos/${REPOSITORY}/commits/${commit}/pulls" \
+                --jq '.[].number'
+            done | sort -nu
+          )
+
+          for pull_request in "${pull_requests[@]}"; do
+            if gh api --paginate --slurp \
+              "repos/${REPOSITORY}/pulls/${pull_request}/files" \
+              | jq -e 'map(.[].filename | startswith("dist/")) | any' >/dev/null; then
+              gh api --method POST \
+                "repos/${REPOSITORY}/issues/${pull_request}/labels" \
+                -f 'labels[]=changes-dist' --silent
+            else
+              gh api --method DELETE \
+                "repos/${REPOSITORY}/issues/${pull_request}/labels/changes-dist" \
+                --silent || true
+            fi
+          done
+
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
