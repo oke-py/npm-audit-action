@@ -9,10 +9,6 @@ changelog:
     authors:
       - github-actions[bot]
   categories:
-    - title: Production code updates
+    - title: Changes
       labels:
-        - dependencies
-        - enhancement
-    - title: Other Changes
-      labels:
-        - '*'
+        - changes-dist
