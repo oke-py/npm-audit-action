@@ -7,8 +7,10 @@
 
 ## Project Layout
 
+- `src/index.ts`: Bundle entry point; invokes the action
+- `src/main.ts`: Main action orchestration and GitHub API integration
 - `action.yml`: Action metadata and inputs/outputs
-- `src/`: TypeScript source code
+- `src/`: Remaining TypeScript implementation
 - `dist/`: Bundled action output (committed)
 - `__tests__/`: Vitest tests (`__tests__/e2e/`: end-to-end tests of `dist/`)
 - `__fixtures__/`: test fixtures
@@ -55,6 +57,22 @@ npm run bundle
   `src/`, and are the only tests that cover the `@octokit/rest` code paths
   after bundling. They are excluded from `npm run test` and from coverage,
   and are skipped on Windows (the `npm` stub is a POSIX shell script)
+
+### Test-Driven Development
+
+For behavior changes and bug fixes, follow t-wada-style TDD:
+
+1. Add the next behavior to a test list.
+2. Write one focused test and confirm that it fails for the expected reason.
+3. Make the smallest production-code change that passes the test.
+4. Refactor while keeping all tests green.
+5. Repeat in small steps.
+
+For regressions, first add a test that reproduces the bug and confirm that it
+fails without the fix.
+
+This workflow does not apply to documentation-only changes, generated files,
+or changes that cannot be meaningfully tested before implementation.
 
 ## Packaging
 
