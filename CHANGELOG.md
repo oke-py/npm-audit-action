@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.4.2 (2026-09-23)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Changes
+* fix(deps): bump undici to 6.28.0 by @oke-py in https://github.com/oke-py/npm-audit-action/pull/402
+* build(deps-dev): bump the npm-development group with 4 updates by @dependabot[bot] in https://github.com/oke-py/npm-audit-action/pull/405
+* fix: honour GITHUB_API_URL when constructing the Octokit client by @oke-py in https://github.com/oke-py/npm-audit-action/pull/407
+* build(deps-dev): bump the npm-development group across 1 directory with 6 updates by @dependabot[bot] in https://github.com/oke-py/npm-audit-action/pull/410
+
+
+**Full Changelog**: https://github.com/oke-py/npm-audit-action/compare/v5.4.1...v5.4.2
+
 ## [5.4.1](https://github.com/oke-py/npm-audit-action/compare/v5.4.0...v5.4.1) (2026-07-28)
 
 
