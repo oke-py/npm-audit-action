@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.5.0 (2026-09-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Changes
+* feat: warn when auditing pnpm projects by @oke-py in https://github.com/oke-py/npm-audit-action/pull/424
+
+
+**Full Changelog**: https://github.com/oke-py/npm-audit-action/compare/v5.4.2...v5.5.0
+
 ## 5.4.2 (2026-09-23)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
