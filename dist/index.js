@@ -19930,6 +19930,7 @@ async function run() {
 			warning("Continuing with current directory");
 		}
 		info(`Current working directory: ${process.cwd()}`);
+		if (fs.existsSync("pnpm-lock.yaml") || fs.existsSync("pnpm-workspace.yaml")) warning("pnpm is not supported; npm audit may report inaccurate results because pnpm-specific configuration is ignored");
 		const ranWithJson = inputs.jsonFlag || inputs.reportFormat === "markdown";
 		const audit = new Audit();
 		audit.run(inputs.auditLevel, inputs.productionFlag, ranWithJson, inputs.registry);
