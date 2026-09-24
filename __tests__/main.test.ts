@@ -11,6 +11,7 @@ import * as pr from '../src/pr'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+const repositoryRoot = path.resolve(__dirname, '..')
 
 // Mocks should be declared before the module being tested is imported.
 vi.mock('@actions/core', () => core)
@@ -52,6 +53,8 @@ function mockAuditWithVulnerability(): void {
 
 describe('run: pr', () => {
   beforeEach(() => {
+    process.chdir(repositoryRoot)
+
     // initialize mock
     vi.mocked(Audit).mockClear()
     vi.mocked(pr).createComment.mockClear()
@@ -77,8 +80,43 @@ describe('run: pr', () => {
     process.env.INPUT_DEDUPE_COMMENTS = 'false'
     process.env.INPUT_FAIL_ON_VULNERABILITIES = 'true'
     delete process.env.INPUT_IGNORE_GHSAS
+    delete process.env.INPUT_WORKING_DIRECTORY
     delete process.env.GITHUB_API_URL
     vi.mocked(Octokit).mockClear()
+  })
+
+  test('warns when the working directory contains a pnpm project', async () => {
+    process.env.INPUT_WORKING_DIRECTORY = '__tests__/testdata/pnpm-workdir'
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: '',
+        run: vi.fn(),
+        foundVulnerability: (): boolean => false
+      }
+    })
+
+    await run()
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('pnpm is not supported')
+    )
+  })
+
+  test('warns when the working directory contains a pnpm workspace', async () => {
+    process.env.INPUT_WORKING_DIRECTORY = '__tests__/testdata/pnpm-workspace'
+    vi.mocked(Audit).mockImplementation(function (): unknown {
+      return {
+        stdout: '',
+        run: vi.fn(),
+        foundVulnerability: (): boolean => false
+      }
+    })
+
+    await run()
+
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringContaining('pnpm is not supported')
+    )
   })
 
   test('does not call pr.createComment if vulnerabilities are not found', async () => {

@@ -19,6 +19,12 @@ This action runs `npm audit` as a CI gate and reports the results. It is intenti
 - **Blocks vulnerabilities at pull request time**, before they are merged
 - **Detection and reporting only**
 
+This action supports npm projects only. It does not support pnpm: because it
+runs `npm audit`, pnpm-specific configuration such as the `overrides` in
+`pnpm-workspace.yaml` is ignored and the reported results may be inaccurate.
+When `pnpm-lock.yaml` or `pnpm-workspace.yaml` is detected in the working
+directory, the action logs a warning.
+
 It does not aim to replace dedicated tools, and works well alongside them:
 
 - For automated remediation (dependency update PRs), use [Dependabot security updates](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/about-dependabot-security-updates) or `npm audit fix`

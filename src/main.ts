@@ -126,6 +126,14 @@ export async function run(): Promise<void> {
       }
     }
     core.info(`Current working directory: ${process.cwd()}`)
+    if (
+      fs.existsSync('pnpm-lock.yaml') ||
+      fs.existsSync('pnpm-workspace.yaml')
+    ) {
+      core.warning(
+        'pnpm is not supported; npm audit may report inaccurate results because pnpm-specific configuration is ignored'
+      )
+    }
 
     // run `npm audit`
     // the markdown report is built from the `npm audit --json` output, so
