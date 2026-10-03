@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.5.2 (2026-10-03)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+
+
+**Full Changelog**: https://github.com/oke-py/npm-audit-action/compare/v5.5.1...v5.5.2
+
 ## 5.5.1 (2026-09-30)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
