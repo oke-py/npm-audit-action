@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.5.2 (2026-10-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Changes
+* build(deps-dev): bump the npm-development group with 6 updates by @dependabot[bot] in https://github.com/oke-py/npm-audit-action/pull/433
+* fix(deps): update undici to resolve denial-of-service vulnerabilities by @oke-py in https://github.com/oke-py/npm-audit-action/pull/439
+* build(deps-dev): bump the npm-development group with 4 updates by @dependabot[bot] in https://github.com/oke-py/npm-audit-action/pull/437
+
+
+**Full Changelog**: https://github.com/oke-py/npm-audit-action/compare/v5.5.1...v5.5.2
+
 ## 5.5.1 (2026-09-30)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
