@@ -7,6 +7,8 @@
 # It runs on pull requests: it rebuilds `dist/` and, when the result
 # differs, commits it back to the PR branch. This keeps every commit on
 # `main` releasable without a post-merge fixup commit.
+# It also migrates biome.json with the installed Biome version, committing
+# configuration changes separately when dependency updates require them.
 #
 # Notes:
 # - Commits pushed with GITHUB_TOKEN do not trigger new workflow runs.
@@ -50,6 +52,30 @@ jobs:
       - name: Install Dependencies
         id: install
         run: npm ci
+
+      # This is a no-op when the configuration is already current.
+      - name: Migrate Biome Configuration
+        id: migrate-biome
+        run: npx --no-install biome migrate --write
+
+      - name: Commit Biome migration (if changed)
+        id: commit-biome
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: stefanzweifel/git-auto-commit-action@d0b01107b5db882071f96de5dd4b54961ea93f4c # v7.2.1
+        with:
+          commit_message: >-
+            ${{ github.event.pull_request.user.login == 'dependabot[bot]'
+                && 'build: migrate Biome configuration [dependabot skip]'
+                || 'build: migrate Biome configuration' }}
+          file_pattern: biome.json
+
+      - name: Check Biome configuration is up to date
+        id: check-biome
+        run: |
+          if ! git diff --exit-code -- biome.json; then
+            echo 'Run npx --no-install biome migrate --write and commit biome.json.'
+            exit 1
+          fi
 
       - name: Build dist/ Directory
         id: build

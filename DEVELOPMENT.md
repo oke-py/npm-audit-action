@@ -148,10 +148,16 @@ Notes:
 ## CI Expectations
 
 - PRs must pass formatting, linting, tests, and packaging checks.
+- The `update dist/index.js` workflow also runs `biome migrate --write`
+  using the installed Biome version. When `biome.json` changes, it adds a
+  separate migration commit to the PR branch. An up-to-date configuration
+  produces no commit. For fork PRs, run
+  `npx --no-install biome migrate --write` and commit `biome.json` locally;
+  the workflow cannot push and fails if migration is needed.
 - The `update dist/index.js` workflow keeps `dist/` in sync on the PR
   branch. Commits it pushes do not trigger new workflow runs
   (a `GITHUB_TOKEN` limitation); re-run the PR checks manually if they
-  need to cover the dist commit.
+  need to cover the dist or Biome migration commit.
 - The `Licensed` workflow (licensee/licensed-ci) updates and verifies
   cached dependency license metadata on PRs and pushes to `main`.
 
