@@ -1,4 +1,4 @@
-name: 'git tag major version'
+name: "git tag major version"
 on:
   release:
     types:

@@ -1,78 +1,78 @@
-name: 'npm audit action'
-description: 'run npm audit'
-author: 'Naoki Oketani <okepy.naoki@gmail.com>'
+name: "npm audit action"
+description: "run npm audit"
+author: "Naoki Oketani <okepy.naoki@gmail.com>"
 inputs:
   audit_level:
-    description: 'The value of `--audit-level` flag'
+    description: "The value of `--audit-level` flag"
     default: low
     required: false
   create_issues:
-    description: 'Flag to create issues when vulnerabilities are found'
-    default: 'true'
+    description: "Flag to create issues when vulnerabilities are found"
+    default: "true"
     required: false
   create_pr_comments:
-    description: 'Flag to create pr comments when vulnerabilities are found'
-    default: 'true'
+    description: "Flag to create pr comments when vulnerabilities are found"
+    default: "true"
     required: false
   fail_on_vulnerabilities:
-    description: 'Fail the action when vulnerabilities are found'
-    default: 'true'
+    description: "Fail the action when vulnerabilities are found"
+    default: "true"
     required: false
   dedupe_comments:
-    description: 'Skip commenting on the existing issue when the report is unchanged from the last one posted by this action. Effective only with dedupe_issues'
-    default: 'false'
+    description: "Skip commenting on the existing issue when the report is unchanged from the last one posted by this action. Effective only with dedupe_issues"
+    default: "false"
     required: false
   dedupe_issues:
-    description: 'Flag to de-dupe against open issues'
-    default: 'false'
+    description: "Flag to de-dupe against open issues"
+    default: "false"
     required: false
   github_token:
-    description: 'GitHub Access Token.'
+    description: "GitHub Access Token."
     required: true
   ignore_ghsas:
-    description: 'GHSA advisory IDs to exclude from the pass/fail decision (comma, space, or newline separated). If every advisory found is ignored, the action reports no vulnerabilities and creates no issue or comment'
+    description: "GHSA advisory IDs to exclude from the pass/fail decision (comma, space, or newline separated). If every advisory found is ignored, the action reports no vulnerabilities and creates no issue or comment"
     required: false
   issue_assignees:
-    description: 'Issue assignees (separated by commma)'
+    description: "Issue assignees (separated by commma)"
     required: false
   issue_labels:
-    description: 'Issue labels (separated by commma)'
+    description: "Issue labels (separated by commma)"
     required: false
   issue_title:
-    description: 'Issue title'
-    default: 'npm audit found vulnerabilities'
+    description: "Issue title"
+    default: "npm audit found vulnerabilities"
     required: false
   issue_type:
-    description: 'Issue type (e.g. Bug, Task). Requires issue types to be enabled on the organization'
+    description: "Issue type (e.g. Bug, Task). Requires issue types to be enabled on the organization"
     required: false
   json_flag:
-    description: 'Run `npm audit` with `--json`'
-    default: 'false'
+    description: "Run `npm audit` with `--json`"
+    default: "false"
     required: false
   production_flag:
-    description: 'Run `npm audit` with `--omit=dev`'
-    default: 'false'
+    description: "Run `npm audit` with `--omit=dev`"
+    default: "false"
     required: false
   report_format:
-    description: 'Format of the report posted to issues and PR comments: text (npm audit output in a code block) or markdown (summary and table built from the JSON report; forces `--json`)'
-    default: 'text'
+    description: "Format of the report posted to issues and PR comments: text (npm audit output in a code block) or markdown (summary and table built from the JSON report; forces `--json`)"
+    default: "text"
     required: false
   resolve_pr_comments:
-    description: 'Edit previous report comments on the pull request to mark them resolved when vulnerabilities are no longer found. Effective only with create_pr_comments'
-    default: 'false'
+    description: "Edit previous report comments on the pull request to mark them resolved when vulnerabilities are no longer found. Effective only with create_pr_comments"
+    default: "false"
     required: false
   registry:
-    description: 'The registry URL passed to `npm audit` via the `--registry` flag (e.g. https://registry.npmjs.org)'
+    description: "The registry URL passed to `npm audit` via the `--registry` flag (e.g. https://registry.npmjs.org)"
     required: false
   working_directory:
-    description: 'The directory which contains package.json'
+    description: "The directory which contains package.json"
     required: false
 outputs:
   npm_audit:
-    description: 'The output of the npm audit report in a text format'
+    description: "The output of the npm audit report in a text format"
 runs:
-  using: 'node24'
-  main: 'dist/index.js'
+  using: "node24"
+  main: "dist/index.js"
 branding:
-  icon: 'search'
-  color: 'orange'
+  icon: "search"
+  color: "orange"

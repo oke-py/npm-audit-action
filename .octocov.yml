@@ -15,7 +15,7 @@ codeToTestRatio:
     - __tests__/**/*.ts
     - __fixtures__/**/*.ts
     # the workdir fixture contains a committed node_modules
-    - '!__tests__/testdata/**'
+    - "!__tests__/testdata/**"
   badge:
     path: docs/ratio.svg
 testExecutionTime:
@@ -35,4 +35,4 @@ diff:
     - artifact://${GITHUB_REPOSITORY}
 push:
   if: is_default_branch
-  message: 'chore: update coverage badge by octocov [skip ci]'
+  message: "chore: update coverage badge by octocov [skip ci]"

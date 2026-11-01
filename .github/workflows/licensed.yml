@@ -11,7 +11,7 @@ on:
     branches:
       - main
     tags-ignore:
-      - '**'
+      - "**"
   pull_request:
     types:
       - opened
@@ -70,4 +70,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Signal to Dependabot that its PRs are still safe to operate on
           # after licensed-ci pushes a license update commit.
-          dependabot_skip: 'true'
+          dependabot_skip: "true"

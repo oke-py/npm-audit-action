@@ -19,14 +19,14 @@ updates:
     cooldown:
       default-days: 7
     ignore:
-      - dependency-name: '@types/node'
+      - dependency-name: "@types/node"
         update-types:
-          - 'version-update:semver-major'
+          - "version-update:semver-major"
     groups:
       vitest-major:
         patterns:
           - vitest
-          - '@vitest/coverage-v8'
+          - "@vitest/coverage-v8"
         update-types:
           - major
       npm-development:

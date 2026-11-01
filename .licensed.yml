@@ -15,4 +15,4 @@ allowed:
 ignored:
   npm:
     # Used by Rolldown when building in GitHub Actions
-    - '@rolldown/binding-linux-x64-gnu'
+    - "@rolldown/binding-linux-x64-gnu"
