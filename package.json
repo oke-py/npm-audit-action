@@ -42,12 +42,12 @@
     "@octokit/rest": "^22.0.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.3",
+    "@biomejs/biome": "^2.6.4",
     "@types/node": "^24.19.2",
     "@vitest/coverage-v8": "^5.0.5",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
-    "rolldown": "^1.2.15",
+    "rolldown": "^1.2.16",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
     "vitest": "^5.0.0"
