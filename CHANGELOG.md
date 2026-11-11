@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.5.3 (2026-11-11)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Changes
+* build(deps-dev): bump the npm-development group with 3 updates by @dependabot[bot] in https://github.com/oke-py/npm-audit-action/pull/441
+
+
+**Full Changelog**: https://github.com/oke-py/npm-audit-action/compare/v5.5.2...v5.5.3
+
 ## 5.5.2 (2026-10-24)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
